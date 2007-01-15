@@ -1,0 +1,10 @@
+Package: patchDvi
+Type: Package
+Title: Package to patch .dvi files
+Version: 0.0
+Date: 2007-01-15
+Author: Duncan Murdoch
+Maintainer: Duncan Murdoch <murdoch@stats.uwo.ca>
+Description: Functions to patch specials in .dvi files; 
+includes source patches for Sweave
+License: GPL 2
