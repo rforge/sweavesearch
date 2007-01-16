@@ -10,7 +10,7 @@ readDVI <- function(f) {
                     0, 44, 0,0,0, 1:4, 0, 1:4, 0,  # 138 to 152
                     1:4, 1:4, 0, 1:4, 0, 1:4, 	   # 153 to 170
                     rep(0, 64), 1:4, 1:4, 15:18,   # 171 to 246
-                    14, 28, 5, 9, rep(NA, 6))      # 247 to 255
+                    14, 28, 5, 9, rep(NA, 5))      # 247 to 255
                     
     pos <- 0
     opcode <- 0
@@ -43,7 +43,12 @@ readDVI <- function(f) {
 }
 
 dviSpecials <- function(f) {
+    size <- file.info(f)$size
+    con <- file(f, "rb")
     bytes <- readBin(con, "raw", size)
+    close(con)
+    .Call("dviSpecials", bytes, PACKAGE="patchDvi")
+}
 
 patchDVI <- function(f) {
     concords <- list()
