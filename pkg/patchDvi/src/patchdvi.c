@@ -66,3 +66,40 @@ SEXP dviSpecials(SEXP dvi)
     UNPROTECT(1);
     return result;
 }
+
+#define DVI_NOP 138
+
+SEXP setDviSpecials(SEXP dvi, SEXP specials)
+{
+    unsigned char *bytes = RAW(dvi), *stop = RAW(dvi) + length(dvi);
+    int used = 0;
+    int k, parmsize, len;
+    SEXP c;
+    
+    while (bytes < stop) {
+    	parmsize = parmSizes[(int)*bytes];
+    	k = 0;
+    	if ((int)(*bytes) < 239) {
+    	    /* do nothing */
+    	} else if ((int)(*bytes) < 243) {
+    	    if (used >= length(specials)) {
+    	    	warning("More specials than values; only partial substitution");
+    	    	break;
+    	    }
+	    for (int i = 0; i < parmsize; i++) 
+		k = (k << 8) + *(bytes + i + 1);
+	    if ((c = STRING_ELT(specials, used)) != NA_STRING) {
+	    	if ((len = length(STRING_ELT(specials, used))) > k) 
+	    	    error("Special %d too long", used);
+	    	memcpy(bytes + 1 + parmsize, CHAR(c), len);
+	    	for (int i = len; i < k; i++)
+	    	    *(bytes + 1 + parmsize + i) = DVI_NOP;
+	    }
+    	} else if ((int)(*bytes) < 248) 
+    	    k = *(bytes + parmsize);
+    	else if ((int)(*bytes) == 249) break;
+    	
+    	bytes += 1 + parmsize + k;
+    }
+    return dvi;
+}

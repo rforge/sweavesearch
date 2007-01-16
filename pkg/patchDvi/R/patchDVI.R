@@ -50,6 +50,16 @@ dviSpecials <- function(f) {
     .Call("dviSpecials", bytes, PACKAGE="patchDvi")
 }
 
+"dviSpecials<-" <- function(f, newspecials) {
+    size <- file.info(f)$size
+    con <- file(f, "rw")
+    on.exit(close(con))
+    bytes <- readBin(con, "raw", size)
+    .Call("setDviSpecials", bytes, newspecials) 
+    seek(con, 0)
+    writeBin(bytes, con, size)
+}
+
 patchDVI <- function(f) {
     concords <- list()
 
