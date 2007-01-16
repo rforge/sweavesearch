@@ -50,34 +50,27 @@ dviSpecials <- function(f) {
     .Call("dviSpecials", bytes, PACKAGE="patchDvi")
 }
 
-"dviSpecials<-" <- function(f, newspecials) {
+setDviSpecials <- function(f, newspecials) {
     size <- file.info(f)$size
-    con <- file(f, "rw")
+    con <- file(f, "r+b")
     on.exit(close(con))
     bytes <- readBin(con, "raw", size)
-    .Call("setDviSpecials", bytes, newspecials) 
+    .Call("setDviSpecials", bytes, as.character(newspecials))
     seek(con, 0)
-    writeBin(bytes, con, size)
+    writeBin(bytes, con)
 }
 
 patchDVI <- function(f) {
-    concords <- list()
+    specials <- dviSpecials(f)
+    
+    concords <- grep("^concordance:", specials, value=TRUE)
+    concords <- strsplit(concords, ":")
+    names(concords) <- sapply(concords, function(x) x[2])
+    concordance <- lapply(concords, function(x) cumsum(as.integer(strsplit(x[4], " ")[[1]])))
+    keep <- lapply(concordance, function(x) !duplicated(x))
 
-    size <- file.info(f)$size
-    con <- file(f, "rb")
-    bytes <- readBin(con, "raw", size)
-    close(con)
-        
-    parmsizes <- c( rep(0, 128), 1:4, 8, 1:4, 8,   # 0 to 137
-                    0, 44, 0,0,0, 1:4, 0, 1:4, 0,  # 138 to 152
-                    1:4, 1:4, 0, 1:4, 0, 1:4, 	   # 153 to 170
-                    rep(0, 64), 1:4, 1:4, 15:18,   # 171 to 246
-                    14, 28, 5, 9, rep(NA, 6))      # 247 to 255
-                    
-    pos <- 0
-    opcode <- 0
-    hits <- 0
-    misses <- 0
+
+BLAH BLAH BLAH
     while (pos < size && opcode != 249) {
         pos <- pos+1
     	opcode <- as.integer(bytes[pos])
