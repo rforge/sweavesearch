@@ -1,4 +1,6 @@
-
+.First.lib <- function(pkg, lib) {
+    library.dynam("patchdvi")
+}
 
 readDVI <- function(f) {
     size <- file.info(f)$size
@@ -47,81 +49,68 @@ dviSpecials <- function(f) {
     con <- file(f, "rb")
     bytes <- readBin(con, "raw", size)
     close(con)
-    .Call("dviSpecials", bytes, PACKAGE="patchDvi")
+    .Call("dviSpecials", bytes, PACKAGE="patchdvi")
 }
 
-setDviSpecials <- function(f, newspecials) {
+setDviSpecials <- function(f, newspecials, newname=f) {
     size <- file.info(f)$size
     con <- file(f, "r+b")
     on.exit(close(con))
     bytes <- readBin(con, "raw", size)
-    .Call("setDviSpecials", bytes, as.character(newspecials))
-    seek(con, 0)
+    .Call("setDviSpecials", bytes, as.character(newspecials), PACKAGE="patchdvi")
+    if (newname == f)
+    	seek(con, 0)
+    else {
+    	close(con)
+    	con <- file(newname, "wb")
+    }
     writeBin(bytes, con)
 }
 
-patchDVI <- function(f) {
+patchDVI <- function(f, newname=f) {
     specials <- dviSpecials(f)
     
     concords <- grep("^concordance:", specials, value=TRUE)
-    concords <- strsplit(concords, ":")
-    names(concords) <- sapply(concords, function(x) x[2])
-    concordance <- lapply(concords, function(x) cumsum(as.integer(strsplit(x[4], " ")[[1]])))
-    keep <- lapply(concordance, function(x) !duplicated(x))
-
-
-BLAH BLAH BLAH
-    while (pos < size && opcode != 249) {
-        pos <- pos+1
-    	opcode <- as.integer(bytes[pos])
-    	parmsize <- parmsizes[opcode + 1]
-    	
-    	if (opcode < 239) { # do nothing 
-    	} else if (opcode %in% 239:242) {   # xxxi
-    	    k <- readBin(bytes[pos + (1:parmsize)], "integer", size=parmsize, endian="big")
-    	    special <- readChar(bytes[(pos + parmsize + 1):(pos + parmsize + k)], k)
-
-	    if (length(grep("^concordance:", special))) {
-	    	special <- strsplit(special, ":")[[1]]
-	    	concordance <- cumsum(as.integer(strsplit(special[4], " ")[[1]]))
-	    	keep <- !duplicated(concordance)
-	    	concord <- approxfun(concordance[keep], seq(along=concordance)[keep], "constant", rule=2)
-	    	concords[[special[2]]] <- list(newname=special[3], concord=concord)
-	    }
-    	    if (length(grep("^src:", special))) {
-    	    	filestart <- regexpr("[^0-9]*$", substr(special, 5, 10000))
-    	    	concord <- which(names(concords) == substr(special, 4 + filestart, 10000))
-    	    	if (filestart > 1 && length(concord)) {
-    	    	    newstart <- substr(special, 5, 3 + filestart)
-    	    	    newspecial <- paste("src:", 
-    	    	                 concords[[concord]]$concord(as.integer(newstart)),
-    	    	                 concords[[concord]]$newname, sep="")
-    	    	    if ((knew <- nchar(newspecial)) > k) {
-    	    	    	# bad news:  the patch won't fit!!
-    	    	    	warning(paste(special, "can't be changed to", newspecial))
-    	    	    	bytes[pos:(pos+parmsize+k)] <- as.raw(138) # nop
-    	    	    	misses <- misses + 1
-    	    	    } else {
-    	    	    	bytes[pos + 1:parmsize] <- writeBin(knew, bytes, "integer", size=parmsize)
-    	    	    	bytes[pos + parmsize + 1:knew] <- writeChar(newspecial, bytes,, NULL)
-    	    	    	if (knew < k)
-    	    	    	    bytes[pos + parmsize + knew + 1:(k-knew)] <- as.raw(138)
-    	    	    	hits <- hits + 1
-    	    	    }
-    	    	} 
-    	    }	    	
-      	    parmsize <- parmsize + k  	    	     	
-    	} else if (opcode %in% 243:246) { # fnt def i
-    	    a <- as.integer(bytes[pos + parmsize ])
-    	    parmsize <- parmsize + a 
-    	} else if (opcode == 247) {       # pre
-    	    k <- as.integer(bytes[pos + parmsize])
-    	    parmsize <- parmsize + k
-    	}
-	pos <- pos + parmsize
+    
+    parseConcord <- function(split) {
+    	oldname <- split[2]
+    	newname <- split[3]
+    	concordance <- cumsum(as.integer(strsplit(split[4], " ")[[1]]))
+    	keep <- !duplicated(concordance)
+    	concord <- approxfun(concordance[keep], seq(along=concordance)[keep], "constant", rule=2)
+    	list(oldname=oldname, newname=newname, concord=concord)
     }
-    writeBin(bytes, paste("new",f,sep="")) 	
-    c(hits=hits, misses=misses)
+    concords <- strsplit(concords, ":")
+    concords <- lapply(concords, parseConcord)
+    names(concords) <- sapply(concords, function(x) x$oldname)
+
+
+    srcrefind <- grep("^src:", specials)
+    srcrefs <- specials[srcrefind]
+    
+    linenums <- sub("^src:([0-9]+).*$", "\\1", srcrefs)
+    filenames <- substr(srcrefs, 5+nchar(linenums), 10000)
+    changed <- rep(FALSE, length(filenames))
+    for (n in names(concords)) {
+    	subset <- filenames == n
+    	linenums[subset] <- concords[[n]]$concord(as.integer(linenums[subset]))
+    	filenames[subset] <- concords[[n]]$newname
+    	changed[subset] <- TRUE
+    }
+    
+    newrefs <- ifelse(changed, paste("src:", linenums, filenames, sep=""), NA)
+    if (any(toolong <- nchar(newrefs) > nchar(srcrefs))) {
+    	warning(paste(srcrefs[toolong], "can't be changed to", newrefs[toolong]))
+    	newrefs[toolong] <- ""    
+    }
+    
+    specials <- rep(NA, length(specials))
+    specials[srcrefind] <- newrefs
+    
+    if (any(!is.na(specials)))
+    	setDviSpecials(f, specials, newname)
+    	
+    cat(sum(!is.na(specials)), "patches made.\n")
 }
 
 Sweave <- function(file, driver=RweaveLatex(),
