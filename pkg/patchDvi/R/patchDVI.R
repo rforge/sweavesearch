@@ -1,7 +1,3 @@
-.First.lib <- function(pkg, lib) {
-    library.dynam("patchdvi")
-}
-
 readDVI <- function(f) {
     size <- file.info(f)$size
     con <- file(f, "rb")
@@ -44,20 +40,20 @@ readDVI <- function(f) {
     	
 }
 
-dviSpecials <- function(f) {
+DVIspecials <- function(f) {
     size <- file.info(f)$size
     con <- file(f, "rb")
     bytes <- readBin(con, "raw", size)
     close(con)
-    .Call("dviSpecials", bytes, PACKAGE="patchdvi")
+    .Call(dviSpecials, bytes)
 }
 
-setDviSpecials <- function(f, newspecials, newname=f) {
+setDVIspecials <- function(f, newspecials, newname=f) {
     size <- file.info(f)$size
     con <- file(f, "r+b")
     on.exit(close(con))
     bytes <- readBin(con, "raw", size)
-    .Call("setDviSpecials", bytes, as.character(newspecials), PACKAGE="patchdvi")
+    .Call(setDviSpecials, bytes, as.character(newspecials))
     if (newname == f)
     	seek(con, 0)
     else {
@@ -68,7 +64,7 @@ setDviSpecials <- function(f, newspecials, newname=f) {
 }
 
 patchDVI <- function(f, newname=f) {
-    specials <- dviSpecials(f)
+    specials <- DVIspecials(f)
     
     concords <- grep("^concordance:", specials, value=TRUE)
     
@@ -108,9 +104,9 @@ patchDVI <- function(f, newname=f) {
     specials[srcrefind] <- newrefs
     
     if (any(!is.na(specials)))
-    	setDviSpecials(f, specials, newname)
+    	setDVIspecials(f, specials, newname)
     	
-    cat(sum(!is.na(specials)), "patches made.\n")
+    paste(sum(!is.na(specials)), "patches made.")
 }
 
 Sweave <- function(file, driver=RweaveLatex(),
@@ -138,8 +134,7 @@ Sweave <- function(file, driver=RweaveLatex(),
     chunk <- NULL
 
     namedchunks <- list()
-    for(linenum in seq(along=text)){
-        line <- text[linenum]
+    for(line in text){
         if(any(grep(syntax$doc, line))){
             if(mode=="doc"){
                 if(!is.null(chunk))
@@ -152,8 +147,8 @@ Sweave <- function(file, driver=RweaveLatex(),
                 if(!is.null(chunk))
                     drobj <- driver$runcode(drobj, chunk, chunkopts)
                 mode <- "doc"
-            }            
-            drobj$linesout <- c(drobj$linesout, 0)
+            }
+            if (!is.null(driver$skipline)) drobj <- driver$skipline(drobj)
             chunk <- NULL
         }
         else if(any(grep(syntax$code, line))){
@@ -169,7 +164,7 @@ Sweave <- function(file, driver=RweaveLatex(),
                     drobj <- driver$runcode(drobj, chunk, chunkopts)
                 mode <- "code"
             }
-            drobj$linesout <- c(drobj$linesout, 0)
+            if (!is.null(driver$skipline)) drobj <- driver$skipline(drobj)
             chunkopts <- sub(syntax$code, "\\1", line)
             chunkopts <- SweaveParseOptions(chunkopts,
                                             drobj$options,
@@ -211,7 +206,8 @@ RweaveLatex <- function()
          runcode = RweaveLatexRuncode,
          writedoc = RweaveLatexWritedoc,
          finish = RweaveLatexFinish,
-         checkopts = RweaveLatexOptions)
+         checkopts = RweaveLatexOptions,
+         skiplines = RweaveSkipLines)
 }
 
 RweaveLatexSetup <-
@@ -555,6 +551,12 @@ RweaveLatexFinish <- function(object, error=FALSE)
     	cat(special, file=object$concordfile)
     }
     invisible(cumsum(object$linesout))
+}
+
+RweaveSkipLine <- function(object)
+{
+    object$linesout <- c(object$linesout, 0)
+    return(object)
 }
 
 SweaveGetSyntax <- utils:::SweaveGetSyntax

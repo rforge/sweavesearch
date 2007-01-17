@@ -1,133 +1,93 @@
 \name{Sweave}
 \alias{Sweave}
-%- Also NEED an '\alias' for EACH other topic documented here.
-\title{ ~~function to do ... ~~ }
+\encoding{latin1}
+\title{Automatic Generation of Reports}
 \description{
-  ~~ A concise (1-5 lines) description of what the function does. ~~
+  This is a patched version of Sweave from the utils package. The plan
+  is to merge this into R eventually.  See the details below for
+  the changes.
+  
+  \code{Sweave} provides a flexible framework for mixing text and S code
+  for automatic report generation.  The basic idea is to replace the S
+  code with its output, such that the final document only contains the
+  text and the output of the statistical anlysis. 
 }
 \usage{
-Sweave(file, driver = RweaveLatex(), syntax = getOption("SweaveSyntax"), ...)
+Sweave(file, driver = RweaveLatex(),
+       syntax = getOption("SweaveSyntax"), ...)
 }
-%- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{file}{ ~~Describe \code{file} here~~ }
-  \item{driver}{ ~~Describe \code{driver} here~~ }
-  \item{syntax}{ ~~Describe \code{syntax} here~~ }
-  \item{\dots}{ ~~Describe \code{\dots} here~~ }
+  \item{file}{Name of Sweave source file.}
+  \item{driver}{The actual workhorse, see details below.}
+  \item{syntax}{An object of class \code{SweaveSyntax} or a character
+    string with its name. The default installation provides
+    \code{SweaveSyntaxNoweb} and \code{SweaveSyntaxLatex}.}
+  \item{\dots}{Further arguments passed to the driver's setup function.}
 }
 \details{
-  ~~ If necessary, more details than the description above ~~
+  The patch adds a new option "concordance".  If TRUE, then the patched
+  RweaveLatex driver in this package will output a new file called
+  <prefix>concordance.tex (where <prefix> is the usual prefix 
+  used by Sweave for this file).  This file will contain a TeX
+  special to save the relation between the .Rnw line numbers and the .tex
+  line numbers in the .dvi file.  See \code{\link{patchDVI}} for 
+  patching the .dvi file to make use of this information.
+  
+  And now the original Sweave documentation:
+
+  Automatic generation of reports by mixing word processing markup (like
+  latex) and S code.  The S code gets replaced by its output (text or
+  graphs) in the final markup file. This allows to re-generate a report
+  if the input data change and documents the code to reproduce the
+  analysis in the same file that also produces the report.
+
+  \code{Sweave} combines the documentation and code chunks together
+  (or their output) into a single document.  \code{Stangle} extracts only
+  the code from the Sweave file creating a valid S source file (that can
+  be run using \code{\link{source}}).  Code inside \code{\\Sexpr\{\}}
+  statements is ignored by \code{Stangle}.
+
+  \code{Stangle} is just a frontend to \code{Sweave} using a simple
+  driver by default, which discards the documentation and concatenates
+  all code chunks the current S engine understands.
+}   
+\section{Hook Functions}{
+  Before each code chunk is evaluated, a number of hook functions can be
+  executed.  If \code{getOption("SweaveHooks")} is set, it is taken to be
+  a collection of hook functions. For each logical option of a code chunk
+  (\code{echo}, \code{print}, \ldots) a hook can be specified, which is
+  executed if and only if the respective option is \code{TRUE}. Hooks must
+  be named elements of the list returned by
+  \code{getOption("SweaveHooks")} and be functions taking no
+  arguments. E.g., if option \code{"SweaveHooks"} is defined as
+  \code{list(fig = foo)}, and \code{foo} is a function, then it would be
+  executed before the code in each figure chunk. This is especially useful
+  to set defaults for the graphical parameters in a series of figure
+  chunks.
+
+  Note that the user is free to define new Sweave options and associate
+  arbitrary hooks with them.  E.g., one could define a hook function for
+  option \code{clean} that removes all objects in the global
+  environment.  Then all code chunks with \code{clean = TRUE} would start
+  operating on an empty workspace.
 }
-\value{
-  ~Describe the value returned
-  If it is a LIST, use
-  \item{comp1 }{Description of 'comp1'}
-  \item{comp2 }{Description of 'comp2'}
-  ...
+\section{Syntax Definition}{
+  Sweave allows a very flexible syntax framework for marking
+  documentation and text chunks. The default is a noweb-style syntax, as
+  alternative a latex-style syntax can be used. See the user manual for
+  details.
 }
-\references{ ~put references to the literature/web site here ~ }
-\author{ ~~who you are~~ }
-\note{ ~~further notes~~ 
+\author{Friedrich Leisch}
+\references{
+  Friedrich Leisch: Sweave User Manual, 2002\cr
+  \url{http://www.ci.tuwien.ac.at/~leisch/Sweave}
 
- ~Make other sections like Warning with \section{Warning }{....} ~
+  Friedrich Leisch: Dynamic generation of statistical reports using
+  literate data analysis. In W. \enc{Härdle}{Haerdle} and
+  B. \enc{Rönz}{Roenz}, editors, Compstat 2002 - Proceedings in Computational
+  Statistics, pages 575--580. Physika Verlag, Heidelberg, Germany,
+  2002. ISBN 3-7908-1517-9.
 }
-\seealso{ ~~objects to See Also as \code{\link{help}}, ~~~ }
-\examples{
-##---- Should be DIRECTLY executable !! ----
-##-- ==>  Define data, use random,
-##--	or do  help(data=index)  for the standard data sets.
+\seealso{\code{\link{RweaveLatex}}, \code{\link{Rtangle}}}
 
-## The function is currently defined as
-function(file, driver=RweaveLatex(),
-                   syntax=getOption("SweaveSyntax"), ...)
-{
-    if(is.character(driver))
-        driver <- get(driver, mode="function")()
-    else if(is.function(driver))
-        driver <- driver()
-
-
-    if(is.null(syntax))
-        syntax <- SweaveGetSyntax(file)
-    if(is.character(syntax))
-        syntax <- get(syntax, mode="list")
-
-    drobj <- driver$setup(file=file, syntax=syntax, ...)
-    on.exit(driver$finish(drobj, error=TRUE))
-
-    text <- SweaveReadFile(file, syntax)
-    syntax <- attr(text, "syntax")
-
-    mode <- "doc"
-    chunknr <- 0
-    chunk <- NULL
-
-    namedchunks <- list()
-    for(linenum in seq(along=text)){
-        line <- text[linenum]
-        if(any(grep(syntax$doc, line))){
-            if(mode=="doc"){
-                if(!is.null(chunk))
-                    drobj <- driver$writedoc(drobj, chunk)
-                mode <- "doc"
-            }
-            else{
-                if(!is.null(chunkopts$label))
-                    namedchunks[[chunkopts$label]] <- chunk
-                if(!is.null(chunk))
-                    drobj <- driver$runcode(drobj, chunk, chunkopts)
-                mode <- "doc"
-            }            
-            drobj$linesout <- c(drobj$linesout, 0)
-            chunk <- NULL
-        }
-        else if(any(grep(syntax$code, line))){
-            if(mode=="doc"){
-                if(!is.null(chunk))
-                    drobj <- driver$writedoc(drobj, chunk)
-                mode <- "code"
-            }
-            else{
-                if(!is.null(chunkopts$label))
-                    namedchunks[[chunkopts$label]] <- chunk
-                if(!is.null(chunk))
-                    drobj <- driver$runcode(drobj, chunk, chunkopts)
-                mode <- "code"
-            }
-            drobj$linesout <- c(drobj$linesout, 0)
-            chunkopts <- sub(syntax$code, "\\1", line)
-            chunkopts <- SweaveParseOptions(chunkopts,
-                                            drobj$options,
-                                            driver$checkopts)
-            chunk <- NULL
-            chunknr <- chunknr+1
-            chunkopts$chunknr <- chunknr
-        }
-        else{
-            if(mode=="code" && any(grep(syntax$coderef, line))){
-                chunkref <- sub(syntax$coderef, "\\1", line)
-                if(!(chunkref \%in\% names(namedchunks)))
-                    warning(gettextf("reference to unknown chunk '\%s'",
-                                     chunkref), domain = NA)
-                line <- namedchunks[[chunkref]]
-            }
-
-            if(is.null(chunk))
-                chunk <- line
-            else
-                chunk <- c(chunk, line)
-        }
-    }
-    if(!is.null(chunk)){
-        if(mode=="doc") drobj <- driver$writedoc(drobj, chunk)
-        else drobj <- driver$runcode(drobj, chunk, chunkopts)
-    }
-
-    on.exit()
-    driver$finish(drobj)
-  }
-}
-% Add one or more standard keywords, see file 'KEYWORDS' in the
-% R documentation directory.
-\keyword{ ~kwd1 }
-\keyword{ ~kwd2 }% __ONLY ONE__ keyword per line
+\keyword{utilities}
