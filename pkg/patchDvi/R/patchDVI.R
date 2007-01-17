@@ -207,7 +207,7 @@ RweaveLatex <- function()
          writedoc = RweaveLatexWritedoc,
          finish = RweaveLatexFinish,
          checkopts = RweaveLatexOptions,
-         skiplines = RweaveSkipLines)
+         skipline = RweaveSkipLine)
 }
 
 RweaveLatexSetup <-
