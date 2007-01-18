@@ -525,8 +525,10 @@ RweaveLatexWritedoc <- function(object, chunk)
         if (!is.null(object$options$concordance) 
               && object$options$concordance 
               && !object$haveconcordance) {
+            savelabel <- object$options$label
             object$options$label <- "concordance"
             prefix <- RweaveChunkPrefix(object$options)
+            object$options$label <- savelabel
             object$concordfile <- paste(prefix, "tex", sep=".")
             chunk[pos[1]] <- sub(object$syntax$docopt, 
                                  paste("\\\\input{", prefix, "}", sep=""),
