@@ -3,7 +3,8 @@ SweaveMiktex <- function( Rnw, main=outputname) {
     	outputname <- Rnw
     else
     	outputname <- Sweave(Rnw)
-    system(paste("latex --src", main))
+    result <- system(paste("latex --src", main), intern=FALSE, show=TRUE)
+    if (result != 0) Sys.sleep(10)
     patchDVI(sub("\\.tex", ".dvi", main))
 }
 
