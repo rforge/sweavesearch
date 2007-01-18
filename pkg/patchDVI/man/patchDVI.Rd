@@ -47,6 +47,8 @@ A string containing a message about what was done.
 }
 \references{ The yap previewer is part of MikTeX, from www.miktex.org. }
 \author{ Duncan Murdoch }
+\seealso{\code{\link{DVIspecials}} for the function to read .dvi files,
+\code{\link{SweaveMiktex}} for a simple script to run Sweave, MikTeX and patchDVI.}
 \examples{
 \dontrun{
 patchDVI("mypaper.dvi")

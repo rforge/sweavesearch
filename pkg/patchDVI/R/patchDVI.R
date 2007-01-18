@@ -1,3 +1,12 @@
+SweaveMiktex <- function( Rnw, main=outputname) {
+    if (sub(".*\\.tex$", "TeX", Rnw) == "TeX") 
+    	outputname <- Rnw
+    else
+    	outputname <- Sweave(Rnw)
+    system(paste("latex --src", main))
+    patchDVI(sub("\\.tex", ".dvi", main))
+}
+
 readDVI <- function(f) {
     size <- file.info(f)$size
     con <- file(f, "rb")
@@ -550,7 +559,7 @@ RweaveLatexFinish <- function(object, error=FALSE)
     			 concordance,"}\n", sep="")
     	cat(special, file=object$concordfile)
     }
-    invisible(cumsum(object$linesout))
+    invisible(outputname)
 }
 
 RweaveSkipLine <- function(object)
