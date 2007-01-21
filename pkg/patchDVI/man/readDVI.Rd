@@ -7,12 +7,13 @@ for \code{\link{DVIspecials}}).  Modify it to see other parts
 of a .dvi.
 }
 \usage{
-readDVI(f)
+readDVI(f, show=c("bop", "special", "fntdef", "preamble"))
 }
 \arguments{
   \item{f}{ filename }
+  \item{show}{ which type of records to print }
 }
 \value{
-readDVI prints as it reads, it doesn't return anything useful.
+readDVI prints as it reads, it doesn't return anything useful.  
 }
 \keyword{ utilities }

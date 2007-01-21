@@ -8,7 +8,7 @@ SweaveMiktex <- function( Rnw, main=outputname) {
     patchDVI(sub("\\.tex", ".dvi", main))
 }
 
-readDVI <- function(f) {
+readDVI <- function(f, show=c("bop", "special", "fntdef", "preamble")) {
     size <- file.info(f)$size
     con <- file(f, "rb")
     bytes <- readBin(con, "raw", size)
@@ -27,27 +27,36 @@ readDVI <- function(f) {
     	opcode <- as.integer(bytes[pos])
     	parmsize <- parmsizes[opcode + 1]
     	
-    	if (opcode < 239L) { # do nothing 
+    	if (opcode < 139L) { # do nothing
+    	} else if (opcode == 139L && "bop" %in% show) {  # bop
+    	    counters <- readBin(bytes[pos + 1:(parmsize-4)], "integer", n= 10, size=4, endian="big")
+    	    prev <- readBin(bytes[pos + 40 + 1:4], "integer", size=4, endian="big")
+    	    cat("bop at pos=", pos, ": counters=", paste(counters, collapse=" "), " prev=", prev, "\n")
+    	} else if (opcode < 239L) { # do nothing 
     	} else if (opcode < 243L) {   # xxxi
     	    k <- readBin(bytes[pos + (1:parmsize)], "integer", size=parmsize, endian="big")
-    	    special <- readChar(bytes[(pos + parmsize + 1):(pos + parmsize + k)], k)
-    	    cat("special at pos=", pos," is ", special, "\n")
-    	    
+    	    if ("special" %in% show) {
+    	    	special <- readChar(bytes[(pos + parmsize + 1):(pos + parmsize + k)], k)
+    	    	cat("special at pos=", pos," is ", special, "\n")
+    	    }
     	    parmsize <- parmsize + k
     	} else if (opcode < 247L) { # fnt def i
     	    a <- as.integer(bytes[pos + parmsize ])
-    	    fntname <- readChar(bytes[(pos + parmsize + 1):(pos + parmsize + a)], a)
-    	    cat("fnt def at pos=", pos, " is ", fntname, "\n")
+    	    if ("fntdef" %in% show) {
+     	    	fntname <- readChar(bytes[(pos + parmsize + 1):(pos + parmsize + a)], a)
+   	    	cat("fnt def at pos=", pos, " is ", fntname, "\n")
+   	    }
     	    parmsize <- parmsize + a 
     	} else if (opcode == 247L) {       # pre
     	    k <- as.integer(bytes[pos + parmsize])
-    	    comment <- readChar(bytes[(pos + parmsize + 1):(pos + parmsize + k)], k)
-    	    cat("preamble at pos=", pos, " with comment ", comment, "\n")
+	    if ("preamble" %in% show) {
+    	    	comment <- readChar(bytes[(pos + parmsize + 1):(pos + parmsize + k)], k)        	    
+    	    	cat("preamble at pos=", pos, " with comment ", comment, "\n")
+	    }
     	    parmsize <- parmsize + k
     	} else if (opcode == 249L) break
 	pos <- pos + parmsize
     }
-    	
 }
 
 DVIspecials <- function(f) {
