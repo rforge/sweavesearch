@@ -3,7 +3,8 @@ SweaveMiktex <- function( Rnw, main=outputname) {
     	outputname <- Rnw
     else
     	outputname <- Sweave(Rnw)
-    result <- system(paste("latex --src", main), intern=FALSE, show=TRUE)
+    result <- system(paste("latex -include-directory=", file.path(R.home("share"), "texmf"),
+                           " --src ", main, sep=""), intern=FALSE, show=TRUE)
     if (result != 0) Sys.sleep(10)
     patchDVI(sub("\\.tex", ".dvi", main))
 }
@@ -506,8 +507,8 @@ RweaveLatexWritedoc <- function(object, chunk)
                                 "}\n\\\\begin{document}", sep=""),
                                 chunk[which])
             linesout[which] <- linesout[which] + 1
+            object$havesty <- TRUE        
         }
-        object$havesty <- TRUE
     }
 
     while(any(pos <- grep(object$syntax$docexpr, chunk)))
