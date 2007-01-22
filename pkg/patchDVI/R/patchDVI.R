@@ -2,7 +2,7 @@ SweaveMiktex <- function( Rnw, main=outputname) {
     if (sub(".*\\.tex$", "TeX", Rnw) == "TeX") 
     	outputname <- Rnw
     else
-    	outputname <- Sweave(Rnw)
+    	outputname <- Sweave(Rnw, stylepath=FALSE)
     result <- system(paste("latex -include-directory=", file.path(R.home("share"), "texmf"),
                            " --src ", main, sep=""), intern=FALSE, show=TRUE)
     if (result != 0) Sys.sleep(10)
