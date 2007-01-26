@@ -1,0 +1,4 @@
+Fix the generation of the concordance to make more sense:  RLE of diffs of
+vector of Rnw lines corresponding to each .tex line, for example.
+
+Fix bug:  code references are miscounted.
