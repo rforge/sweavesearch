@@ -20,7 +20,7 @@ patchDVI(f, newname=f)
 }
 \details{
 This function works with patched versions of \code{Sweave} and some related functions;
-if successful, these changes will eventually be merged into R.
+if successful, these changes may eventually be merged into R.
 
 Using \code{patchDVI} requires a change to the usual Sweave workflow, as follows:
 
@@ -41,6 +41,25 @@ can be run from the command line, there's no need to keep an R session running (
 all work from within one session as well).  At some distant date in the future maybe
 the previewers will learn how to read the concordance info, and step 4 will no longer be 
 necessary.
+}
+\note{
+The concordance is stored in a TeX "special" in the following format (as of version 0.5):
+\code{concordance:<oldname>:<newname>:<firstline> <rle pairs>*}.  Here \code{<oldname>}
+is the name of the .tex file to replace, \code{<newname>} is the name of the .Rnw file
+to substitute for it, \code{<firstline>} is the line number from the .Rnw file of the
+first line in the .tex file.  
+
+The \code{<rle pairs>} are a sequence of pairs
+(length, value), separated by spaces (no parentheses), with the length indicating
+the number of repetitions of the value.  Using \code{\link{inverse.rle}} these are converted
+to a sequence of differences in the line numbers of the concordance.
+
+For example, a concordance might contain
+\code{\special\{concordance:optimization.tex:optimization.Rnw:1 2 1 2 4 39 1 1 4 ...} 
+saying that source references to optimization.tex should be replaced with
+optimization.Rnw.  Line 1 of the .tex file corresponds to line 1 of the .Rnw file.
+The diffs for successive lines are \code{1 1 4 4 1 <repeated 39 times> 4 ...}, so 
+the corresponding lines in the .Rnw file (including the first) are \code{1 2 3 7 11 12 13 ...}.
 }
 \value{
 A string containing a message about what was done.

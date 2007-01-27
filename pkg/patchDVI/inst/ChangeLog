@@ -2,3 +2,5 @@
 
 Quick initial releases.
 
+0.5:  Fixes bug in handling of named chunks.  Changes (and shrinks) format of inserted special.
+
