@@ -370,8 +370,8 @@ makeRweaveLatexCodeRunner <- function(evalFunc=RweaveEvalWithOpt)
                         }
                         cat("\\begin{Sinput}",
                             file=chunkout, append=TRUE)
-                        linesout[thisline + 1] <- srcline
-                        thisline <- thisline + 1
+ #                       linesout[thisline + 1] <- srcline
+ #                       thisline <- thisline + 1
                         openSinput <- TRUE
                     }
 		    cat("\n", paste(getOption("prompt"), dce[1:leading], sep="", collapse="\n"),
