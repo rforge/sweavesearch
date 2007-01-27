@@ -91,9 +91,12 @@ patchDVI <- function(f, newname=f) {
     parseConcord <- function(split) {
     	oldname <- split[2]
     	newname <- split[3]
-    	concordance <- cumsum(as.integer(strsplit(split[4], " ")[[1]]))
-    	keep <- !duplicated(concordance)
-    	concord <- approxfun(concordance[keep], seq(along=concordance)[keep], "constant", rule=2)
+    	values <- as.integer(strsplit(split[4], " ")[[1]])
+    	firstline <- values[1]
+    	rledata <- matrix(values[-1], nrow=2)
+    	rle <- structure(list(lengths=rledata[1,], values=rledata[2,]), class="rle")
+    	diffs <- inverse.rle(rle)
+	concord <- c(firstline, firstline + cumsum(diffs))
     	list(oldname=oldname, newname=newname, concord=concord)
     }
     concords <- strsplit(concords, ":")
@@ -109,7 +112,7 @@ patchDVI <- function(f, newname=f) {
     changed <- rep(FALSE, length(filenames))
     for (n in names(concords)) {
     	subset <- filenames == n
-    	linenums[subset] <- concords[[n]]$concord(as.integer(linenums[subset]))
+    	linenums[subset] <- concords[[n]]$concord[as.integer(linenums[subset])]
     	filenames[subset] <- concords[[n]]$newname
     	changed[subset] <- TRUE
     }
@@ -158,7 +161,7 @@ Sweave <- function(file, driver=RweaveLatex(),
     	line <- text[linenum]
         if(any(grep(syntax$doc, line))){
             if(mode=="doc"){
-                if(!is.null(chunk)) 
+                if(!is.null(chunk))
                     drobj <- driver$writedoc(drobj, chunk)
                 mode <- "doc"
             }
@@ -200,12 +203,12 @@ Sweave <- function(file, driver=RweaveLatex(),
                                      chunkref), domain = NA)
                 line <- namedchunks[[chunkref]]
             }
-
+            srclines <- c(attr(chunk, "srclines"), rep(linenum, length(line)))
             if(is.null(chunk))
                 chunk <- line
             else
                 chunk <- c(chunk, line)
-            attr(chunk, "srclines") <- c(attr(chunk, "srclines"), rep(linenum, length(line)))
+            attr(chunk, "srclines") <- srclines
         }
     }
     if(!is.null(chunk)){
@@ -326,13 +329,14 @@ makeRweaveLatexCodeRunner <- function(evalFunc=RweaveEvalWithOpt)
           RweaveTryStop(chunkexps, options)
           openSinput <- FALSE
           openSchunk <- FALSE
-          
+
+          if(length(chunkexps)==0)
+            return(object)
+
           srclines <- attr(chunk, "srclines")
           linesout <- integer(0)
           srcline <- srclines[1]
-
-          if(length(chunkexps)==0) return(object)
-            
+  
 	  srcrefs <- attr(chunkexps, "srcref")
 	  lastshown <- 0
 	  thisline <- 0
@@ -344,8 +348,7 @@ makeRweaveLatexCodeRunner <- function(evalFunc=RweaveEvalWithOpt)
                     dce <- getSrcLines(srcfile, lastshown+1, srcref[3])
 	    	    leading <- srcref[1]-lastshown
 	    	    lastshown <- srcref[3]
-	    	    thisline <- srcref[3]
-	    	    srcline <- srclines[srcref[1]]
+	    	    srcline <- srclines[lastshown]
 	    	    while (length(dce) && length(grep("^[ \\t]*$", dce[1]))) {
 	    		dce <- dce[-1]
 	    		leading <- leading - 1
@@ -361,19 +364,19 @@ makeRweaveLatexCodeRunner <- function(evalFunc=RweaveEvalWithOpt)
                         if(!openSchunk){
                             cat("\\begin{Schunk}\n",
                                 file=chunkout, append=TRUE)
+                            linesout[thisline + 1] <- srcline
                             thisline <- thisline + 1
-                            linesout[thisline] <- srcline
                             openSchunk <- TRUE
                         }
                         cat("\\begin{Sinput}",
                             file=chunkout, append=TRUE)
+                        linesout[thisline + 1] <- srcline
                         thisline <- thisline + 1
-                        linesout[thisline] <- srcline
                         openSinput <- TRUE
                     }
 		    cat("\n", paste(getOption("prompt"), dce[1:leading], sep="", collapse="\n"),
 		    	file=chunkout, append=TRUE, sep="")
-                    if (length(dce) > leading) {
+                    if (length(dce) > leading)
                     	cat("\n", paste(getOption("continue"), dce[-(1:leading)], sep="", collapse="\n"),
                     	    file=chunkout, append=TRUE, sep="")
 		    linesout[thisline + 1:length(dce)] <- srcline
@@ -410,14 +413,14 @@ makeRweaveLatexCodeRunner <- function(evalFunc=RweaveEvalWithOpt)
                         if(!openSchunk){
                             cat("\\begin{Schunk}\n",
                                 file=chunkout, append=TRUE)
+                            linesout[thisline + 1] <- srcline
                             thisline <- thisline + 1
-                            linesout[thisline] <- srcline
                             openSchunk <- TRUE
                         }
                         cat("\\begin{Soutput}\n",
                             file=chunkout, append=TRUE)
+                        linesout[thisline + 1] <- srcline
                         thisline <- thisline + 1
-                        linesout[thisline] <- srcline
                     }
 
                     output <- paste(output,collapse="\n")
@@ -452,8 +455,8 @@ makeRweaveLatexCodeRunner <- function(evalFunc=RweaveEvalWithOpt)
 
           if(openSchunk){
               cat("\\end{Schunk}\n", file=chunkout, append=TRUE)
+              linesout[thisline + 1] <- srcline
               thisline <- thisline + 1
-              linesout[thisline] <- srcline
           }
 
           if(is.null(options$label) & options$split)
@@ -462,8 +465,8 @@ makeRweaveLatexCodeRunner <- function(evalFunc=RweaveEvalWithOpt)
           if(options$split & options$include){
               cat("\\input{", chunkprefix, "}\n", sep="",
                 file=object$output, append=TRUE)
+              linesout[thisline + 1] <- srcline
               thisline <- thisline + 1
-              linesout[thisline] <- srcline
           }
 
           if(options$fig && options$eval){
@@ -491,8 +494,8 @@ makeRweaveLatexCodeRunner <- function(evalFunc=RweaveEvalWithOpt)
               if(options$include) {
                   cat("\\includegraphics{", chunkprefix, "}\n", sep="",
                       file=object$output, append=TRUE)
+                  linesout[thisline + 1] <- srcline
                   thisline <- thisline + 1    
-                  linesout[thisline] <- srcline
               }
           }
           object$linesout <- c(object$linesout, linesout)
@@ -582,7 +585,7 @@ RweaveLatexFinish <- function(object, error=FALSE)
     if (object$haveconcordance) {
         linesout <- object$linesout
         vals <- rle(diff(linesout))
-        vals <- as.numeric(rbind(vals$lengths, vals$values))
+        vals <- c(linesout[1], as.numeric(rbind(vals$lengths, vals$values)))
     	concordance <- paste(strwrap(paste(vals, collapse=" ")), collapse=" %\n")
     	special <- paste("\\special{concordance:", outputname, ":", inputname, ":%\n",
     			 concordance,"}\n", sep="")
