@@ -86,7 +86,8 @@ setDVIspecials <- function(f, newspecials, newname=f) {
 patchDVI <- function(f, newname=f) {
     specials <- DVIspecials(f)
     
-    concords <- grep("^concordance:", specials, value=TRUE)
+    concordind <- grep("^concordance:", specials)
+    concords <- specials[concordind]
     
     parseConcord <- function(split) {
     	oldname <- split[2]
@@ -125,6 +126,7 @@ patchDVI <- function(f, newname=f) {
     
     specials <- rep(NA, length(specials))
     specials[srcrefind] <- newrefs
+    specials[concordind] <- ""
     
     if (any(!is.na(specials)))
     	setDVIspecials(f, specials, newname)
