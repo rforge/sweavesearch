@@ -3,4 +3,6 @@ vector of Rnw lines corresponding to each .tex line, for example.
 
 Done: Fix bug:  code references are miscounted.
 
-Fix dvi patch routine to allow expansion of specials.
+Done: Fix dvi patch routine to allow expansion of specials.
+
+Remove empty specials?

@@ -73,7 +73,7 @@ setDVIspecials <- function(f, newspecials, newname=f) {
     con <- file(f, "r+b")
     on.exit(close(con))
     bytes <- readBin(con, "raw", size)
-    .Call(setDviSpecials, bytes, as.character(newspecials))
+    bytes <- .Call(setDviSpecials, bytes, as.character(newspecials))
     if (newname == f)
     	seek(con, 0)
     else {
@@ -119,10 +119,6 @@ patchDVI <- function(f, newname=f) {
     }
     
     newrefs <- ifelse(changed, paste("src:", linenums, filenames, sep=""), NA)
-    if (any(toolong <- nchar(newrefs) > nchar(srcrefs))) {
-    	warning(paste(srcrefs[toolong], "can't be changed to", newrefs[toolong]))
-    	newrefs[toolong] <- ""    
-    }
     
     specials <- rep(NA, length(specials))
     specials[srcrefind] <- newrefs

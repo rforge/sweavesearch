@@ -5,3 +5,5 @@ Quick initial releases.
 0.5:  Fixes bug in handling of named chunks.  Changes (and shrinks) format of inserted special.
 
 0.6:  Removed concordance during patching, to avoid Miktex bug.
+
+0.7:  Removed limitation on changing the size of a special.

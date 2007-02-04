@@ -28,7 +28,7 @@ Using \code{patchDVI} requires a change to the usual Sweave workflow, as follows
 enable the patching.
 
 2.  Use the Sweave from this package to process the file, and convert to .tex format.  (See
-its web page for details of what difference this makes.
+its web page for details of what difference this makes.)
 
 3.  Use latex to process the .tex file into a .dvi file.
 
