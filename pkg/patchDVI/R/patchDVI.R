@@ -74,12 +74,8 @@ setDVIspecials <- function(f, newspecials, newname=f) {
     on.exit(close(con))
     bytes <- readBin(con, "raw", size)
     bytes <- .Call(setDviSpecials, bytes, as.character(newspecials))
-    if (newname == f)
-    	seek(con, 0)
-    else {
-    	close(con)
-    	con <- file(newname, "wb")
-    }
+    close(con)
+    con <- file(newname, "wb")
     writeBin(bytes, con)
 }
 
