@@ -118,16 +118,15 @@ patchDVI <- function(f, newname=f) {
     	changed[subset] <- TRUE
     }
     
-    newrefs <- ifelse(changed, paste("src:", linenums, filenames, sep=""), NA)
+    newrefs <- ifelse(changed, paste("src:", linenums, filenames, sep=""), srcrefs)
     
-    specials <- rep(NA, length(specials))
     specials[srcrefind] <- newrefs
-    specials[concordind] <- ""
+    specials[concordind] <- NA
     
-    if (any(!is.na(specials)))
+    if (any(changed) || length(concordind))
     	setDVIspecials(f, specials, newname)
     	
-    paste(sum(!is.na(specials)), "patches made.")
+    paste(sum(changed) + length(concordind), "patches made.")
 }
 
 Sweave <- function(file, driver=RweaveLatex(),

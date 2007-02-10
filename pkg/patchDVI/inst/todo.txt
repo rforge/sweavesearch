@@ -5,4 +5,4 @@ Done: Fix bug:  code references are miscounted.
 
 Done: Fix dvi patch routine to allow expansion of specials.
 
-Remove empty specials?  NA=remove instead of ignore would work.
+Done:  Remove empty specials.  NA=remove 

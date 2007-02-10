@@ -7,3 +7,6 @@ Quick initial releases.
 0.6:  Removed concordance during patching, to avoid Miktex bug.
 
 0.7:  Removed limitation on changing the size of a special.
+
+0.8:  Allowed specials to be removed by setting their value to NA in setDVIspecials.
+      

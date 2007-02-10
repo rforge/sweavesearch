@@ -70,7 +70,7 @@ SEXP dviSpecials(SEXP dvi)
 SEXP setDviSpecials(SEXP dvi_in, SEXP specials)
 {
     unsigned char *bytes = RAW(dvi_in), *output, 
-                  *stop = RAW(dvi_in) + length(dvi_in), *src;
+                  *stop = RAW(dvi_in) + length(dvi_in);
     
     int opcode;
     int used = 0;
@@ -126,18 +126,16 @@ SEXP setDviSpecials(SEXP dvi_in, SEXP specials)
 		kin = (kin << 8) + *(bytes + recin + i + 1);
 	    if ((c = STRING_ELT(specials, used++)) != NA_STRING) {
 	    	kout = length(c);
-	    	src = CHAR(c);
+	    	PUTBYTES(CHAR(c), kout);
+		if (kout != kin) {
+		    for (int i = 0; i < parmsize; i++) 
+			*(output + recout + i + 1) = (kout >> (8*(parmsize-i-1))) & 0xFF;
+		}	    
 	    } else {
-	    	kout = kin;
-	    	src = bytes + recin + 1 + parmsize;
+	    	kout = -(1 + parmsize);  /* delete the whole record */
+	    	outsize += kout;
 	    }
-	    PUTBYTES(src, kout);
-	    
-	    if (kout != kin) {
-	    	skew += kout - kin;
-	    	for (int i = 0; i < parmsize; i++) 
-	            *(output + recout + i + 1) = (kout >> (8*(parmsize-i-1))) & 0xFF;
-	    }
+	    skew += kout - kin;
     	} else if (opcode < 248) {
     	    kin = kout = *(bytes + recin + parmsize);
     	    PUTBYTES(bytes + recin + 1 + parmsize, kout);

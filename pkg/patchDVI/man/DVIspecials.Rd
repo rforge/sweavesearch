@@ -16,7 +16,7 @@ setDVIspecials(f, newspecials, newname=f)
 }
 \details{
 If an entry of the \code{newspecials} vector is \code{NA}, that special
-is left as-is.  Specials can be shortened, but cannot currently be lengthened.
+is removed.  
 }
 \value{
 \code{DVIspecials} returns all the specials from the file in a character vector.
