@@ -25,7 +25,12 @@ Sweave(file, driver = RweaveLatex(),
   \item{\dots}{Further arguments passed to the driver's setup function.}
 }
 \details{
-  The patch adds a new option "concordance".  If TRUE, then the patched
+  The patch adds two new options: "expand" and "concordance".  If \code{expand=FALSE}
+  (the default is \code{TRUE}) then references to other code chunks are not expanded,
+  so they appear as \code{<<chunkname>>} in the output text.  This currently
+  has no effect unless combined with \code{keep.source=TRUE}.
+  
+  If \code{concordance=TRUE}, then the patched
   RweaveLatex driver in this package will output a new file called
   <prefix>concordance.tex (where <prefix> is the usual prefix 
   used by Sweave for this file).  This file will contain a TeX

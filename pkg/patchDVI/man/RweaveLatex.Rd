@@ -17,7 +17,10 @@ RweaveLatex()
   The patched version supports the standard options listed below, plus
   the following:
   \describe{
-    \item{concordance:}{logical (\code{TRUE}).  Write the concordance file
+    \item{expand:}{logical (\code{TRUE}).  Expand references to other chunks
+      so that only R code appears in the output file.  If \code{FALSE}, the
+      chunk reference (e.g. \code{<<chunkname>>}) will appear.}
+    \item{concordance:}{logical (\code{FALSE}).  Write the concordance file
       so that \code{\link{patchDVI}} will work.}
   }
   RweaveLatex supports the following options for code chunks (the values
@@ -71,7 +74,7 @@ RweaveLatex()
     \item{height:}{numeric (6), height of figures in inch.}
   }
 }
-\author{Friedrich Leisch}
+\author{Friedrich Leisch, patches by Duncan Murdoch}
 \references{
   Friedrich Leisch: Sweave User Manual, 2002\cr
   \url{http://www.ci.tuwien.ac.at/~leisch/Sweave}

@@ -361,7 +361,7 @@ RweaveLatexSetup <-
                     echo=echo, keep.source=keep.source, results="verbatim", 
                     split=split, strip.white="true", include=TRUE,
                     pdf.version="1.1", pdf.encoding="default",
-                    concordance=FALSE)
+                    concordance=FALSE, expand=TRUE)
 
     ## to be on the safe side: see if defaults pass the check
     options <- RweaveLatexOptions(options)
@@ -369,7 +369,7 @@ RweaveLatexSetup <-
     list(output=output, styfile=styfile, havesty=FALSE, haveconcordance=FALSE,
          debug=debug, quiet=quiet, syntax = syntax,
          options=options, chunkout=list(), srclines=integer(0),
-         srcfile=file)
+         srcfile=srcfile(file))
 }
 
 makeRweaveLatexCodeRunner <- function(evalFunc=RweaveEvalWithOpt)
@@ -432,18 +432,29 @@ makeRweaveLatexCodeRunner <- function(evalFunc=RweaveEvalWithOpt)
           srcline <- srclines[1]
   
 	  srcrefs <- attr(chunkexps, "srcref")
-	  lastshown <- 0
+	  if (options$expand)
+	    lastshown <- 0
+	  else
+	    lastshown <- srcline - 1
 	  thisline <- 0
           for(nce in 1:length(chunkexps))
             {
                 ce <- chunkexps[[nce]]
                 if (nce <= length(srcrefs) && !is.null(srcref <- srcrefs[[nce]])) {
-                    srcfile <- attr(srcref, "srcfile")
-                    dce <- getSrcLines(srcfile, lastshown+1, srcref[3])
-	    	    leading <- srcref[1]-lastshown
-	    	    lastshown <- srcref[3]
-	    	    srcline <- srclines[lastshown]
-	    	    while (length(dce) && length(grep("^[ \\t]*$", dce[1]))) {
+                    if (options$expand) {
+                	srcfile <- attr(srcref, "srcfile")
+                	showfrom <- srcref[1]
+                	showto <- srcref[3]
+                    } else {
+                    	srcfile <- object$srcfile
+                    	showfrom <- srclines[srcref[1]]
+                    	showto <- srclines[srcref[3]]
+                    }
+                    dce <- getSrcLines(srcfile, lastshown+1, showto)
+	    	    leading <- showfrom-lastshown
+	    	    lastshown <- showto
+                    srcline <- srclines[srcref[3]]
+                    while (length(dce) && length(grep("^[ \\t]*$", dce[1]))) {
 	    		dce <- dce[-1]
 	    		leading <- leading - 1
 	    	    }
@@ -641,8 +652,7 @@ RweaveLatexWritedoc <- function(object, chunk)
                     "\\1", chunk[pos[1]])
         object$options <- SweaveParseOptions(opts, object$options,
                                              RweaveLatexOptions)
-        if (!is.null(object$options$concordance) 
-              && object$options$concordance 
+        if (isTRUE(object$options$concordance) 
               && !object$haveconcordance) {
             savelabel <- object$options$label
             object$options$label <- "concordance"
@@ -666,7 +676,7 @@ RweaveLatexWritedoc <- function(object, chunk)
 RweaveLatexFinish <- function(object, error=FALSE)
 {
     outputname <- summary(object$output)$description
-    inputname <- object$srcfile
+    inputname <- object$srcfile$filename
     if(!object$quiet && !error)
         cat("\n",
             gettextf("You can now run LaTeX on '%s'", outputname),
