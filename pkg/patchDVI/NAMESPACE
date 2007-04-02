@@ -1,4 +1,3 @@
-export(readDVI, DVIspecials, setDVIspecials, patchDVI, Sweave,
-       RweaveLatex, SweaveMiktex)
+export(readDVI, DVIspecials, setDVIspecials, patchDVI, SweaveMiktex)
        
 useDynLib(patchDVI, dviSpecials, setDviSpecials)

@@ -3,7 +3,7 @@
 \alias{patchDVI-package}
 \title{patch Sweave source references into .dvi file}
 \description{
-This package is a temporary package to test some code that allows
+This package allows
 source references in .dvi files to refer to the actual source file, 
 rather than the intermediate .tex file.  Dvi previewers such as yap
 and xdvi can make use of these source references to jump directly
@@ -19,16 +19,15 @@ patchDVI(f, newname=f)
   \item{newname}{ Output will go to this file; by default to overwrite the original }
 }
 \details{
-This function works with patched versions of \code{Sweave} and some related functions;
-if successful, these changes may eventually be merged into R.
+This function works with \code{Sweave} with option \code{concordance=TRUE}
+and some related functions.
 
 Using \code{patchDVI} requires a change to the usual Sweave workflow, as follows:
 
 1.  Write the source file in .Rnw.  Include the \\SweaveOpts{concordance=TRUE} option to
 enable the patching.
 
-2.  Use the Sweave from this package to process the file, and convert to .tex format.  (See
-its web page for details of what difference this makes.)
+2.  Use Sweave to convert the file to .tex format.
 
 3.  Use latex to process the .tex file into a .dvi file.
 
@@ -60,6 +59,8 @@ saying that source references to optimization.tex should be replaced with
 optimization.Rnw.  Line 1 of the .tex file corresponds to line 1 of the .Rnw file.
 The diffs for successive lines are \code{1 1 4 4 1 <repeated 39 times> 4 ...}, so 
 the corresponding lines in the .Rnw file (including the first) are \code{1 2 3 7 11 12 13 ...}.
+
+This format is subject to change in future R releases.
 }
 \value{
 A string containing a message about what was done.

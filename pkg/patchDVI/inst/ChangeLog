@@ -10,4 +10,6 @@ Quick initial releases.
 
 0.8:  Allowed specials to be removed by setting their value to NA in setDVIspecials.
 
-0.9:  Add expand=FALSE option.      
+0.9:  Add expand=FALSE option.     
+
+1.0:  Move Sweave changes into R-devel, delete them from patchDVI
