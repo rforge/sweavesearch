@@ -4,7 +4,7 @@ SweaveMiktex <- function( Rnw, main=outputname) {
     else
     	outputname <- Sweave(Rnw, stylepath=FALSE)
     result <- system(paste("latex -include-directory=", file.path(R.home("share"), "texmf"),
-                           " --src ", main, sep=""), intern=FALSE, show=TRUE)
+                           " -c-style-errors -src-specials ", main, sep=""), intern=FALSE, show=TRUE)
     if (result != 0) Sys.sleep(10)
     patchDVI(sub("\\.tex", ".dvi", main))
 }
