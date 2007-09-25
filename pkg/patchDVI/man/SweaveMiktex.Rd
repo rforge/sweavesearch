@@ -1,11 +1,13 @@
 \name{SweaveMiktex}
 \alias{SweaveMiktex}
+\alias{SweavePDFMiktex}
 \title{Simple function to run MikTeX}
 \description{
 This is a simple script to run Sweave, then MikTeX, then patchDVI. 
 }
 \usage{
 SweaveMiktex(Rnw, main = outputname)
+SweavePDFMiktex(Rnw, main = outputname)
 }
 \arguments{
   \item{Rnw}{ The .Rnw input file }
@@ -15,6 +17,8 @@ SweaveMiktex(Rnw, main = outputname)
 If the \code{Rnw} argument is a filename ending in \file{.tex}, then 
 \code{Sweave} is skipped, but the \file{.dvi} file is still patched (because
 one of the other files in the project might have come from Sweave).
+
+The \code{SweavePDFMiktex()} doesn't actually do any patching, it just runs pdflatex.
 }
 
 \value{

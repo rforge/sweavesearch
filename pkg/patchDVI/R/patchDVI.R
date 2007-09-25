@@ -9,6 +9,16 @@ SweaveMiktex <- function( Rnw, main=outputname) {
     patchDVI(sub("\\.tex", ".dvi", main))
 }
 
+SweavePDFMiktex <- function( Rnw, main=outputname) {
+    if (sub(".*\\.tex$", "TeX", Rnw) == "TeX") 
+    	outputname <- Rnw
+    else
+    	outputname <- Sweave(Rnw, stylepath=FALSE)
+    result <- system(paste("pdflatex -include-directory=", file.path(R.home("share"), "texmf"),
+                           " -c-style-errors ", main, sep=""), intern=FALSE, show=TRUE)
+    if (result != 0) Sys.sleep(10)
+}
+
 readDVI <- function(f, show=c("bop", "special", "fntdef", "preamble")) {
     size <- file.info(f)$size
     con <- file(f, "rb")
