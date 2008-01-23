@@ -35,7 +35,8 @@ SEXP dviSpecials(SEXP dvi)
 {
     unsigned char *bytes = RAW(dvi), *stop = RAW(dvi) + length(dvi);
     PROTECT_INDEX ires;
-    SEXP result, c;
+    SEXP result;
+    char *c;
     int used = 0;
     
     PROTECT_WITH_INDEX(result = allocVector(STRSXP, INIT_SIZE), &ires);
@@ -50,11 +51,12 @@ SEXP dviSpecials(SEXP dvi)
     	    	REPROTECT(result = lengthgets(result, 2*length(result)), ires);
 	    for (int i = 0; i < parmsize; i++) 
 		k = (k << 8) + *(bytes + i + 1);
-	    c = allocString(k); /* adds zero terminator */
-	    if (c == R_NilValue) error("out of memory");
+	    c = CallocCharBuf(k); /* adds zero terminator */
+	    if (!c) error("out of memory");
 	    else {
-		memcpy(CHAR(c), bytes + 1 + parmsize, k);
-		SET_STRING_ELT(result, used++, c);
+		memcpy(c, bytes + 1 + parmsize, k);
+		SET_STRING_ELT(result, used++, mkChar(c));
+		Free(c);
 	    }
     	} else if ((int)(*bytes) < 248) 
     	    k = *(bytes + parmsize);

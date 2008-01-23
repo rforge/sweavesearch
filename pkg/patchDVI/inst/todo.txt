@@ -6,3 +6,5 @@ Done: Fix bug:  code references are miscounted.
 Done: Fix dvi patch routine to allow expansion of specials.
 
 Done:  Remove empty specials.  NA=remove 
+
+Add patchPDFsync() function to patch a .pdfsync file.

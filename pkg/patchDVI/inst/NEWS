@@ -15,3 +15,7 @@ Quick initial releases.
 1.0:  Move Sweave changes into R-devel, delete them from patchDVI
 
 1.1:  Allow it to run pdflatex (just to set the include directory)
+
+1.2:  Case-insensitive filename matching.
+      ChangeLog renamed to NEWS.
+      Updated memory management to 2.6.x scheme.

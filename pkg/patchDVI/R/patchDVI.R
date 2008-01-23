@@ -1,16 +1,16 @@
 SweaveMiktex <- function( Rnw, main=outputname) {
-    if (sub(".*\\.tex$", "TeX", Rnw) == "TeX") 
+    if (sub(".*\\.tex$", "TeX", Rnw, ignore.case = TRUE) == "TeX") 
     	outputname <- Rnw
     else
     	outputname <- Sweave(Rnw, stylepath=FALSE)
     result <- system(paste("latex -include-directory=", file.path(R.home("share"), "texmf"),
                            " -c-style-errors -src-specials ", main, sep=""), intern=FALSE, show=TRUE)
     if (result != 0) Sys.sleep(10)
-    patchDVI(sub("\\.tex", ".dvi", main))
+    patchDVI(sub("\\.tex", ".dvi", main, ignore.case = TRUE))
 }
 
 SweavePDFMiktex <- function( Rnw, main=outputname) {
-    if (sub(".*\\.tex$", "TeX", Rnw) == "TeX") 
+    if (sub(".*\\.tex$", "TeX", Rnw, ignore.case = TRUE) == "TeX") 
     	outputname <- Rnw
     else
     	outputname <- Sweave(Rnw, stylepath=FALSE)
