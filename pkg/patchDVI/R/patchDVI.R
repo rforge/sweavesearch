@@ -3,8 +3,8 @@ SweaveMiktex <- function( Rnw, main=outputname) {
     	outputname <- Rnw
     else
     	outputname <- Sweave(Rnw, stylepath=FALSE)
-    result <- system(paste("latex -include-directory=", file.path(R.home("share"), "texmf"),
-                           " -c-style-errors -src-specials ", main, sep=""), intern=FALSE, show=TRUE)
+    result <- system(paste("texify --include-directory=", file.path(R.home("share"), "texmf"),
+                           " --tex-option=-c-style-errors --src-specials ", main, sep=""), intern=FALSE, show=TRUE)
     if (result != 0) Sys.sleep(10)
     patchDVI(sub("\\.tex", ".dvi", main, ignore.case = TRUE))
 }
@@ -14,8 +14,8 @@ SweavePDFMiktex <- function( Rnw, main=outputname) {
     	outputname <- Rnw
     else
     	outputname <- Sweave(Rnw, stylepath=FALSE)
-    result <- system(paste("pdflatex -include-directory=", file.path(R.home("share"), "texmf"),
-                           " -c-style-errors ", main, sep=""), intern=FALSE, show=TRUE)
+    result <- system(paste("texify --include-directory=", file.path(R.home("share"), "texmf"),
+                           " --pdf --tex-option=-c-style-errors ", main, sep=""), intern=FALSE, show=TRUE)
     if (result != 0) Sys.sleep(10)
 }
 

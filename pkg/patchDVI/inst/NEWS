@@ -19,3 +19,5 @@ Quick initial releases.
 1.2:  Case-insensitive filename matching.
       ChangeLog renamed to NEWS.
       Updated memory management to 2.6.x scheme.
+
+1.3:  Use texify instead of latex/pdflatex in SweaveMiktex/SweavePDFMiktex
