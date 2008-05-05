@@ -3,8 +3,10 @@ SweaveMiktex <- function( Rnw, main=outputname) {
     	outputname <- Rnw
     else
     	outputname <- Sweave(Rnw, stylepath=FALSE)
-    result <- system(paste("texify --include-directory=", file.path(R.home("share"), "texmf"),
-                           " --tex-option=-c-style-errors --src-specials ", main, sep=""), intern=FALSE, show=TRUE)
+    cmd <- paste("texify --tex-option=--include-directory=", file.path(R.home("share"), "texmf"),
+                           " --tex-option=-c-style-errors --tex-option=--src-specials ", main, sep="")    	
+    cat(cmd, "\n")
+    result <- system(cmd, intern=FALSE, show=TRUE)
     if (result != 0) Sys.sleep(10)
     patchDVI(sub("\\.tex", ".dvi", main, ignore.case = TRUE))
 }
@@ -115,10 +117,10 @@ patchDVI <- function(f, newname=f) {
     srcrefs <- specials[srcrefind]
     
     linenums <- sub("^src:([0-9]+).*$", "\\1", srcrefs)
-    filenames <- substr(srcrefs, 5+nchar(linenums), 10000)
+    filenames <- normalizePath(substr(srcrefs, 5+nchar(linenums), 10000))
     changed <- rep(FALSE, length(filenames))
     for (n in names(concords)) {
-    	subset <- filenames == n
+    	subset <- filenames == normalizePath(n)
     	linenums[subset] <- concords[[n]]$concord[as.integer(linenums[subset])]
     	filenames[subset] <- concords[[n]]$newname
     	changed[subset] <- TRUE
