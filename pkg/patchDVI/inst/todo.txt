@@ -7,4 +7,9 @@ Done: Fix dvi patch routine to allow expansion of specials.
 
 Done:  Remove empty specials.  NA=remove 
 
-Add patchPDFsync() function to patch a .pdfsync file.
+Add patchSynctex() function to patch a .synctex file.  We might want to use
+
+\newcommand{\Sconcordance}[1]{\ifx\pdfoutput\undefined \csname newcount\endcsname\pdfoutput \fi%
+\ifcase\pdfoutput\special{#1}\else\immediate\pdfobj{#1}\fi}
+
+and have Sweave wrap the concordance in \Sconcordance, rather than in \special.
