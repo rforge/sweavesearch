@@ -146,7 +146,8 @@ syncFiles <- function(lines) {
     filenames[nodot] <- paste(filenames[nodot], ".tex", sep="")
     filenums <- sub("^Input:","",lines[inputs])
     filenums <- as.numeric(sub(":.*","",filenums))
-    data.frame(num=filenums, path=filepaths, name=filenames)
+    o <- order(filenums)
+    data.frame(tag=filenums[o], path=filepaths[o], name=filenames[o])
 }
 
 parseConcords <- function(lines) {
@@ -167,10 +168,45 @@ parseConcords <- function(lines) {
     concords
 }
 
-patchSynctex <- function(f, newname=f, pdfname=files$name[1]) {
+patchSynctex <- function(f, newname=f) {
     lines <- readLines(f)
     files <- syncFiles(lines)
     pdfname <- file.path(files$path[1], paste(sub(".tex", "", files$name[1]), ".pdf", sep=""))
-    concords <- pdfobjs(pdfname, "concordance:")
-    concords
+    concords <- parseConcords(pdfobjs(pdfname, "concordance:"))
+
+    re <- "^([vhxkg$[(])([[:digit:]]+),([[:digit:]]+)([^[:digit:]].*)"
+    srcrefind <- grep(re, lines)
+    srcrefs <- lines[srcrefind]
+    
+    ops <- sub(re, "\\1", srcrefs)
+    tags <- sub(re, "\\2", srcrefs)
+    linenums <- sub(re, "\\3", srcrefs)
+    rest <- sub(re, "\\4", srcrefs)
+     
+    changed <- rep(FALSE, length(tags))
+    newtags <- c()
+    maxtag <- max(files$tag)
+    for (n in names(concords)) {
+        maxtag <- maxtag + 1
+        newtags <- c(newtags, maxtag)
+        names(newtags)[length(newtags)] <- concords[[n]]$newname
+        tag <- files$tag[files$name == n]
+        if (length(tag) == 1) {
+    	    subset <- tags == tag
+    	    linenums[subset] <- concords[[n]]$concord[as.integer(linenums[subset])]
+    	    tags[subset] <- newtags[concords[[n]]$newname]
+    	    changed[subset] <- TRUE
+    	}
+    }
+    
+    if (any(changed)) {
+    	newrefs <- ifelse(changed, paste(ops, tags, ",", linenums, rest, sep=""), srcrefs)
+    	lines[srcrefind] <- newrefs
+    	firstInput <- grep("^Input:", lines)[1]
+    	lines <- c(lines[1:firstInput],
+    	           paste("Input:", newtags, ":", names(newtags), sep=""),
+    	           lines[(firstInput+1):length(lines)])
+    }
+    writeLines(lines, newname)
+    paste(sum(changed) + length(newtags), "patches made.")                 
 }
