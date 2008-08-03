@@ -12,7 +12,7 @@ SweaveMiktex <- function( Rnw, main=outputname, options="--tex-option=-c-style-e
     patchDVI(sub("\\.tex", ".dvi", main, ignore.case = TRUE))
 }
 
-SweavePDFMiktex <- function( Rnw, main=outputname, options="--tex-options=-c-style-errors") {
+SweavePDFMiktex <- function( Rnw, main=outputname, options="--tex-option=-c-style-errors") {
     if (sub(".*\\.tex$", "TeX", Rnw, ignore.case = TRUE) == "TeX") 
     	outputname <- Rnw
     else
