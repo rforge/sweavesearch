@@ -1,3 +1,20 @@
+SweavePDFMiktex <- function( Rnw, main=outputname,  
+                             cmd="texify --pdf", 
+                             options="--tex-option=-c-style-errors --tex-option=-synctex=-1",
+                             includedir="--tex-option=-include-directory=") {
+    if (sub(".*\\.tex$", "TeX", Rnw, ignore.case = TRUE) == "TeX") 
+    	outputname <- Rnw
+    else
+    	outputname <- Sweave(Rnw, stylepath=FALSE)
+    cmd <- paste(cmd, " ", options, " ", includedir,
+                 file.path(R.home("share"), "texmf "),
+                 main, sep="")
+    cat(cmd, "\n")
+    result <- system(cmd, intern=FALSE, show=TRUE)
+    if (result != 0) Sys.sleep(5)
+    patchSynctex(sub("\\.tex", ".synctex", main, ignore.case = TRUE))    
+}
+
 rawToLines <- function(raw) {
     temp <- tempfile()
     on.exit(unlink(temp))
@@ -101,7 +118,7 @@ pdfXrefblocks <- function(con, collapse = TRUE) {
 
 pdfFindobj <- function(con, pattern) {
     xrefs <- pdfXrefblocks(con)
-    xrefs <- subset(xrefs, !free)
+    xrefs <- subset(xrefs, !xrefs$free)
     o <- order(xrefs$offsets)
     xrefs <- xrefs[o,]
     result <- character(0)

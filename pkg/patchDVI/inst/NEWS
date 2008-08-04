@@ -22,3 +22,6 @@ Quick initial releases.
 
 1.3:  Use texify instead of latex/pdflatex in SweaveMiktex/SweavePDFMiktex
       Use normalizePath so that path comparisons are more reliable.
+      
+1.4:  Add patching of SyncTex output.
+      Allow options to be specified on the command line.

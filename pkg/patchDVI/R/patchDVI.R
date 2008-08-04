@@ -1,28 +1,19 @@
-SweaveMiktex <- function( Rnw, main=outputname, options="--tex-option=-c-style-errors --tex-option=--src-specials") {
+SweaveMiktex <- function(Rnw, 
+                         main=outputname, 
+                         cmd="texify",
+                         options="--tex-option=-c-style-errors --tex-option=--src-specials",
+                         includedir="--tex-option=--include-directory=") {
     if (sub(".*\\.tex$", "TeX", Rnw, ignore.case = TRUE) == "TeX") 
     	outputname <- Rnw
     else
     	outputname <- Sweave(Rnw, stylepath=FALSE)
-    cmd <- paste("texify ", options,
-                            " --tex-option=--include-directory=", file.path(R.home("share"), "texmf "),
-                            main, sep="")    	
+    cmd <- paste(cmd, " ", options, " ", includedir,
+                 file.path(R.home("share"), "texmf "),
+                 main, sep="")    	
     cat(cmd, "\n")
     result <- system(cmd, intern=FALSE, show=TRUE)
     if (result != 0) Sys.sleep(5)
     patchDVI(sub("\\.tex", ".dvi", main, ignore.case = TRUE))
-}
-
-SweavePDFMiktex <- function( Rnw, main=outputname, options="--tex-option=-c-style-errors") {
-    if (sub(".*\\.tex$", "TeX", Rnw, ignore.case = TRUE) == "TeX") 
-    	outputname <- Rnw
-    else
-    	outputname <- Sweave(Rnw, stylepath=FALSE)
-    cmd <- paste("texify --pdf ", options, 
-                            " --tex-option=-include-directory=", file.path(R.home("share"), "texmf "),
-                            main, sep="")
-    cat(cmd, "\n")
-    result <- system(cmd, intern=FALSE, show=TRUE)
-    if (result != 0) Sys.sleep(5)
 }
 
 readDVI <- function(f, show=c("bop", "special", "fntdef", "preamble")) {
