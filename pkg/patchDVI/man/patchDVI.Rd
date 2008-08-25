@@ -57,13 +57,15 @@ the number of repetitions of the value.  Using \code{\link{inverse.rle}} these a
 to a sequence of differences in the line numbers of the concordance.
 
 For example, a concordance might contain
-\code{\special\{concordance:optimization.tex:optimization.Rnw:1 2 1 2 4 39 1 1 4 ...} 
+\code{\Sconcordance\{concordance:optimization.tex:optimization.Rnw:1 2 1 2 4 39 1 1 4 ...} 
 saying that source references to optimization.tex should be replaced with
 optimization.Rnw.  Line 1 of the .tex file corresponds to line 1 of the .Rnw file.
 The diffs for successive lines are \code{1 1 4 4 1 <repeated 39 times> 4 ...}, so 
 the corresponding lines in the .Rnw file (including the first) are \code{1 2 3 7 11 12 13 ...}.
 
-The same format is used in an unreferenced indirect object in a .pdf file.
+The same format is used in an unreferenced indirect object in a .pdf file.  This is very
+experimental code, and the \code{patchSynctex} function is as well.  As of this writing, 
+only an unreleased experimental version of the SumatraPDF viewer has been tested.
 
 This format is subject to change in future R releases.
 }

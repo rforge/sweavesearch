@@ -191,7 +191,7 @@ patchSynctex <- function(f, newname=f) {
     pdfname <- file.path(files$path[1], paste(sub(".tex", "", files$name[1]), ".pdf", sep=""))
     concords <- parseConcords(pdfobjs(pdfname, "concordance:"))
 
-    re <- "^([vhxkg$[(])([[:digit:]]+),([[:digit:]]+)([^[:digit:]].*)"
+    re <- "^([vhxkgr$[(])([[:digit:]]+),([[:digit:]]+)([^[:digit:]].*)"
     srcrefind <- grep(re, lines)
     srcrefs <- lines[srcrefind]
     
