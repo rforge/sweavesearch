@@ -26,7 +26,7 @@ and some related functions.
 
 Using \code{patchDVI} requires a change to the usual Sweave workflow, as follows:
 
-1.  Write the source file in .Rnw.  Include the \\SweaveOpts{concordance=TRUE} option to
+1.  Write the source file in .Rnw.  Include the \preformatted{\SweaveOpts{concordance=TRUE}} option to
 enable the patching.
 
 2.  Use Sweave to convert the file to .tex format.
@@ -57,7 +57,7 @@ the number of repetitions of the value.  Using \code{\link{inverse.rle}} these a
 to a sequence of differences in the line numbers of the concordance.
 
 For example, a concordance might contain
-\code{\Sconcordance\{concordance:optimization.tex:optimization.Rnw:1 2 1 2 4 39 1 1 4 ...} 
+\preformatted{\Sconcordance{\concordance:optimization.tex:optimization.Rnw:1 2 1 2 4 39 1 1 4 ...}} 
 saying that source references to optimization.tex should be replaced with
 optimization.Rnw.  Line 1 of the .tex file corresponds to line 1 of the .Rnw file.
 The diffs for successive lines are \code{1 1 4 4 1 <repeated 39 times> 4 ...}, so 
