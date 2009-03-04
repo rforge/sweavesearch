@@ -2,11 +2,13 @@ SweaveMiktex <- function(Rnw,
                          main=outputname, 
                          cmd="texify",
                          options="--tex-option=-c-style-errors --tex-option=--src-specials",
-                         includedir="--tex-option=--include-directory=") {
+                         includedir="--tex-option=--include-directory=",
+                         stylepath=FALSE,
+                         ...) {
     if (sub(".*\\.tex$", "TeX", Rnw, ignore.case = TRUE) == "TeX") 
     	outputname <- Rnw
     else
-    	outputname <- Sweave(Rnw, stylepath=FALSE)
+    	outputname <- Sweave(Rnw, stylepath=stylepath, ...)
     cmd <- paste(cmd, " ", options, " ", includedir,
                  file.path(R.home("share"), "texmf "),
                  main, sep="")    	

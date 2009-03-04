@@ -9,11 +9,13 @@ This is a simple script to run Sweave, then MikTeX, then patchDVI.
 SweaveMiktex(Rnw, main=outputname, 
                   cmd="texify",
                   options="--tex-option=-c-style-errors --tex-option=--src-specials",
-                  includedir="--tex-option=--include-directory=")
+                  includedir="--tex-option=--include-directory=",
+                  stylepath=FALSE, ...)
 SweavePDFMiktex(Rnw, main=outputname,  
                   cmd="texify --pdf", 
                   options="--tex-option=-c-style-errors --tex-option=-synctex=-1",
-                  includedir="--tex-option=-include-directory=")
+                  includedir="--tex-option=-include-directory=",
+                  stylepath=FALSE, ...)
 }
 \arguments{
   \item{Rnw}{ The .Rnw input file }
@@ -21,6 +23,8 @@ SweavePDFMiktex(Rnw, main=outputname,
   \item{cmd}{ The LaTeX command to run }
   \item{options}{ Options to pass to LaTeX }
   \item{includedir}{ The prefix for an option to give the location of Sweave.sty }
+  \item{stylepath}{ \code{stylepath} argument to pass to \code{\link{Sweave}} }
+  \item{...}{ Additional options to pass to \code{\link{Sweave}} }
 }
 \details{
 If the \code{Rnw} argument is a filename ending in \file{.tex}, then 

@@ -1,11 +1,13 @@
 SweavePDFMiktex <- function( Rnw, main=outputname,  
                              cmd="texify --pdf", 
                              options="--tex-option=-c-style-errors --tex-option=-synctex=-1",
-                             includedir="--tex-option=-include-directory=") {
+                             includedir="--tex-option=-include-directory=",
+                             stylepath=FALSE,
+                             ...) {
     if (sub(".*\\.tex$", "TeX", Rnw, ignore.case = TRUE) == "TeX") 
     	outputname <- Rnw
     else
-    	outputname <- Sweave(Rnw, stylepath=FALSE)
+    	outputname <- Sweave(Rnw, stylepath=stylepath, ...)
     cmd <- paste(cmd, " ", options, " ", includedir,
                  file.path(R.home("share"), "texmf "),
                  main, sep="")
