@@ -26,4 +26,6 @@ Quick initial releases.
 1.4:  Add experimental patching of SyncTex output.
       Allow options to be specified on the command line.
       
-1.4.1545:  Add stylepath and ... args to SweaveMiktex for more flexibility.
+1.5:  Add stylepath and ... args to SweaveMiktex for more flexibility.
+      Add BugReports field to DESCRIPTION.
+      
