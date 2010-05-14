@@ -3,7 +3,10 @@ SweavePDFMiktex <- function( Rnw, main=outputname,
                              options="--tex-option=-c-style-errors --tex-option=-synctex=-1",
                              includedir="--tex-option=-include-directory=",
                              stylepath=FALSE,
+                             source.code=NULL,
                              ...) {
+    if (!is.null(source.code))
+    	try(source(source.code, local=TRUE))
     if (sub(".*\\.tex$", "TeX", Rnw, ignore.case = TRUE) == "TeX") 
     	outputname <- Rnw
     else

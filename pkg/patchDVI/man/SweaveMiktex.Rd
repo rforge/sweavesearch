@@ -10,12 +10,12 @@ SweaveMiktex(Rnw, main=outputname,
                   cmd="texify",
                   options="--tex-option=-c-style-errors --tex-option=--src-specials",
                   includedir="--tex-option=--include-directory=",
-                  stylepath=FALSE, ...)
+                  stylepath=FALSE, source.code=NULL, ...)
 SweavePDFMiktex(Rnw, main=outputname,  
                   cmd="texify --pdf", 
                   options="--tex-option=-c-style-errors --tex-option=-synctex=-1",
                   includedir="--tex-option=-include-directory=",
-                  stylepath=FALSE, ...)
+                  stylepath=FALSE, source.code=NULL, ...)
 }
 \arguments{
   \item{Rnw}{ The .Rnw input file }
@@ -24,12 +24,22 @@ SweavePDFMiktex(Rnw, main=outputname,
   \item{options}{ Options to pass to LaTeX }
   \item{includedir}{ The prefix for an option to give the location of Sweave.sty }
   \item{stylepath}{ \code{stylepath} argument to pass to \code{\link{Sweave}} }
+  \item{source.code}{ If not \code{NULL}, a filename to source before running \code{\link{Sweave}} }
   \item{...}{ Additional options to pass to \code{\link{Sweave}} }
 }
 \details{
 If the \code{Rnw} argument is a filename ending in \file{.tex}, then 
 \code{Sweave} is skipped, but the \file{.dvi} file is still patched (because
 one of the other files in the project might have come from Sweave).
+
+The \code{source.code} argument may be used to temporarily install code before
+running the document through \code{\link{Sweave}}.  It could install
+an experimental version of \code{\link{Sweave}}, or set up some variables 
+to be used by other code chunks, etc.  (Note that things are sourced locally,
+whereas \code{\link{Sweave}} runs things in the global environment, 
+so the file will need to make explicit assignments there, and it should
+avoid using names that clash with the argument names to \code{SweaveMiktex}
+or \code{SweavePDFMiktex}.)
 }
 
 \value{

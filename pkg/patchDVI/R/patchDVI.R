@@ -4,7 +4,10 @@ SweaveMiktex <- function(Rnw,
                          options="--tex-option=-c-style-errors --tex-option=--src-specials",
                          includedir="--tex-option=--include-directory=",
                          stylepath=FALSE,
+                         source.code=NULL,
                          ...) {
+    if (!is.null(source.code))
+    	try(source(source.code, local=TRUE))
     if (sub(".*\\.tex$", "TeX", Rnw, ignore.case = TRUE) == "TeX") 
     	outputname <- Rnw
     else

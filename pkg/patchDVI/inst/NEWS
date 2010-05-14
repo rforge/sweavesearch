@@ -29,3 +29,6 @@ Quick initial releases.
 1.5:  Add stylepath and ... args to SweaveMiktex for more flexibility.
       Add BugReports field to DESCRIPTION.
       
+1.6:  Add source.code arg to SweaveMiktex and SweavePDFMiktex to allow 
+      experimental versions of Sweave to be used.
+      
