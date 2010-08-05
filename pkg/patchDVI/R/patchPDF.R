@@ -4,20 +4,58 @@ SweavePDFMiktex <- function( Rnw, main=outputname,
                              includedir="--tex-option=-include-directory=",
                              stylepath=FALSE,
                              source.code=NULL,
+                             make=1,
                              ...) {
-    if (!is.null(source.code))
+    if (!is.null(source.code) && file.exists(source.code))
     	try(source(source.code, local=TRUE))
     if (sub(".*\\.tex$", "TeX", Rnw, ignore.case = TRUE) == "TeX") 
     	outputname <- Rnw
     else
-    	outputname <- Sweave(Rnw, stylepath=stylepath, ...)
+    	outputname <- SweaveAll(Rnw, stylepath=stylepath, make=make, ...)[1]
+    
     cmd <- paste(cmd, " ", options, " ", includedir,
                  file.path(R.home("share"), "texmf "),
                  main, sep="")
     cat(cmd, "\n")
     result <- system(cmd, intern=FALSE, show=TRUE)
     if (result != 0) Sys.sleep(5)
-    patchSynctex(sub("\\.tex", ".synctex", main, ignore.case = TRUE))    
+    patchSynctex(sub("\\.tex$", ".synctex", main, ignore.case = TRUE))    
+}
+
+SweavePDF <- function( Rnw, main=outputname,
+                       texinputs=NULL,
+                       source.code=NULL,
+                       stylepath=FALSE,
+                       make=1,
+                       ... ) {
+    if (!is.null(source.code) && file.exists(source.code))
+    	try(source(source.code, local=TRUE))
+    if (sub(".*\\.tex$", "TeX", Rnw, ignore.case = TRUE) == "TeX") 
+    	outputname <- Rnw
+    else
+    	outputname <- SweaveAll(Rnw, stylepath=stylepath, make=make, ...)[1]
+    tools::texi2dvi(main, pdf=TRUE, texinputs=texinputs)
+    patchSynctex(sub("\\.tex$", ".synctex", main, ignore.case=TRUE))
+}
+
+SweaveAll <- function(SweaveFiles, stylepath=FALSE, make=1, ...) {
+    i <- 0
+    result <- character()
+    while (i < length(SweaveFiles)) {
+        i <- i+1
+    	result <- c(result, Sweave(SweaveFiles[i], stylepath=stylepath, ...))
+    	if (make && exists("SweaveFiles", envir=globalenv())) {
+    	    newfiles <- setdiff(get("SweaveFiles", globalenv()), SweaveFiles)
+            if (length(newfiles)) {
+            	if (make == 1) {
+            	    tex <- paste(tools::file_path_sans_ext(newfiles), ".tex", sep="")
+            	    SweaveFiles <- c(SweaveFiles, newfiles[file_test("-nt", newfiles, tex)])
+            	} else 
+            	    SweaveFiles <- c(SweaveFiles, newfiles)
+            }
+        }
+    }
+    result
 }
 
 rawToLines <- function(raw) {
@@ -191,7 +229,11 @@ parseConcords <- function(lines) {
 }
 
 patchSynctex <- function(f, newname=f) {
-    lines <- readLines(f)
+    lines <- try(readLines(f), silent=TRUE)
+    if (inherits(lines, "try-error")) {
+    	message(f," cannot be read, no patching done.")
+    	return()
+    }
     files <- syncFiles(lines)
     pdfname <- file.path(files$path[1], paste(sub(".tex", "", files$name[1]), ".pdf", sep=""))
     concords <- parseConcords(pdfobjs(pdfname, "concordance:"))

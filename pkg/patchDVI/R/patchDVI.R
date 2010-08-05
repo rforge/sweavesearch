@@ -5,21 +5,40 @@ SweaveMiktex <- function(Rnw,
                          includedir="--tex-option=--include-directory=",
                          stylepath=FALSE,
                          source.code=NULL,
+                         make=1,
                          ...) {
     if (!is.null(source.code))
     	try(source(source.code, local=TRUE))
     if (sub(".*\\.tex$", "TeX", Rnw, ignore.case = TRUE) == "TeX") 
     	outputname <- Rnw
     else
-    	outputname <- Sweave(Rnw, stylepath=stylepath, ...)
+    	outputname <- SweaveAll(Rnw, stylepath=stylepath, make=make, ...)[1]
     cmd <- paste(cmd, " ", options, " ", includedir,
                  file.path(R.home("share"), "texmf "),
                  main, sep="")    	
     cat(cmd, "\n")
     result <- system(cmd, intern=FALSE, show=TRUE)
     if (result != 0) Sys.sleep(5)
-    patchDVI(sub("\\.tex", ".dvi", main, ignore.case = TRUE))
+    patchDVI(sub("\\.tex$", ".dvi", main, ignore.case = TRUE))
 }
+
+SweaveDVI <- function( Rnw, main=outputname,
+                       texinputs=NULL,
+                       source.code=NULL,
+                       stylepath=FALSE,
+                       make=1,
+                       ... ) {
+    if (!is.null(source.code) && file.exists(source.code))
+    	try(source(source.code, local=TRUE))
+    if (sub(".*\\.tex$", "TeX", Rnw, ignore.case = TRUE) == "TeX") 
+    	outputname <- Rnw
+    else
+    	outputname <- SweaveAll(Rnw, stylepath=stylepath, make=make, ...)[1]
+    tools::texi2dvi(main, pdf=FALSE, texinputs=texinputs)
+    patchDVI(sub("\\.tex$", ".dvi", main, ignore.case=TRUE))
+}
+
+
 
 readDVI <- function(f, show=c("bop", "special", "fntdef", "preamble")) {
     size <- file.info(f)$size

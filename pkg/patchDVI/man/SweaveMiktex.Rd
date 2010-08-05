@@ -1,21 +1,36 @@
 \name{SweaveMiktex}
 \alias{SweaveMiktex}
 \alias{SweavePDFMiktex}
+\alias{SweaveDVI}
+\alias{SweavePDF}
 \title{Simple function to run MikTeX}
 \description{
 This is a simple script to run Sweave, then MikTeX, then patchDVI. 
 }
 \usage{
+
 SweaveMiktex(Rnw, main=outputname, 
                   cmd="texify",
                   options="--tex-option=-c-style-errors --tex-option=--src-specials",
                   includedir="--tex-option=--include-directory=",
-                  stylepath=FALSE, source.code=NULL, ...)
+                  stylepath=FALSE, source.code=NULL, make=1, ...)
 SweavePDFMiktex(Rnw, main=outputname,  
                   cmd="texify --pdf", 
                   options="--tex-option=-c-style-errors --tex-option=-synctex=-1",
                   includedir="--tex-option=-include-directory=",
-                  stylepath=FALSE, source.code=NULL, ...)
+                  stylepath=FALSE, source.code=NULL, make=1, ...)
+SweaveDVI(Rnw, main=outputname, 
+          texinputs = NULL, 
+          source.code = NULL, 
+          stylepath = FALSE, 
+          make = 1, ...)
+
+SweavePDF(Rnw, main=outputname, 
+          texinputs = NULL, 
+          source.code = NULL, 
+          stylepath = FALSE, 
+          make = 1, ...)
+
 }
 \arguments{
   \item{Rnw}{ The .Rnw input file }
@@ -25,6 +40,8 @@ SweavePDFMiktex(Rnw, main=outputname,
   \item{includedir}{ The prefix for an option to give the location of Sweave.sty }
   \item{stylepath}{ \code{stylepath} argument to pass to \code{\link{Sweave}} }
   \item{source.code}{ If not \code{NULL}, a filename to source before running \code{\link{Sweave}} }
+  \item{make}{ Value to pass to \code{\link{SweaveAll}} to control which Sweave files are processed }
+  \item{texinputs}{ Extra paths to pass to \code{\link[tools]{texi2dvi}} }
   \item{...}{ Additional options to pass to \code{\link{Sweave}} }
 }
 \details{
@@ -40,10 +57,15 @@ whereas \code{\link{Sweave}} runs things in the global environment,
 so the file will need to make explicit assignments there, and it should
 avoid using names that clash with the argument names to \code{SweaveMiktex}
 or \code{SweavePDFMiktex}.)
+
+The three functions invoke Latex differently.  \code{SweaveMiktex} is designed
+to call Miktex's \code{texify} command to produce a \file{.dvi} file.  \code{SweavePDFMiktex}
+does the same, but produces a \file{.pdf}.  \code{SweaveDVI} and \code{SweavePDF}
+are similar, but use \R{}'s \code{\link[tools]{texi2dvi}} function to invoke Latex.
 }
 
 \value{
-This function is run for the side effects.
+These functions are run for the side effects.
 }
 
 \examples{
