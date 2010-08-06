@@ -34,7 +34,7 @@ SweavePDF <- function( Rnw, main=outputname,
     	outputname <- Rnw
     else
     	outputname <- SweaveAll(Rnw, stylepath=stylepath, make=make, ...)[1]
-    tools::texi2dvi(main, pdf=TRUE, texinputs=texinputs)
+    texi2dvi(main, pdf=TRUE, texinputs=texinputs)
     patchSynctex(sub("\\.tex$", ".synctex", main, ignore.case=TRUE))
 }
 
