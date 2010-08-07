@@ -28,7 +28,7 @@ texi2dvi <-
 function(file, pdf = FALSE, clean = FALSE, quiet = FALSE,
          texi2dvi = getOption("texi2dvi"),
          texinputs = NULL, index = TRUE,
-         links = "--src-specials" )
+         links = NULL )
 {
     ## Run texi2dvi on a latex file, or emulate it.
 
@@ -148,7 +148,7 @@ function(file, pdf = FALSE, clean = FALSE, quiet = FALSE,
                           sep = "\n"))
     } else if(index && nzchar(texi2dvi)) { # MiKTeX on Windows
         extra <- ""
-        if (missing(links))
+        if (is.null(links))
             links <- if(pdf) "--tex-option=-synctex=-1" else "--tex-option=--src-specials"
         ext <- if(pdf) "pdf" else "dvi"
         pdf <- if(pdf) "--pdf" else ""
@@ -211,6 +211,8 @@ function(file, pdf = FALSE, clean = FALSE, quiet = FALSE,
 
         ## If it is called with MiKTeX then TEXINPUTS etc will be ignored.
 
+        if (is.null(links))
+            links <- if(pdf) "--synctex=-1" else "--src-specials"
         texfile <- shQuote(file)
         base <- tools:::file_path_sans_ext(file)
         idxfile <- paste(base, ".idx", sep="")

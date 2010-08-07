@@ -23,13 +23,15 @@ SweaveDVI(Rnw, main=outputname,
           texinputs = NULL, 
           source.code = NULL, 
           stylepath = FALSE, 
-          make = 1, ...)
+          make = 1, 
+          links = NULL, ...)
 
 SweavePDF(Rnw, main=outputname, 
           texinputs = NULL, 
           source.code = NULL, 
           stylepath = FALSE, 
-          make = 1, ...)
+          make = 1, 
+          links = NULL, ...)
 
 }
 \arguments{
@@ -42,6 +44,8 @@ SweavePDF(Rnw, main=outputname,
   \item{source.code}{ If not \code{NULL}, a filename to source before running \code{\link{Sweave}} }
   \item{make}{ Value to pass to \code{\link{SweaveAll}} to control which Sweave files are processed }
   \item{texinputs}{ Extra paths to pass to \code{\link[tools]{texi2dvi}} }
+  \item{links}{ If not \code{NULL}, an option to turn on production of source links
+      via Synctex or source specials}
   \item{...}{ Additional options to pass to \code{\link{Sweave}} }
 }
 \details{
@@ -61,7 +65,8 @@ or \code{SweavePDFMiktex}.)
 The three functions invoke Latex differently.  \code{SweaveMiktex} is designed
 to call Miktex's \code{texify} command to produce a \file{.dvi} file.  \code{SweavePDFMiktex}
 does the same, but produces a \file{.pdf}.  \code{SweaveDVI} and \code{SweavePDF}
-are similar, but use \R{}'s \code{\link[tools]{texi2dvi}} function to invoke Latex.
+are similar, but use a modified version of \R{}'s \code{\link[tools]{texi2dvi}} 
+function to invoke Latex.
 }
 
 \value{

@@ -27,6 +27,7 @@ SweaveDVI <- function( Rnw, main=outputname,
                        source.code=NULL,
                        stylepath=FALSE,
                        make=1,
+                       links=NULL,
                        ... ) {
     if (!is.null(source.code) && file.exists(source.code))
     	try(source(source.code, local=TRUE))
@@ -34,7 +35,7 @@ SweaveDVI <- function( Rnw, main=outputname,
     	outputname <- Rnw
     else
     	outputname <- SweaveAll(Rnw, stylepath=stylepath, make=make, ...)[1]
-    texi2dvi(main, pdf=FALSE, texinputs=texinputs)
+    texi2dvi(main, pdf=FALSE, texinputs=texinputs, links=links)
     patchDVI(sub("\\.tex$", ".dvi", main, ignore.case=TRUE))
 }
 
