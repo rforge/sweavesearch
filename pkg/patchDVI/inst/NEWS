@@ -32,5 +32,6 @@ Quick initial releases.
 1.6:  Add source.code arg to SweaveMiktex and SweavePDFMiktex to allow 
       experimental versions of Sweave to be used.
       
-1.7:  Add SweaveAll, SweavePDF, SweaveDVI.
+1.7:  Add SweaveAll, SweavePDF, SweaveDVI, as well as handling .SweaveFiles
+      and .TexRoot (see ?SweaveAll).
       
