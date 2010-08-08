@@ -1,0 +1,152 @@
+\documentclass[12pt]{article}
+\usepackage{Sweave}
+\SweaveOpts{concordance=TRUE}
+
+\newcommand{\patchDVI}{\texttt{patchDVI}\ }
+
+\title{The \patchDVI package}
+\author{Duncan Murdoch}
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+
+Most implementations of \LaTeX allow source references to be emitted, so
+that previewers of the \texttt{.dvi} or \texttt{.pdf} output file can
+link back to the original source line.  This has been a feature of the
+\texttt{yap} previewer for \texttt{.dvi} files in MikTeX for many
+years.  Support for source references appeared for \texttt{.pdf}
+output in \texttt{pdfsync} and more recently in Synctex.  
+
+Unfortunately for Sweave users, these links point to the \texttt{.tex}
+source that was processed, which is not the true source code in the
+Sweave \texttt{.Rnw} or \texttt{.Snw} or other input file.  (I will
+refer to all of these as \texttt{.Rnw} files.)
+Clicking on ``go to source''
+in a previewer will jump to the \texttt{.tex} file; changes made there
+will be lost the next time the Sweave input is processed.
+
+\section{\patchDVI History}
+
+I wrote the \patchDVI package to address this problem.  Initially only
+for \texttt{.dvi} files (hence the name), it works as follows.  If the
+Sweave file is processed with the option \texttt{concordance=TRUE},
+Sweave will output a record of the concordance between the lines in
+the input file and the output file.  This first appeared in R version
+2.5.0, with incompatible changes in R version 2.8.0 when \texttt{.pdf}
+support was added.  When the file is processed by \LaTeX, this
+information is embedded in the output.  (Details of the embedding are
+described below.)  After producing the \texttt{.dvi} or \texttt{.pdf} file,
+a \patchDVI function is run to read the concordance information and 
+to patch the source reference information produced by \LaTeX.  Once this
+has been done, previewers will see references to the original
+Sweave source rather than the \LaTeX intermediate file.
+
+Using \patchDVI requires a pre-processing step (Sweave), \LaTeX
+processing, and a post-processing step (patching).  It quickly became
+apparent that it was convenient to package these three steps into a
+single R function, so the user only needed to make a single call.  But
+the details of \LaTeX processing vary from platform to platform, so I
+wrote functions \texttt{SweaveMiktex} and \texttt{SweavePDFMiktex}
+specific to the MikTex platform, with the intention of adding
+others as I used them or users told me what needed adding.  This never happened,
+but in the meantime, Brian Ripley made the \texttt{tools::texi2dvi} function
+in R much more flexible, and in the recent release of version 1.7 of
+\patchDVI I have included a slightly modified version of it with the hope that
+\patchDVI will now be more nearly platform neutral.
+
+The 1.7 release was motivated by an attempt to support TeXWorks, a
+cross-platform \LaTeX targetted editor.  TeXWorks is still in its early
+days (I was working with version 0.2 on Windows), and it did not have
+enough flexibility to handle large Sweave projects, where for example, each
+chapter of a book requires separate Sweave processing, but \LaTeX processes
+only a main wrapper file.  This prompted me to include more \texttt{make}-style
+capabilities into \patchDVI.  It is now possible to specify a list of
+Sweave input files to process (optionally only if they have changed since the
+last processing) and the main wrapper file, all within Sweave chunks
+in a single file, using the \texttt{SweaveAll} function.
+
+\section{Sweave Concordances}
+
+Sweave processes the code chunks in the \texttt{.Rnw} file, replacing it
+with the requested output from the command.  This means that the output \texttt{.tex}
+file alternates between copied \LaTeX source and newly produced blocks of 
+output.  Each line in the \texttt{.tex} file can thus be mapped to 
+one or more lines of input, and that is what the concordance does.
+
+The concordance records are text records in the following format.  There are
+three parts, separated by colons:
+\begin{enumerate}
+\item The output \texttt{.tex} filename.
+\item The input \texttt{.Rnw} filename.
+\item The input line numbers corresponding to each output line.
+\end{enumerate}
+The third component is compressed using a simple encoding:  The first
+number is the first line number; the remainder of line numbers are a
+run-length encoding of the differences.  Thus if the input file is as
+shown in Table \ref{tab:input}, 
+\begin{table}
+\caption{Input file for simple example}
+\begin{center}
+\begin{tabular}{ll}
+\hline
+Line number & Input text \\
+\hline
+1 & \verb!\SweaveOpts{concordance=TRUE}!  \\
+2 & This is text  \\
+3 & \verb!<<>>=!  \\ 
+4 & \verb!123! \\
+5 &  \verb!@! \\
+6 & This is more text  \\
+\hline
+\end{tabular}
+\end{center}
+\end{table}
+the output file would be as
+shown in Table \ref{tab:output}, with the concordance as shown in the second column.
+\begin{table}
+\caption{Output file for simple example}
+\begin{center}
+\begin{tabular}{lll}
+\hline
+Output line & Input line &  Output text \\
+\hline
+1 & 1 & \verb!\input{sample-concordance}! \\
+2 & 2 & This is text. \\
+3 & 4 & \verb!\begin{Schunk}! \\
+4 & 4 & \verb!\begin{Sinput}! \\
+5 & 4 & \verb!> 123! \\
+6 & 4 & \verb!\end{Sinput}! \\
+7 & 4 & \verb!\begin{Soutput}! \\
+8 & 4 & \verb![1] 123! \\
+9 & 4 & \verb!\end{Soutput}! \\
+10 & 4 & \verb!\end{Schunk}! \\
+11 & 6 & This is more text \\
+\hline
+\end{tabular}
+\end{center}
+\end{table}
+This concordance would be recorded in the file \texttt{sample-concordance.tex}
+as
+\begin{verbatim}
+\Sconcordance{concordance:sample.tex:sample.Rnw:%
+1 1 1 1 2 7 0 1 2}
+\end{verbatim}
+The numeric part of this file may be interpreted as: 
+\begin{center}
+line 1  \\
+1 increase of 1 \\
+1 increase of 2 \\
+7 increases of 0 \\
+1 increase of 2 \\
+\end{center}
+
+\section{Patching \texttt{.dvi} Files}
+
+\section{Patching \texttt{.synctex} Files}
+
+\section{Project Management Functions}
+
+\end{document}

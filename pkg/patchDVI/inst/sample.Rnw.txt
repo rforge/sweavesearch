@@ -1,0 +1,6 @@
+\SweaveOpts{concordance=TRUE}
+This is text.
+<<>>=
+123
+@
+This is more text.
