@@ -210,6 +210,15 @@ parseConcords <- function(lines) {
 }
 
 patchSynctex <- function(f, newname=f) {
+    compressed <- FALSE
+    if (!file.exists(f)) {
+    	f <- paste(f, ".gz", sep="")
+    	if (file.exists(f)) {
+    	    compressed <- TRUE
+    	    force(newname)
+    	    f <- gzfile(f)
+    	}
+    }
     lines <- try(readLines(f), silent=TRUE)
     if (inherits(lines, "try-error")) {
     	message(f," cannot be read, no patching done.")
@@ -252,6 +261,6 @@ patchSynctex <- function(f, newname=f) {
     	           paste("Input:", newtags, ":", names(newtags), sep=""),
     	           lines[(firstInput+1):length(lines)])
     }
-    writeLines(lines, newname)
+    writeLines(lines, if (compressed) gzfile(newname) else newname)
     paste(sum(changed) + length(newtags), "patches made.")                 
 }
