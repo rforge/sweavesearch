@@ -1,10 +1,10 @@
-SweaveAll <- function(SweaveFiles, stylepath=FALSE, make=1, ...) {
+SweaveAll <- function(SweaveFiles, make=1, ...) {
     i <- 0
     result <- character()
     while (i < length(SweaveFiles)) {
         i <- i+1
         suppressWarnings(remove(".SweaveFiles", ".TexRoot", envir=globalenv()))
-    	result <- c(result, Sweave(SweaveFiles[i], stylepath=stylepath, ...))
+    	result <- c(result, Sweave(SweaveFiles[i], ...))
     	if (make && exists(".SweaveFiles", envir=globalenv())) {
     	    newfiles <- setdiff(get(".SweaveFiles", globalenv()), SweaveFiles)
             if (length(newfiles)) {

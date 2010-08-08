@@ -8,14 +8,11 @@ This function allows a master Sweave input file to specify other files in the
 project.  All modified files will be run through \code{\link{Sweave}}.
 }
 \usage{
-SweaveAll(SweaveFiles, stylepath = FALSE, make = 1, ...)
+SweaveAll(SweaveFiles, make = 1, ...)
 }
 \arguments{
   \item{SweaveFiles}{character vector naming the files to 
   always run through \code{\link{Sweave}}.  
-}
-  \item{stylepath}{
-  logical value to pass to \code{Sweave}.
 }
   \item{make}{
   integer indicating which files to run \code{Sweave} on.  See below.

@@ -22,14 +22,12 @@ SweavePDFMiktex(Rnw, main=outputname,
 SweaveDVI(Rnw, main=outputname, 
           texinputs = NULL, 
           source.code = NULL, 
-          stylepath = FALSE, 
           make = 1, 
           links = NULL, ...)
 
 SweavePDF(Rnw, main=outputname, 
           texinputs = NULL, 
           source.code = NULL, 
-          stylepath = FALSE, 
           make = 1, 
           links = NULL, ...)
 

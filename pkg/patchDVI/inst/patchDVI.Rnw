@@ -2,7 +2,7 @@
 \usepackage{Sweave}
 \SweaveOpts{concordance=TRUE}
 
-\newcommand{\patchDVI}{\texttt{patchDVI}\ }
+\newcommand{\patchDVI}{\textsl{patchDVI}\ }
 
 \title{The \patchDVI package}
 \author{Duncan Murdoch}
@@ -13,12 +13,13 @@
 
 \section{Introduction}
 
-Most implementations of \LaTeX allow source references to be emitted, so
+Most implementations of \LaTeX\ allow source references to be emitted, so
 that previewers of the \texttt{.dvi} or \texttt{.pdf} output file can
 link back to the original source line.  This has been a feature of the
 \texttt{yap} previewer for \texttt{.dvi} files in MikTeX for many
-years.  Support for source references appeared for \texttt{.pdf}
-output in \texttt{pdfsync} and more recently in Synctex.  
+years.  Support for source references has appeared more recently
+for \texttt{.pdf}
+output in \texttt{pdfsync} and is currently available in Synctex.  
 
 Unfortunately for Sweave users, these links point to the \texttt{.tex}
 source that was processed, which is not the true source code in the
@@ -28,27 +29,33 @@ Clicking on ``go to source''
 in a previewer will jump to the \texttt{.tex} file; changes made there
 will be lost the next time the Sweave input is processed.
 
+
+I wrote the \patchDVI package to address this problem.  It works as
+follows.  If the Sweave file is processed with the option
+\texttt{concordance=TRUE}, Sweave will output a record of the
+concordance between the lines in the input file and the output file.
+When the file is processed by \LaTeX, this information is embedded in
+the output.  (Details of the embedding are described below.)  After
+producing the \texttt{.dvi} or \texttt{.pdf} file, a \patchDVI
+function is run to read the concordance information and to patch the
+source reference information produced by \LaTeX.  Once this has been
+done, previewers will see references to the original Sweave source
+rather than the \LaTeX\ intermediate file.
+
+
 \section{\patchDVI History}
 
-I wrote the \patchDVI package to address this problem.  Initially only
-for \texttt{.dvi} files (hence the name), it works as follows.  If the
-Sweave file is processed with the option \texttt{concordance=TRUE},
-Sweave will output a record of the concordance between the lines in
-the input file and the output file.  This first appeared in R version
-2.5.0, with incompatible changes in R version 2.8.0 when \texttt{.pdf}
-support was added.  When the file is processed by \LaTeX, this
-information is embedded in the output.  (Details of the embedding are
-described below.)  After producing the \texttt{.dvi} or \texttt{.pdf} file,
-a \patchDVI function is run to read the concordance information and 
-to patch the source reference information produced by \LaTeX.  Once this
-has been done, previewers will see references to the original
-Sweave source rather than the \LaTeX intermediate file.
+Initially  \patchDVI only worked for \texttt{.dvi} files (hence the name).
+It required changes to the Sweave function in R, which 
+first appeared around the release of R version
+2.5.0. with incompatible changes in R version 2.8.0 when \texttt{.pdf}
+support was added to \patchDVI.
 
-Using \patchDVI requires a pre-processing step (Sweave), \LaTeX
+Using \patchDVI requires a pre-processing step (Sweave), \LaTeX\ 
 processing, and a post-processing step (patching).  It quickly became
 apparent that it was convenient to package these three steps into a
 single R function, so the user only needed to make a single call.  But
-the details of \LaTeX processing vary from platform to platform, so I
+the details of \LaTeX\  processing vary from platform to platform, so I
 wrote functions \texttt{SweaveMiktex} and \texttt{SweavePDFMiktex}
 specific to the MikTex platform, with the intention of adding
 others as I used them or users told me what needed adding.  This never happened,
@@ -58,10 +65,10 @@ in R much more flexible, and in the recent release of version 1.7 of
 \patchDVI will now be more nearly platform neutral.
 
 The 1.7 release was motivated by an attempt to support TeXWorks, a
-cross-platform \LaTeX targetted editor.  TeXWorks is still in its early
+cross-platform \LaTeX\ targetted editor.  TeXWorks is still in its early
 days (I was working with version 0.2 on Windows), and it did not have
 enough flexibility to handle large Sweave projects, where for example, each
-chapter of a book requires separate Sweave processing, but \LaTeX processes
+chapter of a book requires separate Sweave processing, but \LaTeX\ processes
 only a main wrapper file.  This prompted me to include more \texttt{make}-style
 capabilities into \patchDVI.  It is now possible to specify a list of
 Sweave input files to process (optionally only if they have changed since the
@@ -70,9 +77,9 @@ in a single file, using the \texttt{SweaveAll} function.
 
 \section{Sweave Concordances}
 
-Sweave processes the code chunks in the \texttt{.Rnw} file, replacing it
+Sweave processes the code chunks in the \texttt{.Rnw} file, replacing each
 with the requested output from the command.  This means that the output \texttt{.tex}
-file alternates between copied \LaTeX source and newly produced blocks of 
+file alternates between copied \LaTeX\ source and newly produced blocks of 
 output.  Each line in the \texttt{.tex} file can thus be mapped to 
 one or more lines of input, and that is what the concordance does.
 
@@ -88,7 +95,7 @@ number is the first line number; the remainder of line numbers are a
 run-length encoding of the differences.  Thus if the input file is as
 shown in Table \ref{tab:input}, 
 \begin{table}
-\caption{Input file for simple example}
+\caption{Input file for simple example.\label{tab:input}}
 \begin{center}
 \begin{tabular}{ll}
 \hline
@@ -107,7 +114,7 @@ Line number & Input text \\
 the output file would be as
 shown in Table \ref{tab:output}, with the concordance as shown in the second column.
 \begin{table}
-\caption{Output file for simple example}
+\caption{Output file for simple example.\label{tab:output}}
 \begin{center}
 \begin{tabular}{lll}
 \hline
@@ -145,8 +152,95 @@ line 1  \\
 
 \section{Patching \texttt{.dvi} Files}
 
+The \verb!\Sconcordance! macro expands to a \verb!\special! macro with
+prefix ``concordance:'' when
+producing a \texttt{.dvi} file.  This is included verbatim in the \texttt{.dvi}
+file; the \texttt{patchDVI} function scans the whole file until it finds
+the record.  Source references are recorded by \LaTeX\ in \verb!\special! records; 
+their prefix is ``src:''.  The \texttt{patchDVI} function reads
+each ``src:'' special and if it refers to a file in a ``concordance:'' special,
+makes the substitution.  At the end, it rewrites the whole \texttt{.dvi} file.
+
+
+
 \section{Patching \texttt{.synctex} Files}
 
-\section{Project Management Functions}
+For \texttt{.pdf} files, the \verb!\Sconcordance! macro expands to a
+\verb!\pdfobj! macro containing the concordance, which eventually is
+embedded in the \texttt{.pdf} file.  However, the Synctex scheme of
+source references does not write them to the \texttt{.pdf} file
+directly.  Instead, they are written to a separate file with extension
+\texttt{.synctex}, or a compressed version of that file, with
+extension \texttt{.synctex.gz}.  The \texttt{patchSynctex} function
+reads the concordances from the \texttt{.pdf} file and the source
+references from the \texttt{.synctex} file.  It rewrites only
+the \texttt{.synctex} file when it makes its changes.
+
+
+\section{Project Management Function \texttt{SweaveAll}}
+
+As mentioned above, there are a number of steps involved in running \patchDVI
+with a complex Sweave project:
+\begin{enumerate}
+\item Run Sweave on each input file.
+\item Run \LaTeX\ on the main wrapper file.
+\item Run the appropriate \patchDVI function on the output file.
+\item Preview or print the result.
+\end{enumerate}
+Moreover, step 1 needs to be repeated once for each Sweave file, but only
+if the content has changed since the last run, while the other steps need only
+be done once.
+
+To manage this complication, the \patchDVI package now includes a simple
+project management function, \texttt{SweaveAll}.  This function takes a vector
+of filenames, and runs Sweave on each.  After each run, it examines the
+global environment for two variables:  \texttt{.SweaveFiles} and \texttt{.TexRoot}.
+
+A code chunk in a \texttt{Rnw} file may produce a character vector
+\texttt{.SweaveFiles}.  It should contain the names of \texttt{.Rnw} 
+files in the project.  If no corresponding \texttt{.tex} file exists, or the
+\texttt{.Rnw} file is newer, they will be run through Sweave.  They may in
+turn name additional \texttt{.Rnw} files to process.
+
+There is an optional parameter named \texttt{make} to the \texttt{SweaveAll} function.
+If \texttt{make=1} (the default), things proceed as described above.  If \texttt{make=0},
+the \texttt{.SweaveFiles} variable is ignored, and only the explicitly named
+files in the call to \texttt{SweaveAll} are processed.  If \texttt{make=2}, then
+all files are processed, whether they are newer than their \texttt{.tex} 
+file or not.
+
+A \texttt{.Rnw} file may also set the value of \texttt{.TexRoot} to the name of
+a \texttt{.tex} file.  If it does, then that is the file that will be passed
+to \LaTeX\ for processing.  If none is given, then the first file in the call
+to \texttt{SweaveAll} will be assumed to be the root file.  (If multiple
+different \texttt{.TexRoot} variables are specified by different \texttt{.Rnw}
+files, one of them will be used, but it is hard to predict which:  so don't do
+that.)
+
+\texttt{SweaveAll} is called by all of the functions desribed in the previous 
+section to do step 1 of the \patchDVI steps.
+
+The workflow this is designed for is as follows.  Each \texttt{.Rnw}
+chapter (named for example ``chapter.Rnw'') 
+in a large project should specify the \texttt{.TexRoot}, e.g. using the
+code chunk
+\begin{verbatim}
+ <<echo=FALSE>>=
+ .TexRoot <- "wrapper.tex"
+ @
+\end{verbatim}
+Then while one is working on ``chapter.Rnw'', one can call
+\texttt{SweavePDF} or \texttt{SweaveDVI} (or the MikTeX versions) 
+with argument \texttt{"chapter.Rnw"} 
+and the chapter will be processed through
+the full sequence.  Similarly, the wrapper file (named for example
+``wrapper.Rnw'') should be a \texttt{.Rnw} file that sets
+\texttt{.SweaveFiles} to the complete list of files in the project.
+Then one can rebuild the entire document by calling
+\texttt{SweavePDF("wrapper.Rnw")}.
+
+More complicated schemes are possible.  Each chapter can have subsections in separate
+files; then the chapter would name the subsections, but the main wrapper would only
+need to name the chapters.
 
 \end{document}

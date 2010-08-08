@@ -11,7 +11,7 @@ SweavePDFMiktex <- function( Rnw, main=outputname,
     if (sub(".*\\.tex$", "TeX", Rnw, ignore.case = TRUE) == "TeX") 
     	outputname <- Rnw
     else
-    	outputname <- SweaveAll(Rnw, stylepath=stylepath, make=make, ...)[1]
+    	outputname <- SweaveAll(Rnw, make=make, stylepath=stylepath, ...)[1]
     
     cmd <- paste(cmd, " ", options, " ", includedir,
                  file.path(R.home("share"), "texmf "),
@@ -25,7 +25,6 @@ SweavePDFMiktex <- function( Rnw, main=outputname,
 SweavePDF <- function( Rnw, main=outputname,
                        texinputs=NULL,
                        source.code=NULL,
-                       stylepath=FALSE,
                        make=1,
                        links = NULL,
                        ... ) {
@@ -34,7 +33,7 @@ SweavePDF <- function( Rnw, main=outputname,
     if (sub(".*\\.tex$", "TeX", Rnw, ignore.case = TRUE) == "TeX") 
     	outputname <- Rnw
     else
-    	outputname <- SweaveAll(Rnw, stylepath=stylepath, make=make, ...)[1]
+    	outputname <- SweaveAll(Rnw, make=make, ...)[1]
     texi2dvi(main, pdf=TRUE, texinputs=texinputs, links=links)
     patchSynctex(sub("\\.tex$", ".synctex", main, ignore.case=TRUE))
 }
