@@ -37,14 +37,23 @@ function(file, pdf = FALSE, clean = FALSE, quiet = FALSE,
 
     envSep <- .Platform$path.sep
     texinputs0 <- texinputs
-    Rtexmf <- file.path(R.home("share"), "texmf", "tex", "latex")
+    Rtexmf <- file.path(R.home("share"), "texmf")
+    if (getRversion() < "2.12.0")
+    	Rtexinputs <- Rtexmf
+    else
+	Rtexinputs <- file.path(Rtexmf, "tex", "latex")
     ## "" forces use of default paths.
-    texinputs <- paste(c(texinputs, Rtexmf, ""), collapse = envSep)
+    texinputs <- paste(c(texinputs, Rtexinputs, ""), 
+                      collapse = envSep)
     ## not clear if this is needed, but works
     if(.Platform$OS.type == "windows")
         texinputs <- gsub("\\", "/", texinputs, fixed = TRUE)
-    Rtexmf <- file.path(R.home("share"), "texmf", "bibtex", "bst")
-    bstinputs <- paste(c(texinputs, Rtexmf, ""), collapse = envSep)
+    if (getRversion() < "2.12.0")
+        Rbstinputs <- Rtexmf
+    else 
+    	Rbstinputs <- file.path(Rtexmf, "bibtex", "bst")
+    bstinputs <- paste(c(texinputs, Rbstinputs, ""), 
+                      collapse = envSep)
 
     otexinputs <- Sys.getenv("TEXINPUTS", unset = NA)
     if(is.na(otexinputs)) {
@@ -149,28 +158,34 @@ function(file, pdf = FALSE, clean = FALSE, quiet = FALSE,
     } else if(index && nzchar(texi2dvi)) { # MiKTeX on Windows
         extra <- ""
         if (is.null(links))
-            links <- if(pdf) "--tex-option=-synctex=-1" else "--tex-option=--src-specials"
+            opt_links <- if(pdf) "--tex-option=-synctex=-1" else "--tex-option=--src-specials"
+        else
+            opt_links <- links
         ext <- if(pdf) "pdf" else "dvi"
-        pdf <- if(pdf) "--pdf" else ""
+        opt_pdf <- if(pdf) "--pdf" else ""
         file.create(".timestamp")
-        quiet <- if(quiet) "--quiet" else ""
+        opt_quiet <- if(quiet) "--quiet" else ""
 
         ## look for MiKTeX (which this almost certainly is)
         ## and set the path to R's style files.
         ## -I works in MiKTeX >= 2.4, at least
         ## http://docs.miktex.org/manual/texify.html
-        ver <- system(paste(shQuote(texi2dvi), "--version"), intern = TRUE)
+        cmd <- paste(shQuote(texi2dvi), "--version")
+        if (!quiet) message(cmd, "\n")
+        ver <- system(cmd, intern = TRUE)
         if(length(grep("MiKTeX", ver[1L]))) {
             ## AFAICS need separate -I for each element of texinputs.
-            texinputs <- c(texinputs0, Rtexmf,
-                           file.path(R.home("share"), "texmf", "bibtex", "bst"))
+            texinputs <- c(texinputs0, 
+                           Rtexinputs,
+                           Rbstinputs)
             paths <- paste ("-I", shQuote(texinputs))
             extra <- paste(extra, paste(paths, collapse = " "))
         }
         ## this only gives a failure in some cases, e.g. not for bibtex errors.
-        system(paste(shQuote(texi2dvi), quiet, pdf, links,
-                     shQuote(file), extra),
-               intern=TRUE, ignore.stderr=TRUE)
+        cmd <- paste(shQuote(texi2dvi), opt_quiet, opt_pdf, opt_links,
+                     shQuote(file), extra)
+        if (!quiet) message(cmd, "\n")
+        system(cmd, intern=TRUE, ignore.stderr=TRUE)
         msg <- ""
         ## (La)TeX errors.
         log <- paste(tools:::file_path_sans_ext(file), "log", sep = ".")
@@ -212,7 +227,9 @@ function(file, pdf = FALSE, clean = FALSE, quiet = FALSE,
         ## If it is called with MiKTeX then TEXINPUTS etc will be ignored.
 
         if (is.null(links))
-            links <- if(pdf) "--synctex=-1" else "--src-specials"
+            opt_links <- if(pdf) "--synctex=-1" else "--src-specials"
+        else
+            opt_links <- links
         texfile <- shQuote(file)
         base <- tools:::file_path_sans_ext(file)
         idxfile <- paste(base, ".idx", sep="")
@@ -220,7 +237,9 @@ function(file, pdf = FALSE, clean = FALSE, quiet = FALSE,
         else  Sys.getenv("LATEX", "latex")
         bibtex <- Sys.getenv("BIBTEX", "bibtex")
         makeindex <- Sys.getenv("MAKEINDEX", "makeindex")
-        if(system(paste(shQuote(latex), "-interaction=nonstopmode", links, texfile)))
+        cmd <- paste(shQuote(latex), "-interaction=nonstopmode", opt_links, texfile)
+        if (!quiet) message(cmd, "\n")
+        if(system(cmd))
             stop(gettextf("unable to run '%s' on '%s'", latex, file),
                  domain = NA)
         nmiss <- length(grep("^LaTeX Warning:.*Citation.*undefined",
@@ -230,12 +249,16 @@ function(file, pdf = FALSE, clean = FALSE, quiet = FALSE,
             if(nmiss) system(paste(shQuote(bibtex), shQuote(base)))
             nmiss_prev <- nmiss
             if(index && file.exists(idxfile)) {
-                if(system(paste(shQuote(makeindex), shQuote(idxfile))))
+                cmd <- paste(shQuote(makeindex), shQuote(idxfile))
+                if (!quiet) message(cmd, "\n")
+                if(system(cmd))
                     stop(gettextf("unable to run '%s' on '%s'",
                                   makeindex, idxfile),
                          domain = NA)
             }
-            if(system(paste(shQuote(latex), "-interaction=nonstopmode", links, texfile)))
+            paste(shQuote(latex), "-interaction=nonstopmode", opt_links, texfile)
+            if (!quiet) message(cmd, "\n")
+            if(system(cmd))
                 stop(gettextf("unable to run %s on '%s'", latex, file), domain = NA)
             Log <- readLines(paste(base, ".log", sep = ""))
             nmiss <- length(grep("^LaTeX Warning:.*Citation.*undefined", Log))

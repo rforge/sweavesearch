@@ -29,7 +29,6 @@ Clicking on ``go to source''
 in a previewer will jump to the \texttt{.tex} file; changes made there
 will be lost the next time the Sweave input is processed.
 
-
 I wrote the \patchDVI package to address this problem.  It works as
 follows.  If the Sweave file is processed with the option
 \texttt{concordance=TRUE}, Sweave will output a record of the
