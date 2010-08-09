@@ -43,7 +43,7 @@ function(file, pdf = FALSE, clean = FALSE, quiet = FALSE,
     else
 	Rtexinputs <- file.path(Rtexmf, "tex", "latex")
     ## "" forces use of default paths.
-    texinputs <- paste(c(texinputs, Rtexinputs, ""), 
+    texinputs <- paste(c(texinputs0, Rtexinputs, ""), 
                       collapse = envSep)
     ## not clear if this is needed, but works
     if(.Platform$OS.type == "windows")
@@ -52,7 +52,7 @@ function(file, pdf = FALSE, clean = FALSE, quiet = FALSE,
         Rbstinputs <- Rtexmf
     else 
     	Rbstinputs <- file.path(Rtexmf, "bibtex", "bst")
-    bstinputs <- paste(c(texinputs, Rbstinputs, ""), 
+    bstinputs <- paste(c(texinputs0, Rbstinputs, ""), 
                       collapse = envSep)
 
     otexinputs <- Sys.getenv("TEXINPUTS", unset = NA)
@@ -177,7 +177,7 @@ function(file, pdf = FALSE, clean = FALSE, quiet = FALSE,
             ## AFAICS need separate -I for each element of texinputs.
             texinputs <- c(texinputs0, 
                            Rtexinputs,
-                           Rbstinputs)
+                           if (getRversion() < "2.12.0") NULL else Rbstinputs)
             paths <- paste ("-I", shQuote(texinputs))
             extra <- paste(extra, paste(paths, collapse = " "))
         }
