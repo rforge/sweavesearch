@@ -152,7 +152,10 @@ patchDVI <- function(f, newname=f) {
     
     if (any(changed) || length(concordind))
     	setDVIspecials(f, specials, newname)
-    	
-    paste(sum(changed) + length(concordind), "patches made.")
+    
+    changes <- sum(changed) + length(concordind)
+    msg <- paste(changes, "patches made.")
+    if (!changes)
+    	msg <- paste(msg, "Did you set \\SweaveOpts{concordance=TRUE}?")
 }
 

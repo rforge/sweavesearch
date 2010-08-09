@@ -261,5 +261,9 @@ patchSynctex <- function(f, newname=f) {
     	           lines[(firstInput+1):length(lines)])
     }
     writeLines(lines, if (compressed) gzfile(newname) else newname)
-    paste(sum(changed) + length(newtags), "patches made.")                 
+    changes <- sum(changed) + length(newtags)
+    msg <- paste(changes, "patches made.") 
+    if (!changes)
+    	msg <- paste(msg, "Did you set \\SweaveOpts{concordance=TRUE}?")
+    msg
 }

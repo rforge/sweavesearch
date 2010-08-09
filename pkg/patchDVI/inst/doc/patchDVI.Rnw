@@ -2,7 +2,7 @@
 \usepackage{Sweave}
 \SweaveOpts{concordance=TRUE}
 
-\newcommand{\patchDVI}{\textsl{patchDVI}\ }
+\newcommand{\patchDVI}{\textbf{patchDVI}\ }
 
 \title{The \patchDVI package}
 \author{Duncan Murdoch}

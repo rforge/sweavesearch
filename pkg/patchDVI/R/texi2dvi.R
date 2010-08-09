@@ -197,11 +197,13 @@ function(file, pdf = FALSE, clean = FALSE, quiet = FALSE,
                              sep = "\n")
         }
         ## BibTeX errors.
+        ## These seem too common on some MikTeX versions, so don't treat
+        ## them too seriously
         log <- paste(tools:::file_path_sans_ext(file), "blg", sep = ".")
         if(file_test("-f", log)) {
             lines <- tools:::.get_BibTeX_errors_from_blg_file(log)
             if(length(lines))
-                msg <- paste(msg, "BibTeX errors:",
+                message("BibTeX errors:",
                              paste(lines, collapse = "\n"),
                              sep = "\n")
         }
