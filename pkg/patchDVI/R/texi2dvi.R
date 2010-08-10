@@ -1,5 +1,5 @@
 # This is extracted from the file in the original copyright notice below,
-# and modified slightly for patchDVI.
+# and modified for patchDVI.
 
 #  File src/library/tools/R/utils.R
 #  Part of the R package, http://www.R-project.org
@@ -74,88 +74,7 @@ function(file, pdf = FALSE, clean = FALSE, quiet = FALSE,
     } else on.exit(Sys.setenv(BSTINPUTS = obstinputs), add = TRUE)
     Sys.setenv(BSTINPUTS = paste(obstinputs, bstinputs, sep = envSep))
 
-    if(index && nzchar(texi2dvi) && .Platform$OS.type != "windows") {
-        ## switch off the use of texindy in texi2dvi >= 1.157
-        Sys.setenv(TEXINDY = "false")
-        on.exit(Sys.unsetenv("TEXINDY"), add = TRUE)
-        opt_pdf <- if(pdf) "--pdf" else ""
-        opt_quiet <- if(quiet) "--quiet" else ""
-        opt_extra <- ""
-        out <- tools:::.shell_with_capture(paste(shQuote(texi2dvi), "--help"))
-        if(length(grep("--no-line-error", out$stdout)))
-            opt_extra <- "--no-line-error"
-        ## (Maybe change eventually: the current heuristics for finding
-        ## error messages in log files should work for both regular and
-        ## file line error indicators.)
-
-        file.create(".timestamp")
-        out <- tools:::.shell_with_capture(paste(shQuote(texi2dvi), opt_pdf,
-                                         opt_quiet, opt_extra,
-                                         shQuote(file)))
-
-        ## We cannot necessarily rely on out$status, hence let us
-        ## analyze the log files in any case.
-        errors <- character()
-        ## (La)TeX errors.
-        log <- paste(tools:::file_path_sans_ext(file), "log", sep = ".")
-        if(file_test("-f", log)) {
-            lines <- tools:::.get_LaTeX_errors_from_log_file(log)
-            if(length(lines))
-                errors <- paste("LaTeX errors:",
-                                paste(lines, collapse = "\n"),
-                                sep = "\n")
-        }
-        ## BibTeX errors.
-        log <- paste(tools:::file_path_sans_ext(file), "blg", sep = ".")
-        if(file_test("-f", log)) {
-            lines <- tools:::.get_BibTeX_errors_from_blg_file(log)
-            if(length(lines))
-                errors <- paste("BibTeX errors:",
-                                paste(lines, collapse = "\n"),
-                                sep = "\n")
-        }
-
-        msg <- ""
-        if(out$status) {
-            ## <NOTE>
-            ## If we cannot rely on out$status, we could test for
-            ##   if(out$status || length(errors))
-            ## But shouldn't we be able to rely on out$status on Unix?
-            ## </NOTE>
-            msg <- gettextf("Running 'texi2dvi' on '%s' failed.", file)
-            ## Error messages from GNU texi2dvi are rather terse, so
-            ## only use them in case no additional diagnostics are
-            ## available (e.g, makeindex errors).
-            if(length(errors))
-                msg <- paste(msg, errors, sep = "\n")
-            else if(length(out$stderr))
-                msg <- paste(msg, "Messages:",
-                             paste(out$stderr, collapse = "\n"),
-                             sep = "\n")
-            if(!quiet)
-                msg <- paste(msg, "Output:",
-                             paste(out$stdout, collapse = "\n"),
-                             sep = "\n")
-        }
-
-        ## Clean up as needed.
-        if(clean) {
-            out_file <- paste(tools:::file_path_sans_ext(file),
-                              if(pdf) "pdf" else "dvi",
-                              sep = ".")
-            files <- list.files(all.files = TRUE) %w/o% c(".", "..",
-                                                          out_file)
-            file.remove(files[file_test("-nt", files, ".timestamp")])
-        }
-        file.remove(".timestamp")
-
-        if(nzchar(msg))
-            stop(msg, domain = NA)
-        else if(!quiet)
-            message(paste(paste(out$stderr, collapse = "\n"),
-                          paste(out$stdout, collapse = "\n"),
-                          sep = "\n"))
-    } else if(index && nzchar(texi2dvi)) { # MiKTeX on Windows
+    if(index && nzchar(texi2dvi) && .Platform$OS.type == "windows") { # MiKTeX on Windows
         extra <- ""
         if (is.null(links))
             opt_links <- if(pdf) "--tex-option=-synctex=-1" else "--tex-option=--src-specials"
@@ -221,10 +140,8 @@ function(file, pdf = FALSE, clean = FALSE, quiet = FALSE,
 
         if(nzchar(msg)) stop(msg, call. = FALSE, domain = NA)
     } else {
-        ## Do not have texi2dvi or don't want to index
-        ## Needed on Windows except for MiKTeX
-        ## Note that this does not do anything about running quietly,
-        ## nor cleaning, but is probably not used much anymore.
+        ## Do not have Synctex-compatible texi2dvi or don't want to index
+        ## Needed everywhere except for MiKTeX
 
         ## If it is called with MiKTeX then TEXINPUTS etc will be ignored.
 
