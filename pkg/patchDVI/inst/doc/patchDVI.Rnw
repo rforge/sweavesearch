@@ -4,6 +4,8 @@
 
 \newcommand{\patchDVI}{\textbf{patchDVI}\ }
 
+%\VignetteIndexEntry{The patchDVI package}
+
 \title{The \patchDVI package}
 \author{Duncan Murdoch}
 
