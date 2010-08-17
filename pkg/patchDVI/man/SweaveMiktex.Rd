@@ -13,23 +13,27 @@ SweaveMiktex(Rnw, main=outputname,
                   cmd="texify",
                   options="--tex-option=-c-style-errors --tex-option=--src-specials",
                   includedir="--tex-option=--include-directory=",
-                  stylepath=FALSE, source.code=NULL, make=1, ...)
+                  stylepath=FALSE, source.code=NULL, make=1, 
+                  preview="yap \%s", ...)
 SweavePDFMiktex(Rnw, main=outputname,  
                   cmd="texify --pdf", 
                   options="--tex-option=-c-style-errors --tex-option=-synctex=-1",
                   includedir="--tex-option=-include-directory=",
-                  stylepath=FALSE, source.code=NULL, make=1, ...)
+                  stylepath=FALSE, source.code=NULL, make=1, 
+                  preview=NULL, ...)
 SweaveDVI(Rnw, main=outputname, 
           texinputs = NULL, 
           source.code = NULL, 
           make = 1, 
-          links = NULL, ...)
+          links = NULL,
+          preview = NULL, ...)
 
 SweavePDF(Rnw, main=outputname, 
           texinputs = NULL, 
           source.code = NULL, 
           make = 1, 
-          links = NULL, ...)
+          links = NULL,
+          preview = NULL, ...)
 
 }
 \arguments{
@@ -41,6 +45,7 @@ SweavePDF(Rnw, main=outputname,
   \item{stylepath}{ \code{stylepath} argument to pass to \code{\link{Sweave}} }
   \item{source.code}{ If not \code{NULL}, a filename to source before running \code{\link{Sweave}} }
   \item{make}{ Value to pass to \code{\link{SweaveAll}} to control which Sweave files are processed }
+  \item{preview}{ Command to use to preview result, or \code{NULL} for no preview }
   \item{texinputs}{ Extra paths to pass to \code{\link[tools]{texi2dvi}} }
   \item{links}{ If not \code{NULL}, an option to turn on production of source links
       via Synctex or source specials}

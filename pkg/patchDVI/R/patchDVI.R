@@ -6,6 +6,7 @@ SweaveMiktex <- function(Rnw,
                          stylepath=FALSE,
                          source.code=NULL,
                          make=1,
+                         preview="yap %s",
                          ...) {
     if (!is.null(source.code))
     	try(source(source.code, local=TRUE))
@@ -19,7 +20,13 @@ SweaveMiktex <- function(Rnw,
     cat(cmd, "\n")
     result <- system(cmd, intern=FALSE, show=TRUE)
     if (result != 0) Sys.sleep(5)
-    patchDVI(sub("\\.tex$", ".dvi", main, ignore.case = TRUE))
+    dvi <- sub("\\.tex$", ".dvi", main, ignore.case = TRUE)
+    patchDVI(dvi)
+    if (!is.null(preview)) {
+    	cmd <- sprintf(preview, shQuote(dvi))
+    	cat(cmd, "\n")
+    	system(cmd, wait=FALSE, invisible=FALSE)
+    }
 }
 
 SweaveDVI <- function( Rnw, main=outputname,
@@ -27,6 +34,7 @@ SweaveDVI <- function( Rnw, main=outputname,
                        source.code=NULL,
                        make=1,
                        links=NULL,
+                       preview=NULL,
                        ... ) {
     if (!is.null(source.code) && file.exists(source.code))
     	try(source(source.code, local=TRUE))
@@ -35,7 +43,13 @@ SweaveDVI <- function( Rnw, main=outputname,
     else
     	outputname <- SweaveAll(Rnw, make=make, ...)[1]
     texi2dvi(main, pdf=FALSE, texinputs=texinputs, links=links)
-    patchDVI(sub("\\.tex$", ".dvi", main, ignore.case=TRUE))
+    dvi <- sub("\\.tex$", ".dvi", main, ignore.case=TRUE)
+    patchDVI(dvi)
+    if (!is.null(preview)) {
+    	cmd <- sprintf(preview, shQuote(dvi))
+    	cat(cmd, "\n")
+    	system(cmd, wait=FALSE, invisible=FALSE)
+    }    
 }
 
 

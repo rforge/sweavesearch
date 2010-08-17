@@ -34,4 +34,5 @@ Quick initial releases.
       
 1.7:  Add SweaveAll, SweavePDF, SweaveDVI, as well as handling
       .SweaveFiles and .TexRoot (see ?SweaveAll).  Added modified
-      version of tools::texi2dvi.  Added vignette.
+      version of tools::texi2dvi.  Added vignette.  Added
+      preview option to Sweave* functions.

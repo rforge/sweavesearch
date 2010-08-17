@@ -5,6 +5,7 @@ SweavePDFMiktex <- function( Rnw, main=outputname,
                              stylepath=FALSE,
                              source.code=NULL,
                              make=1,
+                             preview=NULL,
                              ...) {
     if (!is.null(source.code) && file.exists(source.code))
     	try(source(source.code, local=TRUE))
@@ -19,7 +20,14 @@ SweavePDFMiktex <- function( Rnw, main=outputname,
     cat(cmd, "\n")
     result <- system(cmd, intern=FALSE, show=TRUE)
     if (result != 0) Sys.sleep(5)
-    patchSynctex(sub("\\.tex$", ".synctex", main, ignore.case = TRUE))    
+    patchSynctex(sub("\\.tex$", ".synctex", main, ignore.case = TRUE)) 
+    pdf <- sub("\\.tex$", ".pdf", main, ignore.case = TRUE)
+    if (!is.null(preview)) {
+    	cmd <- sprintf(preview, shQuote(pdf))
+    	cat(cmd, "\n")
+    	system(cmd, wait=FALSE, invisible=FALSE)
+    }
+    
 }
 
 SweavePDF <- function( Rnw, main=outputname,
@@ -27,6 +35,7 @@ SweavePDF <- function( Rnw, main=outputname,
                        source.code=NULL,
                        make=1,
                        links = NULL,
+                       preview = NULL,
                        ... ) {
     if (!is.null(source.code) && file.exists(source.code))
     	try(source(source.code, local=TRUE))
@@ -36,6 +45,12 @@ SweavePDF <- function( Rnw, main=outputname,
     	outputname <- SweaveAll(Rnw, make=make, ...)[1]
     texi2dvi(main, pdf=TRUE, texinputs=texinputs, links=links)
     patchSynctex(sub("\\.tex$", ".synctex", main, ignore.case=TRUE))
+    pdf <- sub("\\.tex$", ".pdf", main, ignore.case = TRUE)
+    if (!is.null(preview)) {
+    	cmd <- sprintf(preview, shQuote(pdf))
+    	cat(cmd, "\n")
+    	system(cmd, wait=FALSE, invisible=FALSE)
+    }   
 }
 
 rawToLines <- function(raw) {
