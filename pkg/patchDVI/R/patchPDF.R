@@ -23,7 +23,7 @@ SweavePDFMiktex <- function( Rnw, main=outputname,
     patchSynctex(sub("\\.tex$", ".synctex", main, ignore.case = TRUE)) 
     pdf <- sub("\\.tex$", ".pdf", main, ignore.case = TRUE)
     if (!is.null(preview)) {
-    	cmd <- sprintf(preview, shQuote(pdf))
+    	cmd <- sprintf(preview, pdf)
     	cat(cmd, "\n")
     	system(cmd, wait=FALSE, invisible=FALSE)
     }
@@ -47,7 +47,7 @@ SweavePDF <- function( Rnw, main=outputname,
     patchSynctex(sub("\\.tex$", ".synctex", main, ignore.case=TRUE))
     pdf <- sub("\\.tex$", ".pdf", main, ignore.case = TRUE)
     if (!is.null(preview)) {
-    	cmd <- sprintf(preview, shQuote(pdf))
+    	cmd <- sprintf(preview, pdf)
     	cat(cmd, "\n")
     	system(cmd, wait=FALSE, invisible=FALSE)
     }   

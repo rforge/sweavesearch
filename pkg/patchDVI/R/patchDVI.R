@@ -23,7 +23,7 @@ SweaveMiktex <- function(Rnw,
     dvi <- sub("\\.tex$", ".dvi", main, ignore.case = TRUE)
     patchDVI(dvi)
     if (!is.null(preview)) {
-    	cmd <- sprintf(preview, shQuote(dvi))
+    	cmd <- sprintf(preview, dvi)
     	cat(cmd, "\n")
     	system(cmd, wait=FALSE, invisible=FALSE)
     }
@@ -46,7 +46,7 @@ SweaveDVI <- function( Rnw, main=outputname,
     dvi <- sub("\\.tex$", ".dvi", main, ignore.case=TRUE)
     patchDVI(dvi)
     if (!is.null(preview)) {
-    	cmd <- sprintf(preview, shQuote(dvi))
+    	cmd <- sprintf(preview, dvi)
     	cat(cmd, "\n")
     	system(cmd, wait=FALSE, invisible=FALSE)
     }    

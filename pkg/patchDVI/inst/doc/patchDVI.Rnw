@@ -71,8 +71,9 @@ first appeared around the release of R version
 support was added to \patchDVI.
 
 Using \patchDVI requires a pre-processing step (Sweave), \LaTeX\ 
-processing, and a post-processing step (patching).  It quickly became
-apparent that it was convenient to package these three steps into a
+processing, and a post-processing step (patching).  This is usually
+followed by a preview of the resulting output file.  It quickly became
+apparent that it was convenient to package these steps into a
 single R function, so the user only needed to make a single call.  But
 the details of \LaTeX\  processing vary from platform to platform, so I
 wrote functions \texttt{SweaveMiktex} and \texttt{SweavePDFMiktex}
@@ -192,7 +193,6 @@ each ``src:'' special and if it refers to a file in a ``concordance:'' special,
 makes the substitution.  At the end, it rewrites the whole \texttt{.dvi} file.
 
 
-
 \section{Patching \texttt{.synctex} Files}\label{sec:synctex}
 
 For \texttt{.pdf} files, the \verb!\Sconcordance! macro expands to a
@@ -205,7 +205,6 @@ extension \texttt{.synctex.gz}.  The \texttt{patchSynctex} function
 reads the concordances from the \texttt{.pdf} file and the source
 references from the Synctex file.  It rewrites only
 the Synctex file when it makes its changes.
-
 
 \section{Project Management Function \texttt{SweaveAll}}\label{sec:make}
 
@@ -248,8 +247,8 @@ different \texttt{.TexRoot} variables are specified by different \texttt{.Rnw}
 files, one of them will be used, but it is hard to predict which:  so don't do
 that.)
 
-\texttt{SweaveAll} is called by all of the functions described in the previous 
-section to do step 1 of the \patchDVI steps.
+\texttt{SweaveAll} is called by all of the functions described in subsection
+\ref{sec:complete} below to do step 1 of the \patchDVI steps.
 
 The workflow this is designed for is as follows.  Each \texttt{.Rnw}
 chapter (named for example ``chapter.Rnw'') 
@@ -280,6 +279,35 @@ need to name the chapters.
 \item If one wants to ``make'' the full project every time,
 then include \texttt{"wrapper.Rnw"} in \texttt{.SweaveFiles} in each chapter.
 \end{itemize}
+
+\subsection{The Complete Process}\label{sec:complete}
+
+The \patchDVI package contains four functions designed to run all
+four of the steps listed at the start of this section.  The functions
+\texttt{SweaveDVI} and \texttt{SweaveMiktex} produce \texttt{.dvi} output
+in the general case and for MikTeX respectively; \texttt{SweavePDF} and
+\texttt{SweavePDFMiktex} do the same for \texttt{.pdf} output.
+
+For example, the text editor that I use allows me to call external
+functions with arguments depending on the name of the current file and
+the line number within it.  I have it call a Windows batch file 
+with the line set as argument \verb!%1! and the filename
+set as argument \verb!%2!; the batch
+file invokes R using the command line
+\begin{verbatim}
+echo patchDVI::SweaveMiktex('%2', 
+    preview='yap -1 -s"%1%2" "\x25s"') 
+    | Rterm --slave
+\end{verbatim}
+(all on one long line).  This passes the current file to \texttt{SweaveMiktex},
+and sets the preview command to use the \texttt{yap} options \texttt{-1} to 
+update the current view (rather than opening a new window), and to jump to the
+line corresponding to the editor line.  The code \verb!"\x25s"! is simply
+\verb!"%s"! encoded without an explicit percent sign, which would be 
+misinterpreted by the Windows command processor.  When \patchDVI calls
+the previewer, the main \texttt{.dvi} filename will be substituted for
+\verb!%s!.
+
 
 \section{Conclusion}\label{sec:conclusion}
 
