@@ -6,7 +6,7 @@ SweaveMiktex <- function(Rnw,
                          stylepath=FALSE,
                          source.code=NULL,
                          make=1,
-                         preview="yap %s",
+                         preview='yap "%s"',
                          ...) {
     if (!is.null(source.code))
     	try(source(source.code, local=TRUE))
