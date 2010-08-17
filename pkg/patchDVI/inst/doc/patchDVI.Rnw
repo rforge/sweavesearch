@@ -2,7 +2,7 @@
 \usepackage{Sweave}
 \usepackage{natbib}
 \usepackage{hyperref}
-\bibliographystyle{apa}
+\bibliographystyle{plain}
 
 \SweaveOpts{concordance=TRUE}
 
