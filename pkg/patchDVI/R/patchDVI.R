@@ -14,9 +14,8 @@ SweaveMiktex <- function(Rnw,
     	outputname <- Rnw
     else
     	outputname <- SweaveAll(Rnw, make=make, stylepath=stylepath, ...)[1]
-    cmd <- paste(cmd, " ", options, " ", includedir,
-                 file.path(R.home("share"), "texmf "),
-                 main, sep="")    	
+    cmd <- paste(cmd, " ", options, " ", includedir, Rtexinputs(),
+                 " ", main, sep="")    	
     cat(cmd, "\n")
     result <- system(cmd, intern=FALSE, show=TRUE)
     if (result != 0) Sys.sleep(5)

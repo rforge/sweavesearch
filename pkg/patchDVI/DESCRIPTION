@@ -1,7 +1,7 @@
 Package: patchDVI
 Type: Package
 Title: Package to patch .dvi files
-Version: 1.7.7
+Version: 1.7.8
 Author: Duncan Murdoch
 Maintainer: Duncan Murdoch <murdoch@stats.uwo.ca>
 Description: Functions to patch specials in .dvi files;

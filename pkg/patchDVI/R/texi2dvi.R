@@ -23,6 +23,12 @@
 function(x, y)
     x[!x %in% y]
 
+Rtexinputs <- function() {
+    if (getRversion() < "2.12.0")
+    	file.path(R.home("share"), "texmf")
+    else
+	file.path(R.home("share"), "texmf", "tex", "latex")
+}
 
 texi2dvi <-
 function(file, pdf = FALSE, clean = FALSE, quiet = FALSE,
@@ -37,13 +43,11 @@ function(file, pdf = FALSE, clean = FALSE, quiet = FALSE,
 
     envSep <- .Platform$path.sep
     texinputs0 <- texinputs
+    
     Rtexmf <- file.path(R.home("share"), "texmf")
-    if (getRversion() < "2.12.0")
-    	Rtexinputs <- Rtexmf
-    else
-	Rtexinputs <- file.path(Rtexmf, "tex", "latex")
+    
     ## "" forces use of default paths.
-    texinputs <- paste(c(texinputs0, Rtexinputs, ""), 
+    texinputs <- paste(c(texinputs0, Rtexinputs(), ""), 
                       collapse = envSep)
     ## not clear if this is needed, but works
     if(.Platform$OS.type == "windows")
@@ -95,7 +99,7 @@ function(file, pdf = FALSE, clean = FALSE, quiet = FALSE,
         if(length(grep("MiKTeX", ver[1L]))) {
             ## AFAICS need separate -I for each element of texinputs.
             texinputs <- c(texinputs0, 
-                           Rtexinputs,
+                           Rtexinputs(),
                            if (getRversion() < "2.12.0") NULL else Rbstinputs)
             paths <- paste ("-I", shQuote(texinputs))
             extra <- paste(extra, paste(paths, collapse = " "))
