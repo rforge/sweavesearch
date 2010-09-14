@@ -221,8 +221,13 @@ if the content has changed since the last run, while the other steps need only
 be done once.
 
 To manage this complication, the \patchDVI package now includes a simple
-project management function, \texttt{SweaveAll}.  This function takes a vector
-of filenames, and runs Sweave on each.  After each run, it examines the
+project management function, \texttt{SweaveAll}.  This function runs Sweave
+on multiple files and determines the name of the main wrapper file.  It is 
+used internally by the functions described in Section \ref{sec:complete}
+below, but can also be called directly by the user.
+
+Here is how it works.  \texttt{SweaveAll} takes a vector
+of filenames as input, and runs Sweave on each.  After each run, it examines the
 global environment for two variables:  \texttt{.SweaveFiles} and \texttt{.TexRoot}.
 
 A code chunk in a \texttt{Rnw} file may produce a character vector
@@ -240,12 +245,13 @@ all files are processed, whether they are newer than their \texttt{.tex}
 file or not.
 
 A \texttt{.Rnw} file may also set the value of \texttt{.TexRoot} to the name of
-a \texttt{.tex} file.  If it does, then that is the file that will be passed
+a \texttt{.tex} file.  If it does, then that is the file that should be passed
 to \LaTeX\ for processing.  If none is given, then the first file in the call
 to \texttt{SweaveAll} will be assumed to be the root file.  (If multiple
 different \texttt{.TexRoot} variables are specified by different \texttt{.Rnw}
 files, one of them will be used, but it is hard to predict which:  so don't do
-that.)
+that.)  Whichever file is determined to be the root file is the name returned
+by the \texttt{SweaveAll} call.
 
 \texttt{SweaveAll} is called by all of the functions described in subsection
 \ref{sec:complete} below to do step 1 of the \patchDVI steps.
