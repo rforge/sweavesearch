@@ -20,7 +20,7 @@ SweaveMiktex <- function(Rnw,
     result <- system(cmd, intern=FALSE, show=TRUE)
     if (result != 0) Sys.sleep(5)
     dvi <- sub("\\.tex$", ".dvi", main, ignore.case = TRUE)
-    patchDVI(dvi)
+    message(patchDVI(dvi))
     if (!is.null(preview)) {
     	cmd <- sprintf(preview, dvi)
     	cat(cmd, "\n")
@@ -43,7 +43,7 @@ SweaveDVI <- function( Rnw, main=outputname,
     	outputname <- SweaveAll(Rnw, make=make, ...)[1]
     texi2dvi(main, pdf=FALSE, texinputs=texinputs, links=links)
     dvi <- sub("\\.tex$", ".dvi", main, ignore.case=TRUE)
-    patchDVI(dvi)
+    message(patchDVI(dvi))
     if (!is.null(preview)) {
     	cmd <- sprintf(preview, dvi)
     	cat(cmd, "\n")
@@ -149,7 +149,11 @@ patchDVI <- function(f, newname=f) {
     srcrefs <- specials[srcrefind]
     
     linenums <- sub("^src:([0-9]+).*$", "\\1", srcrefs)
-    filenames <- normalizePath(substr(srcrefs, 5+nchar(linenums), 10000))
+    filenames <- substr(srcrefs, 5+nchar(linenums), 10000)
+    # \input{file} doesn't put .tex on it
+    noext <- !grepl("\\.", filenames)
+    filenames[noext] <- paste(filenames[noext], ".tex", sep="")
+    filenames <- normalizePath(filenames)
     changed <- rep(FALSE, length(filenames))
     for (n in names(concords)) {
     	subset <- filenames == normalizePath(n)
@@ -170,5 +174,6 @@ patchDVI <- function(f, newname=f) {
     msg <- paste(changes, "patches made.")
     if (!changes)
     	msg <- paste(msg, "Did you set \\SweaveOpts{concordance=TRUE}?")
+    msg
 }
 

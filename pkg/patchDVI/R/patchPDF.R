@@ -19,7 +19,7 @@ SweavePDFMiktex <- function( Rnw, main=outputname,
     cat(cmd, "\n")
     result <- system(cmd, intern=FALSE, show=TRUE)
     if (result != 0) Sys.sleep(5)
-    patchSynctex(sub("\\.tex$", ".synctex", main, ignore.case = TRUE)) 
+    message(patchSynctex(sub("\\.tex$", ".synctex", main, ignore.case = TRUE)))
     pdf <- sub("\\.tex$", ".pdf", main, ignore.case = TRUE)
     if (!is.null(preview)) {
     	cmd <- sprintf(preview, pdf)
@@ -43,7 +43,7 @@ SweavePDF <- function( Rnw, main=outputname,
     else
     	outputname <- SweaveAll(Rnw, make=make, ...)[1]
     texi2dvi(main, pdf=TRUE, texinputs=texinputs, links=links)
-    patchSynctex(sub("\\.tex$", ".synctex", main, ignore.case=TRUE))
+    message(patchSynctex(sub("\\.tex$", ".synctex", main, ignore.case=TRUE)))
     pdf <- sub("\\.tex$", ".pdf", main, ignore.case = TRUE)
     if (!is.null(preview)) {
     	cmd <- sprintf(preview, pdf)
@@ -233,10 +233,9 @@ patchSynctex <- function(f, newname=f) {
     	}
     }
     lines <- try(readLines(f), silent=TRUE)
-    if (inherits(lines, "try-error")) {
-    	message(f," cannot be read, no patching done.")
-    	return()
-    }
+    if (inherits(lines, "try-error")) 
+    	return(paste(f,"cannot be read, no patching done."))
+
     files <- syncFiles(lines)
     pdfname <- file.path(files$path[1], paste(sub(".tex", "", files$name[1]), ".pdf", sep=""))
     concords <- parseConcords(pdfobjs(pdfname, "concordance:"))

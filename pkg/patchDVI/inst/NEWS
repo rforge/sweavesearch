@@ -36,3 +36,6 @@ Quick initial releases.
       .SweaveFiles and .TexRoot (see ?SweaveAll).  Added modified
       version of tools::texi2dvi.  Added vignette.  Added
       preview option to Sweave* functions.
+      
+      Fixed bugs in patchDVI:  no message printed, missed
+      .tex files that were included by \input{filename}.
