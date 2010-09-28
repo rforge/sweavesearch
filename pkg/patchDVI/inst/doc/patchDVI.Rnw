@@ -228,9 +228,23 @@ below, but can also be called directly by the user.
 
 Here is how it works.  \texttt{SweaveAll} takes a vector
 of filenames as input, and runs Sweave on each.  After each run, it examines the
-global environment for two variables:  \texttt{.SweaveFiles} and \texttt{.TexRoot}.
+global environment for three variables:  \texttt{.PostSweaveHook},
+\texttt{.SweaveFiles} and \texttt{.TexRoot}.
 
-A code chunk in a \texttt{Rnw} file may produce a character vector
+A code chunk in a \texttt{Rnw} file may produce a function (or the name of
+a function; \texttt{match.fun} is used to look it up) named \texttt{.PostSweaveHook}.
+If present, this should be a function taking a single argument.  
+Immediately after running \texttt{Sweave}, 
+\texttt{SweaveAll} will call this function, passing the name of the 
+\texttt{.tex} output file as the only argument.  The hook can do any
+required postprocessing, for example, it could remove local
+pathnames from output strings.
+
+The optional parameter \texttt{PostSweaveHook} to the \texttt{SweaveAll} function
+can provide a default hook function.  Hooks specified via \texttt{.PostSweaveHook}
+take precedence in any given input file.
+
+\texttt{SweaveAll} will also check for a character vector
 named \texttt{.SweaveFiles}.  It should contain the names of  \texttt{.Rnw} 
 files in the project.  If no corresponding \texttt{.tex} file exists, or the
 \texttt{.Rnw} file is newer, they will be run through Sweave.  They may in
@@ -268,7 +282,7 @@ code chunk
 Similarly, the wrapper file (named for example
 ``wrapper.Rnw'') should be a \texttt{.Rnw} file that sets
 \texttt{.SweaveFiles} to the complete list of files in the project.
-Then one can builds an initial copy of the entire document by calling
+Then one can build an initial copy of the entire document by calling
 \texttt{SweavePDF} or \texttt{SweaveDVI} 
 (or the MikTeX versions) with argument \texttt{"wrapper.Rnw"}.
 Later, while one is working on ``chapter.Rnw'', one can call

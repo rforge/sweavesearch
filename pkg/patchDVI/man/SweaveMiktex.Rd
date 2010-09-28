@@ -14,7 +14,7 @@ SweaveMiktex(Rnw, main=outputname,
                   options="--tex-option=-c-style-errors --tex-option=--src-specials",
                   includedir="--tex-option=--include-directory=",
                   stylepath=FALSE, source.code=NULL, make=1, 
-                  preview="yap \%s", ...)
+                  preview='yap "\%s"', ...)
 SweavePDFMiktex(Rnw, main=outputname,  
                   cmd="texify --pdf", 
                   options="--tex-option=-c-style-errors --tex-option=-synctex=-1",
