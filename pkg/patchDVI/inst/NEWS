@@ -39,3 +39,5 @@ Quick initial releases.
       
       Fixed bugs in patchDVI:  no message printed, missed
       .tex files that were included by \input{filename}.
+
+1.8:  Made an attempt to handle compressed PDF files.

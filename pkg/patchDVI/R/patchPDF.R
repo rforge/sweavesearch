@@ -77,10 +77,19 @@ pdfStartxrefs <- function(con, eof=pdfEOF(con)) {
     as.numeric(tail[startxref+1])
 }
 
+pdfXrefsCompressed <- function(pdfname) {
+    con <- file(pdfname, "rb")
+    on.exit(close(con))
+    seek(con, pdfStartxrefs(con, pdfEOF(con)))
+    xrefs <- rawToLines(readBin(con, "raw", 50))
+    grepl(" obj <<$", xrefs[1])
+}
+
 pdfXrefblock <- function(con, start=pdfStartxrefs(con, eof), eof=pdfEOF(con)) {
     seek(con, start)
     xrefs <- rawToLines(readBin(con, "raw", eof - start))
     trailer <- which(xrefs == "trailer")[1]
+    if (is.na(trailer)) stop("PDF file can't be read--may be using compression.")
     tail <- xrefs[trailer:length(xrefs)]
     xrefs <- xrefs[1:(trailer-1)]
     line <- 2
@@ -222,7 +231,7 @@ parseConcords <- function(lines) {
     concords
 }
 
-patchSynctex <- function(f, newname=f) {
+patchSynctex <- function(f, newname=f, uncompress="pdftk %s output %s uncompress") {
     compressed <- FALSE
     if (!file.exists(f)) {
     	f <- paste(f, ".gz", sep="")
@@ -238,6 +247,16 @@ patchSynctex <- function(f, newname=f) {
 
     files <- syncFiles(lines)
     pdfname <- file.path(files$path[1], paste(sub(".tex", "", files$name[1]), ".pdf", sep=""))
+    
+    if (pdfXrefsCompressed(pdfname)) {
+    	if (missing(uncompress) && nchar(Sys.which("pdftk")) == 0) 
+    	    return(paste("No patches made:\n", pdfname, 
+    	                 "\nis compressed and no uncompressor was found."))
+    	oldname <- pdfname
+    	pdfname <- tempfile()
+    	system(sprintf(uncompress, oldname, pdfname))
+    }
+    
     concords <- parseConcords(pdfobjs(pdfname, "concordance:"))
 
     re <- "^([vhxkgr$[(])([[:digit:]]+),([[:digit:]]+)([^[:digit:]].*)"

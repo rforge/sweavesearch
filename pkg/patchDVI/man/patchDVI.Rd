@@ -14,11 +14,12 @@ corresponding to a location in the preview.
 }
 \usage{
 patchDVI(f, newname=f)
-patchSynctex(f, newname=f)
+patchSynctex(f, newname=f, uncompress="pdftk \%s output \%s uncompress")
 }
 \arguments{
   \item{f}{ A character value giving the name of the .dvi or .synctex file to patch }
   \item{newname}{ Output will go to this file; by default to overwrite the original }
+  \item{uncompress}{ External command to uncompress a compressed PDF file. }
 }
 \details{
 This function works with \code{Sweave} with option \code{concordance=TRUE}
@@ -63,9 +64,14 @@ optimization.Rnw.  Line 1 of the .tex file corresponds to line 1 of the .Rnw fil
 The diffs for successive lines are \code{1 1 4 4 1 <repeated 39 times> 4 ...}, so 
 the corresponding lines in the .Rnw file (including the first) are \code{1 2 3 7 11 12 13 ...}.
 
-The same format is used in an unreferenced indirect object in a .pdf file.  This is very
-experimental code, and the \code{patchSynctex} function is as well.  As of this writing, 
-only an unreleased experimental version of the SumatraPDF viewer has been tested.
+The same format is used in an unreferenced indirect object in a .pdf file.  This is not always
+successfully read by the patching code, because some versions of \code{pdflatex} 
+compress parts of the file, and \code{patchDVI} currently can't read compressed parts
+of files.  We suggest installing the \code{pdftk} open source PDF toolkit 
+(available from \url{http://www.pdflabs.com/tools/pdftk-the-pdf-toolkit/}) to decompress
+the file, and/or use the Latex command \verb{\pdfobjcompresslevel=0} at the start
+of your document.  The \code{uncompress} argument can be modified to call a different
+uncompress utility.
 
 This format is subject to change in future R releases.
 }
