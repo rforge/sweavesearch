@@ -56,7 +56,7 @@ rawToLines <- function(raw) {
     temp <- tempfile()
     on.exit(unlink(temp))
     writeBin(raw, temp)
-    readLines(temp)
+    readLines(temp, warn=FALSE)
 }
 
 pdfEOF <- function(con) {
@@ -202,9 +202,9 @@ pdfobjs <- function(file, pattern) {
 
 pdfStreams <- function(file, pattern) {
     streamhead <- 
-    streams <- pdfobjs(file, "<<\n/Length [[:digit:]]*[[:space:]]*\n>>\nstream\n")
-    streams <- sub("^<< /Length [[:digit:]]* >> stream ", "", streams)
-    streams <- sub(" endstream$", "", streams)
+    streams <- pdfobjs(file, "<<\n/Length[[:space:]]+[[:digit:]]+[[:space:]]*\n>>\nstream\n")
+    streams <- sub("^<<[[:space:]]*/Length[[:space:]]+[[:digit:]]+[[:space:]]*>>[[:space:]]*stream[[:space:]]*", "", streams)
+    streams <- sub("[[:space:]]*endstream$", "", streams)
     streams <- grep(pattern, streams, value=TRUE)
     streams
 }
@@ -250,7 +250,7 @@ patchSynctex <- function(f, newname=f, uncompress="pdftk %s output %s uncompress
     	    f <- gzfile(f)
     	}
     }
-    lines <- try(readLines(f), silent=TRUE)
+    lines <- try(readLines(f, warn=FALSE), silent=TRUE)
     if (inherits(lines, "try-error")) 
     	return(paste(f,"cannot be read, no patching done."))
 
