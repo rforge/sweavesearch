@@ -64,14 +64,19 @@ optimization.Rnw.  Line 1 of the .tex file corresponds to line 1 of the .Rnw fil
 The diffs for successive lines are \code{1 1 4 4 1 <repeated 39 times> 4 ...}, so 
 the corresponding lines in the .Rnw file (including the first) are \code{1 2 3 7 11 12 13 ...}.
 
-The same format is used in an unreferenced indirect object in a .pdf file.  This is not always
+The same format is used in a stream object in a .pdf file. (Version 2.12.2 and
+earlier of R used a different format which was actually invalid according to
+the PDF specification.)  This is not always
 successfully read by the patching code, because some versions of \code{pdflatex} 
 compress parts of the file, and \code{patchDVI} currently can't read compressed parts
 of files.  We suggest installing the \code{pdftk} open source PDF toolkit 
 (available from \url{http://www.pdflabs.com/tools/pdftk-the-pdf-toolkit/}) to decompress
-the file, and/or use the Latex command \verb{\pdfobjcompresslevel=0} at the start
-of your document.  The \code{uncompress} argument can be modified to call a different
-uncompress utility.
+the file; \code{patchSynctex} will make use of it 
+if found.  The \code{uncompress} argument can be modified to call a different
+uncompress utility.  The Latex commands 
+\verb{\pdfcompresslevel=0\pdfobjcompresslevel=0} at the start
+of your document instruct \code{pdflatex} not to compress the file, but
+some Latex packages (e.g. beamer) will override these settings.
 
 This format is subject to change in future R releases.
 }

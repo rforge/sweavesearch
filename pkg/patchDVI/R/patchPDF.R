@@ -172,7 +172,7 @@ pdfFindobj <- function(con, pattern) {
     	seek(con, xrefs$offsets[i])
     	head <- readChar(con, nchar(pattern) + 30)
     	head <- sub("^[[:space:][:digit:]]*obj[[:space:]]*", "", head)
-    	if (substr(head, 1, nchar(pattern)) == pattern) {
+    	if (grepl(pattern, head)) {
             seek(con, xrefs$offsets[i])
             obj <- rawToLines(readBin(con, "raw", xrefs$offsets[i+1]-xrefs$offsets[i]))
             # FIXME:  this will match any endobj, not just the one we want
@@ -198,6 +198,15 @@ pdfobjs <- function(file, pattern) {
         on.exit(close(file))
     }
     pdfFindobj(file, pattern)
+}
+
+pdfStreams <- function(file, pattern) {
+    streamhead <- 
+    streams <- pdfobjs(file, "<<\n/Length [[:digit:]]*[[:space:]]*\n>>\nstream\n")
+    streams <- sub("^<< /Length [[:digit:]]* >> stream ", "", streams)
+    streams <- sub(" endstream$", "", streams)
+    streams <- grep(pattern, streams, value=TRUE)
+    streams
 }
 
 syncFiles <- function(lines) {
@@ -257,7 +266,9 @@ patchSynctex <- function(f, newname=f, uncompress="pdftk %s output %s uncompress
     	system(sprintf(uncompress, oldname, pdfname))
     }
     
-    concords <- parseConcords(pdfobjs(pdfname, "concordance:"))
+    concords <- parseConcords(pdfStreams(pdfname, "^concordance:"))
+    if (!length(concords)) # try older buggy format
+      concords <- parseConcords(pdfobjs(pdfname, "^concordance:"))
 
     re <- "^([vhxkgr$[(])([[:digit:]]+),([[:digit:]]+)([^[:digit:]].*)"
     srcrefind <- grep(re, lines)
