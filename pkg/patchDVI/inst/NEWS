@@ -40,6 +40,7 @@ Quick initial releases.
       Fixed bugs in patchDVI:  no message printed, missed
       .tex files that were included by \input{filename}.
 
-1.8.1572:  Made an attempt to handle compressed PDF files.
+1.8.1574:  Made an attempt to handle compressed PDF files.
       Fixed bug in concordance inclusion into PDF files in Sweave;
       adapted code here to handle it (for R > 2.12.2).
+      Added grepConcords method (using new grepRaw function).

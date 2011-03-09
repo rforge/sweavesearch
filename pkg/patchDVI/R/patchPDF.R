@@ -240,6 +240,19 @@ parseConcords <- function(lines) {
     concords
 }
 
+grepConcords <- function(pdfname) {
+    # grepRaw is new in R 2.13.0
+    if (!exists("grepRaw")) return(character(0))
+    
+    size <- file.info(pdfname)$size
+    if (is.na(size)) stop(pdfname, " not found")
+
+    buffer <- readBin(pdfname, "raw", size)
+    result <- grepRaw("concordance:[^:\n[:space:]]+:[^:\n[:space:]]+:[[:digit:]][[:digit:] ]*", 
+            buffer, fixed=FALSE, all=TRUE, value=TRUE)
+    sapply(result, rawToChar)
+}
+    
 patchSynctex <- function(f, newname=f, uncompress="pdftk %s output %s uncompress") {
     compressed <- FALSE
     if (!file.exists(f)) {
@@ -266,7 +279,9 @@ patchSynctex <- function(f, newname=f, uncompress="pdftk %s output %s uncompress
     	system(sprintf(uncompress, oldname, pdfname))
     }
     
-    concords <- parseConcords(pdfStreams(pdfname, "^concordance:"))
+    concords <- grepConcords(pdfname)
+    if (!length(concords)) 
+      concords <- parseConcords(pdfStreams(pdfname, "^concordance:"))
     if (!length(concords)) # try older buggy format
       concords <- parseConcords(pdfobjs(pdfname, "^concordance:"))
 
