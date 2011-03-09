@@ -270,21 +270,21 @@ patchSynctex <- function(f, newname=f, uncompress="pdftk %s output %s uncompress
     files <- syncFiles(lines)
     pdfname <- file.path(files$path[1], paste(sub(".tex", "", files$name[1]), ".pdf", sep=""))
     
-    if (pdfXrefsCompressed(pdfname)) {
+    concords <- parseConcords(grepConcords(pdfname))
+    if (!length(concords)) {
+      if (pdfXrefsCompressed(pdfname)) {
     	if (missing(uncompress) && nchar(Sys.which("pdftk")) == 0) 
     	    return(paste("No patches made:\n", pdfname, 
     	                 "\nis compressed and no uncompressor was found."))
     	oldname <- pdfname
     	pdfname <- tempfile()
     	system(sprintf(uncompress, oldname, pdfname))
-    }
+      }
     
-    concords <- parseConcords(grepConcords(pdfname))
-    if (!length(concords)) 
       concords <- parseConcords(pdfStreams(pdfname, "^concordance:"))
-    if (!length(concords)) # try older buggy format
-      concords <- parseConcords(pdfobjs(pdfname, "^concordance:"))
-
+      if (!length(concords)) # try older buggy format
+        concords <- parseConcords(pdfobjs(pdfname, "^concordance:"))
+    }
     re <- "^([vhxkgr$[(])([[:digit:]]+),([[:digit:]]+)([^[:digit:]].*)"
     srcrefind <- grep(re, lines)
     srcrefs <- lines[srcrefind]
@@ -318,7 +318,11 @@ patchSynctex <- function(f, newname=f, uncompress="pdftk %s output %s uncompress
     	           paste("Input:", newtags, ":", names(newtags), sep=""),
     	           lines[(firstInput+1):length(lines)])
     }
-    writeLines(lines, if (compressed) gzfile(newname) else newname)
+    # Texworks on Windows assumes Unix line endings; make sure
+    # we create those.
+    con <- if (compressed) gzfile(newname, "wb") else file(newname, "wb")
+    on.exit(close(con))
+    writeLines(lines, con, sep="\xa")
     changes <- sum(changed) + length(newtags)
     msg <- paste(changes, "patches made.") 
     if (!changes)
