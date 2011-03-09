@@ -279,7 +279,7 @@ patchSynctex <- function(f, newname=f, uncompress="pdftk %s output %s uncompress
     	system(sprintf(uncompress, oldname, pdfname))
     }
     
-    concords <- grepConcords(pdfname)
+    concords <- parseConcords(grepConcords(pdfname))
     if (!length(concords)) 
       concords <- parseConcords(pdfStreams(pdfname, "^concordance:"))
     if (!length(concords)) # try older buggy format
