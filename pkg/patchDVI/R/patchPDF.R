@@ -250,7 +250,8 @@ grepConcords <- function(pdfname) {
     buffer <- readBin(pdfname, "raw", size)
     result <- grepRaw("concordance:[^:\n[:space:]]+:[^:\n[:space:]]+:[[:digit:]][[:digit:] ]*", 
             buffer, fixed=FALSE, all=TRUE, value=TRUE)
-    sapply(result, rawToChar)
+    if (!length(result)) character(0)
+    else sapply(result, rawToChar)
 }
     
 patchSynctex <- function(f, newname=f, uncompress="pdftk %s output %s uncompress") {

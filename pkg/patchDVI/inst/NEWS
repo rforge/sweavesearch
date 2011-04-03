@@ -40,7 +40,7 @@ Quick initial releases.
       Fixed bugs in patchDVI:  no message printed, missed
       .tex files that were included by \input{filename}.
 
-1.8.1576:  Made an attempt to handle compressed PDF files by using
+1.8.1577:  Made an attempt to handle compressed PDF files by using
       pdftk to uncompress them.
       
       Fixed bug in concordance inclusion into PDF files in Sweave;
@@ -50,3 +50,6 @@ Quick initial releases.
       
       Texworks on Windows needs Unix line endings on the Synctex
        file; we now produce those on all platforms.
+       
+      Fixed crash on file with no concordance.
+      
