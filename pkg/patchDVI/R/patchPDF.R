@@ -248,7 +248,7 @@ grepConcords <- function(pdfname) {
     if (is.na(size)) stop(pdfname, " not found")
 
     buffer <- readBin(pdfname, "raw", size)
-    result <- grepRaw("concordance:[^:\n[:space:]]+:[^:\n[:space:]]+:[[:digit:]][[:digit:] ]*", 
+    result <- grepRaw("concordance:[^:\n[:space:]]+:[^:\n[:space:]]+:[[:digit:]][-[:digit:] ]*", 
             buffer, fixed=FALSE, all=TRUE, value=TRUE)
     if (!length(result)) character(0)
     else sapply(result, rawToChar)
