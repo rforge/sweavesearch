@@ -19,7 +19,7 @@ SweaveAll <- function(SweaveFiles, make=1, PostSweaveHook=NULL, ...) {
             if (length(newfiles)) {
             	if (make == 1) {
             	    tex <- paste(tools::file_path_sans_ext(newfiles), ".tex", sep="")
-            	    SweaveFiles <- c(SweaveFiles, newfiles[file_test("-nt", newfiles, tex)])
+            	    SweaveFiles <- c(SweaveFiles, newfiles[!file_test("-f", tex) | file_test("-nt", newfiles, tex)])
             	} else 
             	    SweaveFiles <- c(SweaveFiles, newfiles)
             }
