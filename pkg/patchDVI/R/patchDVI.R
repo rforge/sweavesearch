@@ -132,13 +132,20 @@ patchDVI <- function(f, newname=f) {
     parseConcord <- function(split) {
     	oldname <- split[2]
     	newname <- split[3]
-    	values <- as.integer(strsplit(split[4], " ")[[1]])
+    	if (length(split) == 4) {
+    	    ofs <- 0
+    	    vi <- 4
+    	} else {
+    	    ofs <- as.integer(sub("^ofs ([0-9]+)", "\\1", split[4]))
+    	    vi <- 5
+    	}
+    	values <- as.integer(strsplit(split[vi], " ")[[1]])
     	firstline <- values[1]
     	rledata <- matrix(values[-1], nrow=2)
     	rle <- structure(list(lengths=rledata[1,], values=rledata[2,]), class="rle")
     	diffs <- inverse.rle(rle)
 	concord <- c(firstline, firstline + cumsum(diffs))
-    	list(oldname=oldname, newname=newname, concord=concord)
+    	list(oldname=oldname, newname=newname, concord=concord, ofs=ofs)
     }
     concords <- strsplit(concords, ":")
     concords <- lapply(concords, parseConcord)
@@ -154,11 +161,16 @@ patchDVI <- function(f, newname=f) {
     noext <- !grepl("\\.", filenames)
     filenames[noext] <- paste(filenames[noext], ".tex", sep="")
     filenames <- normalizePath(filenames)
+    linenums <- as.integer(linenums)
+    
     changed <- rep(FALSE, length(filenames))
-    for (n in names(concords)) {
-    	subset <- filenames == normalizePath(n)
-    	linenums[subset] <- concords[[n]]$concord[as.integer(linenums[subset])]
-    	filenames[subset] <- concords[[n]]$newname
+    for (i in seq_along(concords)) {
+    	n <- names(concords)[i]
+    	ofs <- concords[[i]]$ofs
+    	concord <- concords[[i]]$concord
+    	subset <- (filenames == normalizePath(n)) & (linenums > ofs) & (linenums <= ofs + length(concord))
+    	linenums[subset] <- concord[linenums[subset] - ofs]
+    	filenames[subset] <- concords[[i]]$newname
     	changed[subset] <- TRUE
     }
     

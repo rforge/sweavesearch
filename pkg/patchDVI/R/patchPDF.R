@@ -225,14 +225,21 @@ syncFiles <- function(lines) {
 parseConcords <- function(lines) {
    parseConcord <- function(split) {
     	oldname <- split[2]
-    	newname <- split[3]
-    	values <- as.integer(strsplit(split[4], " ")[[1]])
+    	newsrc <- split[3]
+    	if (length(split) == 4) {
+    	    ofs <- 0
+    	    vi <- 4
+    	} else {
+    	    ofs <- as.integer(sub("^ofs ([0-9]+)", "\\1", split[4]))
+    	    vi <- 5
+    	}
+    	values <- as.integer(strsplit(split[vi], " ")[[1]])
     	firstline <- values[1]
     	rledata <- matrix(values[-1], nrow=2)
     	rle <- structure(list(lengths=rledata[1,], values=rledata[2,]), class="rle")
     	diffs <- inverse.rle(rle)
 	concord <- c(firstline, firstline + cumsum(diffs))
-    	list(oldname=oldname, newname=newname, concord=concord)
+    	list(oldname=oldname, newsrc=newsrc, concord=concord, ofs=ofs)
     }
     concords <- strsplit(lines, ":")
     concords <- lapply(concords, parseConcord)
@@ -248,7 +255,7 @@ grepConcords <- function(pdfname) {
     if (is.na(size)) stop(pdfname, " not found")
 
     buffer <- readBin(pdfname, "raw", size)
-    result <- grepRaw("concordance:[^:\n[:space:]]+:[^:\n[:space:]]+:[[:digit:]][-[:digit:] ]*", 
+    result <- grepRaw("concordance:[^:\n[:space:]]+:[^:\n[:space:]]+:(ofs [[:digit:]]+:)?[[:digit:]][-[:digit:] ]*", 
             buffer, fixed=FALSE, all=TRUE, value=TRUE)
     if (!length(result)) character(0)
     else sapply(result, rawToChar)
@@ -294,19 +301,27 @@ patchSynctex <- function(f, newname=f, uncompress="pdftk %s output %s uncompress
     tags <- sub(re, "\\2", srcrefs)
     linenums <- sub(re, "\\3", srcrefs)
     rest <- sub(re, "\\4", srcrefs)
+    
+    linenums <- as.integer(linenums)
      
     changed <- rep(FALSE, length(tags))
     newtags <- c()
     maxtag <- max(files$tag)
-    for (n in names(concords)) {
-        maxtag <- maxtag + 1
-        newtags <- c(newtags, maxtag)
-        names(newtags)[length(newtags)] <- concords[[n]]$newname
+    for (i in seq_along(concords)) {
+        n <- names(concords)[i]
+        ofs <- concords[[i]]$ofs
+        concord <- concords[[i]]$concord
+        newsrc <- concords[[i]]$newsrc
+        if (!(newsrc %in% names(newtags))) {
+            maxtag <- maxtag + 1
+            newtags <- c(newtags, maxtag)
+            names(newtags)[length(newtags)] <- newsrc
+        }
         tag <- files$tag[files$name == n]
         if (length(tag) == 1) {
-    	    subset <- tags == tag
-    	    linenums[subset] <- concords[[n]]$concord[as.integer(linenums[subset])]
-    	    tags[subset] <- newtags[concords[[n]]$newname]
+    	    subset <- (tags == tag) & (linenums > ofs) & (linenums <= ofs + length(concord))
+    	    linenums[subset] <- concord[linenums[subset] - ofs]
+    	    tags[subset] <- newtags[newsrc]
     	    changed[subset] <- TRUE
     	}
     }
