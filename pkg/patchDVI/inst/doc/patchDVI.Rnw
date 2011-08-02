@@ -10,6 +10,8 @@
 \newcommand{\patchDVIn}{\textbf{patchDVI}}
 
 %\VignetteIndexEntry{The patchDVI package}
+%\VignetteKeyword{Sweave}
+%\VignetteKeyword{pdf}
 
 \title{The \patchDVI package}
 \author{Duncan Murdoch}
