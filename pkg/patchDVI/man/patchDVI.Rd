@@ -49,13 +49,17 @@ necessary.
 In a .dvi file, the concordance is stored in a TeX "special" in the following format (as of version 0.5):
 \code{concordance:<oldname>:<newname>:<firstline> <rle pairs>*}.  Here \code{<oldname>}
 is the name of the .tex file to replace, \code{<newname>} is the name of the .Rnw file
-to substitute for it, \code{<firstline>} is the line number from the .Rnw file of the
+to substitute for it, and \code{<firstline>} is the line number from the .Rnw file of the
 first line in the .tex file.  
 
 The \code{<rle pairs>} are a sequence of pairs
 (length, value), separated by spaces (no parentheses), with the length indicating
 the number of repetitions of the value.  Using \code{\link{inverse.rle}} these are converted
 to a sequence of differences in the line numbers of the concordance.
+
+Since colons are used to delimit the elements, they must not be used
+in \code{<oldname>} or \code{<newname>}:  names like
+\file{C:/source.Rnw} will not work.
 
 For example, a concordance might contain
 \preformatted{\Sconcordance{\concordance:optimization.tex:optimization.Rnw:1 2 1 2 4 39 1 1 4 ...}} 
