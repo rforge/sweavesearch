@@ -230,8 +230,8 @@ below, but can also be called directly by the user.
 
 Here is how it works.  \texttt{SweaveAll} takes a vector
 of filenames as input, and runs Sweave on each.  After each run, it examines the
-global environment for three variables:  \texttt{.PostSweaveHook},
-\texttt{.SweaveFiles} and \texttt{.TexRoot}.
+global environment for four variables:  \texttt{.PostSweaveHook},
+\texttt{.SweaveFiles}, \texttt{.SweaveMake} and \texttt{.TexRoot}.
 
 A code chunk in a \texttt{Rnw} file may produce a function (or the name of
 a function; \texttt{match.fun} is used to look it up) named \texttt{.PostSweaveHook}.
@@ -258,7 +258,8 @@ If \texttt{make=1} (the default), things proceed as described above.  If \texttt
 the \texttt{.SweaveFiles} variable is ignored, and only the explicitly named
 files in the call to \texttt{SweaveAll} are processed.  If \texttt{make=2}, then
 all files are processed, whether they are newer than their \texttt{.tex} 
-file or not.
+file or not.  The \texttt{.SweaveMake} variable will override the value
+of \texttt{make}.  
 
 A \texttt{.Rnw} file may also set the value of \texttt{.TexRoot} to the name of
 a \texttt{.tex} file.  If it does, then that is the file that should be passed

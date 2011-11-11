@@ -3,13 +3,15 @@ SweaveAll <- function(SweaveFiles, make=1, PostSweaveHook=NULL, ...) {
     result <- character()
     while (i < length(SweaveFiles)) {
         i <- i+1
-        suppressWarnings(remove(".SweaveFiles", ".TexRoot", ".PostSweaveHook", 
+        suppressWarnings(remove(".SweaveFiles", ".TexRoot", ".PostSweaveHook", ".SweaveMake",
                                 envir=globalenv()))
         thisfile <- Sweave(SweaveFiles[i], ...)
     	result <- c(result, thisfile)
     	.PostSweaveHook <- PostSweaveHook
     	if (exists(".PostSweaveHook", envir=globalenv())) 	
     	    .PostSweaveHook <- get(".PostSweaveHook", envir=globalenv())
+    	if (exists(".SweaveMake", envir=globalenv()))
+    	    make <- get(".SweaveMake", envir=globalenv())
     	if (!is.null(.PostSweaveHook)) {
     	    .PostSweaveHook <- match.fun(.PostSweaveHook)
     	    .PostSweaveHook(thisfile)
