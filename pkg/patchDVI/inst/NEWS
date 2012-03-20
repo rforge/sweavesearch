@@ -59,3 +59,7 @@ Quick initial releases.
       
       Added .SweaveMake variable to override the make arg to SweaveAll.
       
+1.8.1584:
+      In SweavePDF and SweaveDVI, wrapped texi2dvi call in try() in
+      case of bad return status.
+      

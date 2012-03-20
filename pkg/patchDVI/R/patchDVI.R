@@ -41,7 +41,7 @@ SweaveDVI <- function( Rnw, main=outputname,
     	outputname <- Rnw
     else
     	outputname <- SweaveAll(Rnw, make=make, ...)[1]
-    texi2dvi(main, pdf=FALSE, texinputs=texinputs, links=links)
+    try(texi2dvi(main, pdf=FALSE, texinputs=texinputs, links=links))
     dvi <- sub("\\.tex$", ".dvi", main, ignore.case=TRUE)
     message(patchDVI(dvi))
     if (!is.null(preview)) {

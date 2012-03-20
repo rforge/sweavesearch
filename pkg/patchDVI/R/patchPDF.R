@@ -42,7 +42,7 @@ SweavePDF <- function( Rnw, main=outputname,
     	outputname <- Rnw
     else
     	outputname <- SweaveAll(Rnw, make=make, ...)[1]
-    texi2dvi(main, pdf=TRUE, texinputs=texinputs, links=links)
+    try(texi2dvi(main, pdf=TRUE, texinputs=texinputs, links=links))
     message(patchSynctex(sub("\\.tex$", ".synctex", main, ignore.case=TRUE)))
     pdf <- sub("\\.tex$", ".pdf", main, ignore.case = TRUE)
     if (!is.null(preview)) {
