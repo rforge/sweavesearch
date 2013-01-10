@@ -17,7 +17,7 @@ SweaveMiktex <- function(Rnw,
     cmd <- paste(cmd, " ", options, " ", includedir, Rtexinputs(),
                  " ", main, sep="")    	
     cat(cmd, "\n")
-    result <- system(cmd, intern=FALSE, show=TRUE)
+    result <- system(cmd, intern = FALSE, show.output.on.console = TRUE)
     if (result != 0) Sys.sleep(5)
     dvi <- sub("\\.tex$", ".dvi", main, ignore.case = TRUE)
     message(patchDVI(dvi))

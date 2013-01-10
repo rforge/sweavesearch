@@ -17,7 +17,7 @@ SweavePDFMiktex <- function( Rnw, main=outputname,
     cmd <- paste(cmd, " ", options, " ", includedir, Rtexinputs(),
                  " ", main, sep="")
     cat(cmd, "\n")
-    result <- system(cmd, intern=FALSE, show=TRUE)
+    result <- system(cmd, intern = FALSE, show.output.on.console = TRUE)
     if (result != 0) Sys.sleep(5)
     message(patchSynctex(sub("\\.tex$", ".synctex", main, ignore.case = TRUE)))
     pdf <- sub("\\.tex$", ".pdf", main, ignore.case = TRUE)
