@@ -63,3 +63,5 @@ Quick initial releases.
       In SweavePDF and SweaveDVI, wrapped texi2dvi call in try() in
       case of bad return status.
       
+1.8.1585:
+      Added quick start instructions, and editor instructions.
