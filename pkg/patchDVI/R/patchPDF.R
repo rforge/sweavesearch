@@ -52,6 +52,43 @@ SweavePDF <- function( Rnw, main=outputname,
     }   
 }
 
+SweaveDVIPDFM <- function(Rnw, main=outputname,
+		       latex = "latex",
+		       latexOpts = "-synctex=1 -c-style-errors",
+		       dvipdfm = "dvipdfm",
+		       dvipdfmOpts = "",
+                       texinputs=NULL,
+                       source.code=NULL,
+                       make=1,
+                       preview = NULL,
+                       ... ) {
+    if (!is.null(source.code) && file.exists(source.code))
+    	try(source(source.code, local=TRUE))
+    if (sub(".*\\.tex$", "TeX", Rnw, ignore.case = TRUE) == "TeX") 
+    	outputname <- Rnw
+    else
+    	outputname <- SweaveAll(Rnw, make=make, ...)[1]
+    
+    otexinputs <- Sys.getenv("TEXINPUTS", unset = NA)
+    if(is.na(otexinputs)) {
+        on.exit(Sys.unsetenv("TEXINPUTS"))
+        otexinputs <- "."
+    } else on.exit(Sys.setenv(TEXINPUTS = otexinputs))
+    Sys.setenv(TEXINPUTS = paste(otexinputs, Rtexinputs(), "", sep = .Platform$path.sep))
+    cmd <- paste(shQuote(latex), latexOpts, shQuote(main))
+    system(cmd)
+    dvi <- sub("\\.tex$", ".dvi", main, ignore.case = TRUE)
+    message(patchSynctex(sub("\\.tex$", ".synctex", main, ignore.case=TRUE), fromDVI = dvi))
+    cmd <- paste(shQuote(dvipdfm), dvipdfmOpts, shQuote(dvi))
+    system(cmd)
+    if (!is.null(preview)) {
+        pdf <- sub("\\.tex$", ".pdf", main, ignore.case = TRUE)
+    	cmd <- sprintf(preview, pdf)
+    	cat(cmd, "\n")
+    	system(cmd, wait=FALSE, invisible=FALSE)
+    }   
+}
+
 rawToLines <- function(raw) {
     temp <- tempfile()
     on.exit(unlink(temp))
@@ -261,7 +298,8 @@ grepConcords <- function(pdfname) {
     else sapply(result, rawToChar)
 }
     
-patchSynctex <- function(f, newname=f, uncompress="pdftk %s output %s uncompress") {
+patchSynctex <- function(f, newname=f, uncompress="pdftk %s output %s uncompress",
+		         fromDVI = NULL) {
     compressed <- FALSE
     if (!file.exists(f)) {
     	f <- paste(f, ".gz", sep="")
@@ -276,22 +314,32 @@ patchSynctex <- function(f, newname=f, uncompress="pdftk %s output %s uncompress
     	return(paste(f,"cannot be read, no patching done."))
 
     files <- syncFiles(lines)
-    pdfname <- file.path(files$path[1], paste(sub(".tex", "", files$name[1]), ".pdf", sep=""))
+    if (is.null(fromDVI)) {
+	pdfname <- file.path(files$path[1], paste(sub(".tex", "", files$name[1]), ".pdf", sep=""))
     
-    concords <- parseConcords(grepConcords(pdfname))
-    if (!length(concords)) {
-      if (pdfXrefsCompressed(pdfname)) {
-    	if (missing(uncompress) && nchar(Sys.which("pdftk")) == 0) 
-    	    return(paste("No patches made:\n", pdfname, 
+	concords <- parseConcords(grepConcords(pdfname))
+	if (!length(concords)) {
+	    if (pdfXrefsCompressed(pdfname)) {
+		if (missing(uncompress) && nchar(Sys.which("pdftk")) == 0) 
+		    return(paste("No patches made:\n", pdfname, 
     	                 "\nis compressed and no uncompressor was found."))
-    	oldname <- pdfname
-    	pdfname <- tempfile()
-    	system(sprintf(uncompress, oldname, pdfname))
-      }
+		oldname <- pdfname
+		pdfname <- tempfile()
+		system(sprintf(uncompress, oldname, pdfname))
+	    }
     
-      concords <- parseConcords(pdfStreams(pdfname, "^concordance:"))
-      if (!length(concords)) # try older buggy format
-        concords <- parseConcords(pdfobjs(pdfname, "^concordance:"))
+	    concords <- parseConcords(pdfStreams(pdfname, "^concordance:"))
+	    if (!length(concords)) # try older buggy format
+		concords <- parseConcords(pdfobjs(pdfname, "^concordance:"))
+	}
+    } else {
+	specials <- DVIspecials(fromDVI)
+	concordind <- grep("^concordance:", specials)
+	concords <- parseConcords(specials[concordind])
+	if (length(concords)) {
+	    specials[concordind] <- NA
+	  #  setDVIspecials(fromDVI, specials)
+	}
     }
     re <- "^([vhxkgr$[(])([[:digit:]]+),([[:digit:]]+)([^[:digit:]].*)"
     srcrefind <- grep(re, lines)

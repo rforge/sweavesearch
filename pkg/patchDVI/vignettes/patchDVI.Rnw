@@ -43,7 +43,9 @@ link back to the original source line.  This has been a feature of the
 for many
 years.  Support for source references has appeared more recently
 for \file{.pdf}
-output in \file{pdfsync} and is currently available in Synctex \citep{Laurens08}.
+output, first in \file{pdfsync}.  Most recently
+Synctex \citep{Laurens08} links have been
+implemented in \texttt{pdflatex} and other \LaTeX\ processors.
 
 Unfortunately for Sweave users, these links point to the \file{.tex}
 source that was processed, which is not the true source code in the
@@ -75,7 +77,13 @@ project management functions.  It concludes with a short discussion.
 
 There are several ways to make use of \patchDVIn.  This section describes some common ones.
 
-In all cases the package needs to be installed first; the current version can be installed using
+In all cases the package needs to be installed first; the current release
+is on CRAN and can be installed using
+<<eval=FALSE>>=
+install.packages("patchDVI")
+@
+Source code is maintained on R-forge, and the latest development version
+can be installed using
 <<eval=FALSE>>=
 install.packages("patchDVI", repos="http://R-forge.r-project.org")
 @
@@ -95,11 +103,14 @@ SweavePDF("doc.Rnw")
 This runs  \file{doc.Rnw} through Sweave, runs any other chapters in the
 project through Sweave, then runs the main \file{.tex} file (typically
 \file{doc.tex}, but not necessarily; see section \ref{sec:make} below)
-through \texttt{pdflatex}, patches the source links.  To use \texttt{latex}
-instead of \texttt{pdflatex}, substitute \texttt{SweaveDVI} for
-\texttt{SweavePDF}.  If you are using MikTeX on Windows, the
-corresponding functions are \texttt{SweavePDFMiktex} and
-\texttt{SweaveMiktex} respectively.
+through \texttt{pdflatex}, and patches the source links.  To produce DVI
+output
+instead of PDF substitute \texttt{SweaveDVI} for
+\texttt{SweavePDF}, and to use \texttt{latex} and \texttt{dvipdfm}
+to produce \file{PDF} output, use \texttt{SweaveDVIPDFM}.
+If you are using MikTeX on Windows, the
+functions are \texttt{SweavePDFMiktex} and
+\texttt{SweaveMiktex} correspond to the first two of these respectively.
 
 These functions all have an optional argument \texttt{preview}, which
 can contain a command line to run a \file{.pdf} or \file{.dvi} previewer
@@ -144,12 +155,12 @@ wrote functions \texttt{SweaveMiktex} and \texttt{SweavePDFMiktex}
 specific to the MikTex platform, with the intention of adding
 others as I used them or users told me what needed adding.  This never happened,
 but in the meantime, Brian Ripley made the \texttt{tools::texi2dvi} function
-in R much more flexible, and in the recent release of version 1.7 of
-\patchDVI I have included a modified version of it with the hope that
-\patchDVI will now be more nearly platform neutral.
+in R much more flexible, and in version 1.7 of
+\patchDVI I included a modified version of it with the hope that
+\patchDVI should be more nearly platform neutral.
 
 The 1.7 release was motivated by an attempt to support TeXWorks \citep{Kew10}, a
-cross-platform \LaTeX\ targetted editor.  TeXWorks is still in its early
+cross-platform \LaTeX\ targetted editor.  TeXWorks was still in its early
 days (I was working with version 0.2 on Windows), and it did not have
 enough flexibility to handle large Sweave projects, where for example, each
 chapter of a book requires separate Sweave processing, but \LaTeX\ processes
@@ -158,6 +169,14 @@ capabilities into \patchDVIn.  It is now possible to specify a list of
 Sweave input files to process (optionally only if they have changed since the
 last processing) and the main wrapper file, all within Sweave chunks
 in a single file, using the \texttt{SweaveAll} function.
+
+The \texttt{SweaveDVIPDFM} function is the most recent addition.
+For English language processing, I find \texttt{pdflatex} to be the most
+convenient processor, but it does not work well in languages like 
+Japanese.  During a visit to the Institute of Statistical Mathematics
+in Tokyo I learned of the issues, and with the help of Prof. H. Okumura
+and Junji Nakano I worked out \texttt{SweaveDVIPDFM} to handle the two
+step conversion to PDF.
 
 \section{Sweave Concordances}\label{sec:concordance}
 
@@ -262,11 +281,12 @@ makes the substitution.  At the end, it rewrites the whole \file{.dvi} file.
 For \file{.pdf} files, the \verb!\Sconcordance! macro expands to a
 \verb!\pdfobj! macro containing the concordance, which eventually is
 embedded in the \file{.pdf} file.  However, the Synctex scheme of
-source references does not write them to the \file{.pdf} file
+source references does not write the references to the \file{.pdf} file
 directly.  Instead, they are written to a separate file with extension
 \file{.synctex}, or a compressed version of that file, with
 extension \file{.synctex.gz}.  The \texttt{patchSynctex} function
-reads the concordances from the \file{.pdf} file and the source
+reads the concordances from either the \file{.pdf} file (when \texttt{pdflatex}
+was used) or the \file{.dvi} file, and the source
 references from the Synctex file.  It rewrites only
 the Synctex file when it makes its changes.
 
@@ -284,7 +304,7 @@ Moreover, step 1 needs to be repeated once for each Sweave file, but only
 if the content has changed since the last run, while the other steps need only
 be done once.
 
-To manage this complication, the \patchDVI package now includes a simple
+To manage this complication, the \patchDVI package includes a simple
 project management function, \texttt{SweaveAll}.  This function runs Sweave
 on multiple files and determines the name of the main wrapper file.  It is 
 used internally by the functions described in Section \ref{sec:complete}
@@ -360,18 +380,21 @@ More complicated schemes are possible.  For example:
 \begin{itemize}
 \item Each chapter can have subsections in separate
 files; then the chapter would name the subsections, but the main wrapper would only
-need to name the chapters.  
+need to name the chapters if you can assume that only the chapter
+being edited was changed.
 \item If one wants to ``make'' the full project every time,
 then include \texttt{"wrapper.Rnw"} in \texttt{.SweaveFiles} in each chapter.
 \end{itemize}
 
 \subsection{The Complete Process}\label{sec:complete}
 
-The \patchDVI package contains four functions designed to run all
+The \patchDVI package contains five functions designed to run all
 four of the steps listed at the start of this section.  The functions
 \texttt{SweaveDVI} and \texttt{SweaveMiktex} produce \file{.dvi} output
 in the general case and for MikTeX respectively; \texttt{SweavePDF} and
-\texttt{SweavePDFMiktex} do the same for \file{.pdf} output.
+\texttt{SweavePDFMiktex} do the same for direct \file{.pdf} output
+from \texttt{pdflatex}.  Finally, \texttt{SweaveDVIPDFM} runs
+the two-step conversion using first \texttt{latex} and then \texttt{dvipdfm}.
 
 For example, the text editor that I use allows me to call external
 functions with arguments depending on the name of the current file and

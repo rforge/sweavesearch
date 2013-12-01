@@ -68,3 +68,7 @@ Quick initial releases.
       
 1.9:
       Cleaned up for CRAN release.
+      
+1.9.1587:
+      Added SweaveDVIPDFM to allow users to use latex/dvipdfm rather
+      than pdflatex.

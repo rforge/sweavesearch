@@ -64,7 +64,7 @@ function(file, pdf = FALSE, clean = FALSE, quiet = FALSE,
         on.exit(Sys.unsetenv("TEXINPUTS"))
         otexinputs <- "."
     } else on.exit(Sys.setenv(TEXINPUTS = otexinputs))
-    Sys.setenv(TEXINPUTS = paste(otexinputs, texinputs, sep = envSep))
+    Sys.setenv(TEXINPUTS = paste(otexinputs, texinputs, "", sep = envSep))
     bibinputs <- Sys.getenv("BIBINPUTS", unset = NA)
     if(is.na(bibinputs)) {
         on.exit(Sys.unsetenv("BIBINPUTS"), add = TRUE)
@@ -111,7 +111,7 @@ function(file, pdf = FALSE, clean = FALSE, quiet = FALSE,
         system(cmd, intern=TRUE, ignore.stderr=TRUE)
         msg <- ""
         ## (La)TeX errors.
-        log <- paste(tools:::file_path_sans_ext(file), "log", sep = ".")
+        log <- paste(tools::file_path_sans_ext(file), "log", sep = ".")
         if(file_test("-f", log)) {
             lines <- tools:::.get_LaTeX_errors_from_log_file(log)
             if(length(lines))
@@ -122,7 +122,7 @@ function(file, pdf = FALSE, clean = FALSE, quiet = FALSE,
         ## BibTeX errors.
         ## These seem too common on some MikTeX versions, so don't treat
         ## them too seriously
-        log <- paste(tools:::file_path_sans_ext(file), "blg", sep = ".")
+        log <- paste(tools::file_path_sans_ext(file), "blg", sep = ".")
         if(file_test("-f", log)) {
             lines <- tools:::.get_BibTeX_errors_from_blg_file(log)
             if(length(lines))
@@ -135,7 +135,7 @@ function(file, pdf = FALSE, clean = FALSE, quiet = FALSE,
             msg <- paste(gettextf("running 'texi2dvi' on '%s' failed", file),
                          msg, "", sep = "\n")
         if(clean) {
-            out_file <- paste(tools:::file_path_sans_ext(file), ext, sep = ".")
+            out_file <- paste(tools::file_path_sans_ext(file), ext, sep = ".")
             files <- list.files(all.files = TRUE) %w/o% c(".", "..",
                                                           out_file)
             file.remove(files[file_test("-nt", files, ".timestamp")])
@@ -154,7 +154,7 @@ function(file, pdf = FALSE, clean = FALSE, quiet = FALSE,
         else
             opt_links <- links
         texfile <- shQuote(file)
-        base <- tools:::file_path_sans_ext(file)
+        base <- tools::file_path_sans_ext(file)
         idxfile <- paste(base, ".idx", sep="")
         latex <- if(pdf) Sys.getenv("PDFLATEX", "pdflatex")
         else  Sys.getenv("LATEX", "latex")
