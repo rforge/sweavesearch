@@ -343,7 +343,7 @@ all files are processed, whether they are newer than their \file{.tex}
 file or not.  The \texttt{.SweaveMake} variable will override the value
 of \texttt{make}.  
 
-A \file{.Rnw} file may also set the value of \texttt{.TexRoot} to the name of
+An \file{.Rnw} file may also set the value of \texttt{.TexRoot} to the name of
 a \file{.tex} file.  If it does, then that is the file that should be passed
 to \LaTeX\ for processing.  If none is given, then the first file in the call
 to \texttt{SweaveAll} will be assumed to be the root file.  (If multiple
@@ -395,6 +395,8 @@ in the general case and for MikTeX respectively; \texttt{SweavePDF} and
 \texttt{SweavePDFMiktex} do the same for direct \file{.pdf} output
 from \texttt{pdflatex}.  Finally, \texttt{SweaveDVIPDFM} runs
 the two-step conversion using first \texttt{latex} and then \texttt{dvipdfm}.
+
+In each case, the \TeX processing functions are customizable.  
 
 For example, the text editor that I use allows me to call external
 functions with arguments depending on the name of the current file and

@@ -54,7 +54,7 @@ SweavePDF <- function( Rnw, main=outputname,
 
 SweaveDVIPDFM <- function(Rnw, main=outputname,
 		       latex = "latex",
-		       latexOpts = "-synctex=1 -c-style-errors",
+		       latexOpts = "-synctex=1",
 		       dvipdfm = "dvipdfm",
 		       dvipdfmOpts = "",
                        texinputs=NULL,
@@ -72,7 +72,7 @@ SweaveDVIPDFM <- function(Rnw, main=outputname,
     otexinputs <- Sys.getenv("TEXINPUTS", unset = NA)
     if(is.na(otexinputs)) {
         on.exit(Sys.unsetenv("TEXINPUTS"))
-        otexinputs <- "."
+	    otexinputs <- "."
     } else on.exit(Sys.setenv(TEXINPUTS = otexinputs))
     Sys.setenv(TEXINPUTS = paste(otexinputs, Rtexinputs(), "", sep = .Platform$path.sep))
     cmd <- paste(shQuote(latex), latexOpts, shQuote(main))
