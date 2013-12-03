@@ -2,6 +2,8 @@
 \usepackage{Sweave}
 \usepackage{natbib}
 \usepackage{hyperref}
+\usepackage[utf8]{inputenc}
+
 \bibliographystyle{plain}
 
 \SweaveOpts{concordance=TRUE}
@@ -110,14 +112,18 @@ instead of PDF substitute \texttt{SweaveDVI} for
 to produce \file{PDF} output, use \texttt{SweaveDVIPDFM}.
 If you are using MikTeX on Windows, the
 functions are \texttt{SweavePDFMiktex} and
-\texttt{SweaveMiktex} correspond to the first two of these respectively.
+\texttt{SweaveMiktex} correspond to the first two of these respectively,
+and use a few MikTeX-specific features.
 
 These functions all have an optional argument \texttt{preview}, which
 can contain a command line to run a \file{.pdf} or \file{.dvi} previewer
 (with the filename replaced by \verb!%s!).  The \file{.pdf} previewer
 should be one that can handle Synctex links; unfortunately, Acrobat
 Reader and MacOS Preview are both deficient in this area. On
-Windows, \texttt{SumatraPDF} works.  MikTeX includes the \texttt{yap}
+Windows, \texttt{SumatraPDF} works, as do the built-in previewers
+in TeXShop and TeXWorks on MacOS X and other platforms.
+
+MikTeX includes the \texttt{yap}
 previewer for \file{.dvi} files; the \texttt{SweaveMiktex} command sets it
 as the default.
 
@@ -131,7 +137,7 @@ include a previewer that can handle the source links.
 Finally, you may want to run Sweave from the command line, outside of R.  This line (or the obvious variants
 with replacements for \texttt{SweavePDF}) should do it:
 \begin{verbatim}
-Rscript -e 'patchDVI::SweaveAll("doc.Rnw")'
+Rscript -e 'patchDVI::SweavePDF("doc.Rnw")'
 \end{verbatim}
 
 
@@ -278,7 +284,7 @@ makes the substitution.  At the end, it rewrites the whole \file{.dvi} file.
 
 \section{Patching \file{.synctex} Files}\label{sec:synctex}
 
-For \file{.pdf} files, the \verb!\Sconcordance! macro expands to a
+When using \texttt{pdflatex}, the \verb!\Sconcordance! macro expands to a
 \verb!\pdfobj! macro containing the concordance, which eventually is
 embedded in the \file{.pdf} file.  However, the Synctex scheme of
 source references does not write the references to the \file{.pdf} file
@@ -443,24 +449,128 @@ called from R, while the PDF related work is done in pure R code.
 \label{sec:texshop}
 
 TeXShop is a nice \TeX\ editor on MacOS.  Dave Gabrielson of the University of Manitoba helped me to work
-out these instructions.  They have been tested with TeXShop version 2.43, but should work with other versions
-as well.
+out these instructions.  I have updated them in December, 2013 for TeXShop 2.47.
 
 \begin{enumerate}
 \item In Preferences -- Typesetting -- Sync Method, choose ``SyncTeX''.
-\item In your home directory, create a file called \verb!Library/TeXShop/Engines/Sweave.engine! 
+\item Create a file called \verb!Library/TeXShop/Engines/Sweave.engine! 
 containing the lines
 \begin{verbatim}
 #!/bin/tcsh
 Rscript -e "patchDVI::SweavePDF(  '$1' )"
 \end{verbatim}
-and give it executable permissions.
-\item Install the \texttt{patchDVI} package from repository \url{http://R-forge.r-project.org} into R. 
+in your home directory, and give it executable permissions.  
+\item Install the \texttt{patchDVI} package into R.
 \item When editing a \texttt{.Rnw} file in TeXShop, choose the Sweave engine from the menu.
+\item If you have multiple files in your project, your main file must be a Sweave file
+(e.g. \texttt{Main.Rnw}) which lists all Sweave files in a \texttt{.SweaveFiles} variable, 
+and you need to add the line
+\begin{verbatim}
+%!TEX root = Main.Rnw
+\end{verbatim}
+to each subordinate file.
+\item Add the \verb!\SweaveOpts{concordance=TRUE}! line to your document.
 \end{enumerate}
 
 The TeXShop previewer supports SyncTeX; you right click in the preview, and choose Sync from the menu
 to jump to your source location.
+
+\section{Using \patchDVI with TeXWorks}
+\label{sec:texworks}
+
+TeXWorks is an editor for multiple platforms, 
+somewhat similar to TeXShop.  These instructions 
+have been tested in version 0.4.5, with MikTeX 2.9 on Windows,
+and MacTeX on MacOS.
+
+TeXWorks can work with the \texttt{patchDVI}
+project management features using a script
+to tell it to process the current file through Sweave, but preview
+the main file.  See the instructions below for my current best attempt at such
+a script.  It can also use the TeXShop approach of specifying
+the TEX root file to be a Sweave file.
+
+\begin{enumerate}
+\item Add a new SweavePDF command:  In\\
+
+Edit | Preferences | Typesetting \\
+\\
+click on the ``+'' sign near the bottom.  Set the name of the tool to be SweavePDF.
+Set the program to Rscript.
+
+Add two arguments, one per line:
+\begin{enumerate}
+\item \verb!-e!
+\item \verb!patchDVI::SweavePDF('$fullname')! % $
+\end{enumerate} 
+\item Install the \texttt{patchDVI} package into R.
+\item Tell TeXWorks to open Sweave files by editing the file pattern configuration file \texttt{texworks-config.txt}.
+This file is in the \texttt{configuration} folder of the TeXWorks home directory.  For example, I have this
+line in my file:
+\begin{verbatim}
+file-open-filter:	Sweave and TeX documents (*.Rnw *.tex)
+\end{verbatim}
+\item When editing a \texttt{.Rnw} file in TeXWorks, choose the SweavePDF engine from the menu.
+\item Add the \verb!\SweaveOpts{concordance=TRUE}! line to your document.
+\item If you are using the project management features of \texttt{patchDVI} and are
+editing a subordinate file, TeXWorks will not open or update the PDF preview after it processes changes.
+There are four workarounds for this.
+
+The simplest is to manually open the \texttt{.pdf} file the first time.  After that it will be updated
+automatically.  Unfortunately, if you happen to be editing the main file, the \texttt{.pdf} will be opened
+automatically, and then updates won't happen if you later edit a subordinate file.
+
+The next simplest is the TeXShop approach:  include a line 
+\begin{verbatim}
+%!TEX root = Main.Rnw
+\end{verbatim}
+near the top of the file, and make sure that \texttt{Main.Rnw} refers
+to all subordinate Sweave files.
+
+You can force updates without the TEX root specification
+using the following hook script (written by Stefan L\"{o}ffler).
+\begin{verbatim}
+// TeXworksScript
+// Title: Refresh PDF
+// Description: Refreshes PDFs after typesetting finishes
+// Author: Stefan Löffler
+// Version: 0.1
+// Date: 2013-11-20
+// Script-Type: hook
+// Hook: AfterTypeset
+
+windows = TW.app.getOpenWindows()
+
+for (i = 0; i < windows.length; i++) {
+    win = windows[i]
+    if (win.objectName == "PDFDocument") {
+        win.reload()
+    }
+}
+\end{verbatim}
+Put this script in a file \texttt{refreshpdf.js} in your TeXWorks script directory (available through the menu
+using Scripts | Scripting TeXWorks | Show Scripts Folder).  After that, PDF previews will be automatically
+updated after every Typeset operation.
+
+I have written another script (included in the scripts directory of \texttt{patchDVI}
+as \texttt{sweavePreview.js});
+it attempts to determine the PDF filename from the console output, and reloads that file.
+I have tested it on my own systems but not elsewhere, so I am not sure that it will work on other
+systems.  With this script (shown below) TeXWorks should open
+the preview without using the tricks above.  The TeXWorks 
+previewer will jump back to the source if you right click and choose 
+Jump to Source.
+
+
+\begin{verbatim}
+<<results=tex, echo=FALSE>>=
+cat(readLines(system.file("scripts/sweavePreview.js", 
+                          package="patchDVI")), sep="\n")
+@
+\end{verbatim}
+\end{enumerate}
+
+
 
 \section{Using \patchDVI with WinEdt}
 \label{sec:winedt}
@@ -493,25 +603,8 @@ You should see ``WinEdt (auto-detected)" as an option; if so, select it.  If not
 \end{verbatim}
 after editing the path as necessary.
 
-\section{Using \patchDVI with TeXWorks}
-\label{sec:texworks}
 
-TeXWorks is an editor for Windows and other platforms, somewhat similar to TeXShop.  These instructions 
-have been minimally tested in version 0.4.3, with MikTeX 2.9.
 
-In 
-Edit -- Preferences -- Typesetting 
-click on the ``+'' sign near the bottom of the Processing Tools box.  Set the name of the tool to be SweavePDF.
-Set the program to Rscript by browsing to the \texttt{Rscript.exe} executable
-in your R installation, directory \file{bin/i386} or \file{bin/x64}.
-
-Add two arguments on separate lines:
-\begin{verbatim}
--e
-patchDVI::SweavePDFMiktex('$fullname',preview=FALSE)
-\end{verbatim}
-
-The TeXWorks previewer will jump back to the source if you right click and choose Jump to Source.
 \end{document}
 
 
