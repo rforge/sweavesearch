@@ -1,0 +1,194 @@
+%!TEX encoding = UTF-8 Unicode
+%!TEX TS-program = JSweave
+%!TEX program = JSweave
+
+\documentclass[12pt]{ujarticle}
+\usepackage{Sweave}
+\usepackage{natbib}
+\newcommand{\ThisIsNotUsed}{
+\usepackage[utf8]{inputenc}
+}
+
+\bibliographystyle{plain}
+
+\SweaveOpts{concordance=TRUE}
+
+\newcommand{\patchDVI}{\patchDVIn\ }
+\newcommand{\patchDVIn}{\textbf{patchDVI}}
+\newcommand{\file}[1]{\texttt{#1}}
+
+%\VignetteIndexEntry{Using Sweave and patchDVI with Japanese text}
+%\VignetteKeyword{Sweave}
+%\VignetteKeyword{pdf}
+
+\title{Using Sweave and \patchDVI with Japanese text}
+\author{Duncan Murdoch}
+
+\begin{document}
+
+\maketitle
+
+\abstract{
+The \patchDVI package works with Sweave \citep{Leisch02}  and
+document previewers to facilitate editing:  it modifies the links
+that \LaTeX\ puts into the output so that they refer to the original
+source.  It also includes a few project management functions to 
+make large multi-file Sweave documents easier to handle.  This
+document describes Japanese language support in the
+package.}
+
+\newpage
+
+\tableofcontents
+
+\newpage
+
+\section{Introduction}
+
+The main vignette ``The patchDVI package'' describes general features
+of patchDVI, and how to set up various editors to use it in typesetting
+English-language vignettes.  This vignette describes how to set it up
+for Japanese language text.  I expect the issues would be the same
+in other non-Roman alphabets, but I have no experience with them.
+
+The main issues in writing Japanese language (日本語 ) documents are the
+encoding of the 
+character set and the varying support by different \LaTeX\ engines.  The 
+standard \texttt{pdflatex} engine does not work well with Japanese. 
+In November, 2013 I visited the Institute for Statistical Mathematics
+in Tokyo, and with the help of Mr. Yasuto Nakano and Prof. Haruhiko Okumura
+I developed these instructions.  In outline:  you must use the UTF-8 encoding
+for the characters, use \texttt{uplatex} to convert to DVI file, and use
+\texttt{dvipdfmx} to convert the DVI to PDF.
+
+\section{Using \patchDVI with TeXShop}
+\label{sec:texshop}
+
+These instructions have been tested with TeXShop version 2.47, but should work with other versions
+as well.
+
+\begin{enumerate}
+\item In Preferences -- Typesetting -- Sync Method, choose ``SyncTeX''.
+\item Create a file called \verb!Library/TeXShop/Engines/JSweave.engine! 
+containing the two lines
+\begin{verbatim}
+#!/bin/sh
+\end{verbatim}
+and
+\begin{verbatim}
+Rscript -e "Sys.setlocale(locale='en_US.UTF-8');
+patchDVI::SweaveDVIPDFM(  '$1', latex='uplatex', 
+dvipdfm='dvipdfmx', encoding = 'UTF-8' )"
+\end{verbatim}
+(which I have split to fit in this document; the actual line should not be split).
+Give this file executable permissions.  
+\item Install the \texttt{patchDVI} package into R.  For this to work,  you need
+at least version 1.9.1587 of patchDVI.
+\item Add the lines 
+\begin{verbatim}
+%!TEX encoding = UTF-8 Unicode
+%!TEX TS-program = JSweave
+\end{verbatim}
+at the beginning of all files, and make sure they are created with UTF-8 encoding.
+\item If you have multiple files in your project, your main file must be a Sweave file
+(e.g. \texttt{Main.Rnw}) which lists all Sweave files in a \texttt{.SweaveFiles} variable, 
+and you need to add the line
+\begin{verbatim}
+%!TEX root = Main.Rnw
+\end{verbatim}
+to each subordinate file.
+\item Add
+\begin{verbatim}
+\usepackage[utf8]{inputenc}
+\end{verbatim}
+to the main file to declare to Sweave that it uses the UTF-8 encoding.  Add
+\begin{verbatim}
+\newcommand{\ThisIsNotUsed}{
+\usepackage[utf8]{inputenc}
+}
+\end{verbatim}
+to subordinate files.  This defines a macro which is never used; the purpose is
+for Sweave to see the \texttt{inputenc} line.  (You can also use this line in the main file
+if you are using a class file such as \texttt{ujarticle} which defines the encoding, 
+and don't want \texttt{inputenc} to be used.)
+\item Add 
+\begin{verbatim}
+ \SweaveOpts {concordance=TRUE,eps=TRUE,pdf=FALSE}
+\end{verbatim}
+because \verb!uplatex! doesn't support PDF graphics, it requires EPS graphs.
+
+\end{enumerate}
+
+With these changes, the TeXShop previewer will support SyncTeX; you right click in the preview, and choose Sync from the menu
+to jump to your source location.
+
+\section{Using \patchDVI with TeXWorks}
+\label{sec:texworks}
+
+TeXWorks is an editor for several platforms, somewhat similar to TeXShop.  These instructions 
+have been tested in TeXWorks 0.4.4 on MacOS; I have not tested them on Windows, because
+I do not have \texttt{uplatex} and \texttt{dvipdfmx} there, but they should work if those
+programs are available.
+
+\begin{enumerate}
+\item 
+In 
+Edit -- Preferences -- Typesetting 
+click on the ``+'' sign near the bottom of the Processing Tools box.  Set the name of the tool to be JSweave.
+Set the program to Rscript by browsing to the \texttt{Rscript.exe} executable
+in your R installation, directory \file{bin/i386} or \file{bin/x64}.
+
+Add two arguments on separate lines.  The first is simply -e, the second is
+\begin{verbatim}
+{Sys.setlocale(locale='en_US.UTF-8');
+ patchDVI::SweaveDVIPDFM(  '$fullname',
+ latex='uplatex', latexOpts='-synctex=1',
+ dvipdfm='dvipdfmx', encoding = 'UTF-8' )}
+\end{verbatim}
+This should be typed all on one line.
+
+\item Install the \texttt{patchDVI} package into R.  For this to work,  you need
+at least version 1.9.1587 of patchDVI.
+\item Add the lines 
+\begin{verbatim}
+%!TEX encoding = UTF-8 Unicode
+%!TEX program = JSweave
+\end{verbatim}
+at the beginning of all files, and make sure they are created with UTF-8 encoding.
+\item If you have multiple files in your project, your main file must be a Sweave file
+(e.g. \texttt{Main.Rnw}) which lists all Sweave files in a \texttt{.SweaveFiles} variable, 
+and you need to add the line
+\begin{verbatim}
+%!TEX root = Main.Rnw
+\end{verbatim}
+to each subordinate file.
+\item Add
+\begin{verbatim}
+\usepackage[utf8]{inputenc}
+\end{verbatim}
+to the main file to declare to Sweave that it uses the UTF-8 encoding.  Add
+\begin{verbatim}
+\newcommand{\ThisIsNotUsed}{
+\usepackage[utf8]{inputenc}
+}
+\end{verbatim}
+to subordinate files.  This defines a macro which is never used; the purpose is
+for Sweave to see the \texttt{inputenc} line.  (You can also use this line in the main file
+if you are using a class file such as \texttt{ujarticle} which defines the encoding, 
+and don't want \texttt{inputenc} to be used.)
+
+\item Add 
+\begin{verbatim}
+ \SweaveOpts {concordance=TRUE,eps=TRUE,pdf=FALSE}
+\end{verbatim}
+because \verb!uplatex! doesn't support PDF graphics, it requires EPS graphs.
+\end{enumerate}
+
+The TeXWorks previewer will jump back to the source if you right click and choose Jump to Source.
+
+\bibliography{patchDVI}
+\end{document}
+
+
+
+

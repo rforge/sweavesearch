@@ -37,7 +37,7 @@ SweavePDF(Rnw, main=outputname,
           preview = NULL, ...)
 	  
 SweaveDVIPDFM(Rnw, main = outputname, 
-	  latex = "latex", latexOpts = "-synctex=1", 
+	  latex = "latex", latexOpts = "-synctex=1 -interaction=nonstopmode", 
 	  dvipdfm = "dvipdfm", dvipdfmOpts = "", 
 	  texinputs = NULL, 
 	  source.code = NULL, 

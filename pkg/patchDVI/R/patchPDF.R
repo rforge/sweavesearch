@@ -54,7 +54,7 @@ SweavePDF <- function( Rnw, main=outputname,
 
 SweaveDVIPDFM <- function(Rnw, main=outputname,
 		       latex = "latex",
-		       latexOpts = "-synctex=1",
+		       latexOpts = "-synctex=1 -interaction=nonstopmode",
 		       dvipdfm = "dvipdfm",
 		       dvipdfmOpts = "",
                        texinputs=NULL,
