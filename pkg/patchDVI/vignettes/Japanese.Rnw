@@ -135,15 +135,15 @@ programs are available.
 In 
 Edit -- Preferences -- Typesetting 
 click on the ``+'' sign near the bottom of the Processing Tools box.  Set the name of the tool to be JSweave.
-Set the program to Rscript by browsing to the \texttt{Rscript.exe} executable
-in your R installation, directory \file{bin/i386} or \file{bin/x64}.
+Set the program to Rscript.  (You may need to give the fully qualified path
+if R is not in your system PATH.)
 
 Add two arguments on separate lines.  The first is simply -e, the second is
 \begin{verbatim}
 {Sys.setlocale(locale='en_US.UTF-8');
  patchDVI::SweaveDVIPDFM(  '$fullname',
- latex='uplatex', latexOpts='-synctex=1',
- dvipdfm='dvipdfmx', encoding = 'UTF-8' )}
+ latex='uplatex', dvipdfm='dvipdfmx', 
+ encoding = 'UTF-8' )}
 \end{verbatim}
 This should be typed all on one line.
 
