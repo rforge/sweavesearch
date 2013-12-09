@@ -69,8 +69,10 @@ Quick initial releases.
 1.9:
       Cleaned up for CRAN release.
       
-1.9.1590:
+1.9.1592:
       Added SweaveDVIPDFM to allow users to use latex/dvipdfm rather
       than pdflatex.
       Updated the TeXShop and TeXWorks instructions.
       Added vignette for Japanese language work.
+      Added patchLog function to patch messages in log files.
+      
