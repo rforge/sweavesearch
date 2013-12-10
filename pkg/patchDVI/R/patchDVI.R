@@ -1,13 +1,14 @@
 SweaveMiktex <- function(Rnw, 
                          main=outputname, 
                          cmd="texify",
-                         options="--tex-option=--src-specials",
+                         options="--tex-option=--src-specials --tex-option=-interaction=nonstopmode",
                          includedir="--tex-option=--include-directory=",
                          stylepath=FALSE,
                          source.code=NULL,
                          make=1,
                          preview='yap "%s"',
 			 patchLog = FALSE,
+			 sleep = 0,
                          ...) {
     if (!is.null(source.code))
     	try(source(source.code, local=TRUE))
@@ -27,7 +28,7 @@ SweaveMiktex <- function(Rnw,
         consoleLog <- readLines(tempLog)
     }
     cat(consoleLog, sep = "\n")
-    if (!is.null(status) && status) Sys.sleep(5)
+    if (!is.null(status) && status) Sys.sleep(sleep)
     dvi <- sub("\\.tex$", ".dvi", main, ignore.case = TRUE)
     message(patchDVI(dvi, patchLog = patchLog))
     if (!is.null(preview)) {

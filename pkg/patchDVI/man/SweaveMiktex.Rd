@@ -12,23 +12,25 @@ This is a simple script to run Sweave, then MikTeX, then patchDVI.
 
 SweaveMiktex(Rnw, main = outputname, 
                   cmd = "texify",
-                  options = "--tex-option=--src-specials",
+                  options = "--tex-option=--src-specials --tex-option=-interaction=nonstopmode",
                   includedir = "--tex-option=--include-directory=",
                   stylepath = FALSE, 
 		  source.code = NULL, 
 		  make = 1, 
                   preview = 'yap "\%s"', 
-		  patchLog=FALSE, ...)
+		  patchLog=FALSE,
+		  sleep = 0, ...)
 		  
 SweavePDFMiktex(Rnw, main = outputname,  
                   cmd = "texify --pdf", 
-                  options = "--tex-option=-synctex=-1",
+                  options = "--tex-option=-synctex=-1 --tex-option=-interaction=nonstopmode",
                   includedir = "--tex-option=-include-directory=",
                   stylepath = FALSE, 
 		  source.code = NULL, 
 		  make = 1, 
                   preview = NULL, 
-		  patchLog = FALSE, ...)
+		  patchLog = FALSE, 
+		  sleep = 0, ...)
 		  
 SweaveDVI(Rnw, main=outputname, 
           texinputs = NULL, 
@@ -68,6 +70,7 @@ SweaveDVIPDFM(Rnw, main = outputname,
   \item{make}{ Value to pass to \code{\link{SweaveAll}} to control which Sweave files are processed }
   \item{preview}{ Command to use to preview result, or \code{NULL} for no preview }
   \item{patchLog}{ Whether to attempt to patch the console log and \file{.log} file }
+  \item{sleep}{ Number of seconds to sleep if an error is detected in the run }
   \item{texinputs}{ Extra paths to pass to \code{\link[tools]{texi2dvi}} }
   \item{links}{ If not \code{NULL}, an option to turn on production of source links
       via Synctex or source specials}

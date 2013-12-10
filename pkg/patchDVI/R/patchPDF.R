@@ -1,12 +1,13 @@
 SweavePDFMiktex <- function( Rnw, main=outputname,  
                              cmd="texify --pdf", 
-                             options="--tex-option=-synctex=-1",
+                             options="--tex-option=-synctex=-1 --tex-option=-interaction=nonstopmode",
                              includedir="--tex-option=-include-directory=",
                              stylepath=FALSE,
                              source.code=NULL,
                              make=1,
                              preview=NULL,
 			     patchLog = FALSE,
+			     sleep = 0,
                              ...) {
     if (!is.null(source.code) && file.exists(source.code))
     	try(source(source.code, local=TRUE))
@@ -27,7 +28,7 @@ SweavePDFMiktex <- function( Rnw, main=outputname,
         consoleLog <- readLines(tempLog)
     }    
     cat(consoleLog, sep="\n")
-    if(!is.null(status) && status) Sys.sleep(5)
+    if(!is.null(status) && status) Sys.sleep(sleep)
     message(patchSynctex(sub("\\.tex$", ".synctex", main, ignore.case = TRUE), patchLog = patchLog))
     if (!is.null(preview)) {
 	pdf <- sub("\\.tex$", ".pdf", main, ignore.case = TRUE)
