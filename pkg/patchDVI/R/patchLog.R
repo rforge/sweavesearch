@@ -10,6 +10,7 @@
 
 patchLog <- function(f, newname=f, concords = NULL, max_print_line = 79) {
 
+    force(newname)
     lines <- readLines(f)
     
     # These patterns recognize all errors generated with \errmessage,
@@ -82,7 +83,7 @@ patchLog <- function(f, newname=f, concords = NULL, max_print_line = 79) {
     inds <- seq_along(parendepth)
 
     for (i in seq_along(filename)) {
-	j <- min(which(parenlines == filestartline[i]))
+	j <- which(parenlines == filestartline[i] & parencols + 1 == filestartcol[i])
 	depth <- parendepth[j]
 	popped <- which(inds > j & parendepth == depth - 1)
 
@@ -90,13 +91,13 @@ patchLog <- function(f, newname=f, concords = NULL, max_print_line = 79) {
 	fileineffect[filestartline[i]:fileendline] <- filename[i]
     }
     
-    if (is.null(concords)) { # The run failed, so get them from the source
+    if (!length(concords)) { # The run failed, so get them from the source
         concordance <- grepl("-concordance.tex$", filename)
         if (any(concordance))
     	    concords <- readConcords( unique(filename[concordance]) )
     }
     
-    if (!is.null(concords)) {
+    if (length(concords)) {
 	# Now start patching.
 	names(concords) <- normalizePath(names(concords), mustWork = FALSE)
 	patchable <- fileineffect %in% names(concords)
@@ -137,7 +138,12 @@ patchLog <- function(f, newname=f, concords = NULL, max_print_line = 79) {
 	if (any(dofix)) {
 	    start <- filestartcol[dofix]
 	    stop <- start + filenamelen[dofix] - 1
-	    mysubstr(lines[filestartline[dofix]], start, stop) <- sapply(concords[filename[dofix]], function(x) x$newsrc)
+	    withPath <- function(s) {
+		okay <- grepl("[/\\]", s)
+		s[!okay] <- paste0("./", s[!okay])
+	    }
+	    mysubstr(lines[filestartline[dofix]], start, stop) <- sapply(concords[filename[dofix]], 
+	                                      function(x) withPath(x$newsrc))
 	}
     }
     writeLines(lines, newname)
