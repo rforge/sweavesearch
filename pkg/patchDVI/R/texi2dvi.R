@@ -162,8 +162,10 @@ function(file, pdf = FALSE, clean = FALSE, quiet = FALSE,
         makeindex <- Sys.getenv("MAKEINDEX", "makeindex")
         cmd <- paste(shQuote(latex), "-interaction=nonstopmode", opt_links, texfile)
         if (!quiet) message(cmd, "\n")
-        if(system(cmd))
-            stop(gettextf("unable to run '%s' on '%s'", latex, file),
+        consoleLog <- system(cmd, intern = TRUE)
+        status <- attr(consoleLog, "status")
+        if(!is.null(status) && status)
+            warning(gettextf("unable to run '%s' on '%s'", latex, file),
                  domain = NA)
         nmiss <- length(grep("^LaTeX Warning:.*Citation.*undefined",
                              readLines(paste(base, ".log", sep = ""))))
@@ -179,15 +181,18 @@ function(file, pdf = FALSE, clean = FALSE, quiet = FALSE,
                                   makeindex, idxfile),
                          domain = NA)
             }
-            paste(shQuote(latex), "-interaction=nonstopmode", opt_links, texfile)
+            cmd <- paste(shQuote(latex), "-interaction=nonstopmode", opt_links, texfile)
             if (!quiet) message(cmd, "\n")
-            if(system(cmd))
-                stop(gettextf("unable to run %s on '%s'", latex, file), domain = NA)
+	    consoleLog <- system(cmd, intern = TRUE)
+	    status <- attr(consoleLog, "status")
+            if(!is.null(status) && status)
+                warning(gettextf("unable to run %s on '%s'", latex, file), domain = NA)
             Log <- readLines(paste(base, ".log", sep = ""))
             nmiss <- length(grep("^LaTeX Warning:.*Citation.*undefined", Log))
             if(nmiss == nmiss_prev &&
                !length(grep("Rerun to get", Log)) ) break
         }
     }
+    invisible(consoleLog)
 }
 

@@ -13,13 +13,14 @@ the previewer can send messages to editors to jump to the source
 corresponding to a location in the preview. 
 }
 \usage{
-patchDVI(f, newname=f)
+patchDVI(f, newname = f, patchLog = FALSE)
 patchSynctex(f, newname=f, uncompress="pdftk \%s output \%s uncompress",
-	     fromDVI = NULL)
+	     fromDVI = NULL, patchLog = FALSE)
 }
 \arguments{
   \item{f}{ A character value giving the name of the .dvi or .synctex file to patch }
   \item{newname}{ Output will go to this file; by default to overwrite the original }
+  \item{patchLog}{ Whether to attempt to patch the \file{.log} file }
   \item{uncompress}{ External command to uncompress a compressed PDF file }
   \item{fromDVI}{ Name of DVI file in which to find concordance }
 }
@@ -45,6 +46,9 @@ can be run from the command line, there's no need to keep an R session running (
 all work from within one session as well).  At some distant date in the future maybe
 the previewers will learn how to read the concordance info, and step 4 will no longer be 
 necessary.
+
+The \code{patchLog} option makes use of the new \code{\link{patchLog}} function
+and should be seen as experimental; it is certainly not foolproof.
 }
 \note{
 

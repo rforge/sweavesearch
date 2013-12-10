@@ -1,11 +1,12 @@
 SweavePDFMiktex <- function( Rnw, main=outputname,  
                              cmd="texify --pdf", 
-                             options="--tex-option=-c-style-errors --tex-option=-synctex=-1",
+                             options="--tex-option=-synctex=-1",
                              includedir="--tex-option=-include-directory=",
                              stylepath=FALSE,
                              source.code=NULL,
                              make=1,
                              preview=NULL,
+			     patchLog = FALSE,
                              ...) {
     if (!is.null(source.code) && file.exists(source.code))
     	try(source(source.code, local=TRUE))
@@ -17,16 +18,23 @@ SweavePDFMiktex <- function( Rnw, main=outputname,
     cmd <- paste(cmd, " ", options, " ", includedir, Rtexinputs(),
                  " ", main, sep="")
     cat(cmd, "\n")
-    result <- system(cmd, intern = FALSE, show.output.on.console = TRUE)
-    if (result != 0) Sys.sleep(5)
-    message(patchSynctex(sub("\\.tex$", ".synctex", main, ignore.case = TRUE)))
-    pdf <- sub("\\.tex$", ".pdf", main, ignore.case = TRUE)
+    consoleLog <- try(system(cmd, intern = TRUE))
+    status <- attr(consoleLog, "status")
+    if (patchLog && !inherits(consoleLog, "try-error")) {
+        tempLog <- tempfile(fileext = ".log")
+        writeLines(consoleLog, tempLog)
+        patchLog(tempLog)
+        consoleLog <- readLines(tempLog)
+    }    
+    cat(consoleLog, sep="\n")
+    if(!is.null(status) && status) Sys.sleep(5)
+    message(patchSynctex(sub("\\.tex$", ".synctex", main, ignore.case = TRUE), patchLog = patchLog))
     if (!is.null(preview)) {
+	pdf <- sub("\\.tex$", ".pdf", main, ignore.case = TRUE)
     	cmd <- sprintf(preview, pdf)
     	cat(cmd, "\n")
     	system(cmd, wait=FALSE, invisible=FALSE)
     }
-    
 }
 
 SweavePDF <- function( Rnw, main=outputname,
@@ -35,6 +43,7 @@ SweavePDF <- function( Rnw, main=outputname,
                        make=1,
                        links = NULL,
                        preview = NULL,
+                       patchLog = FALSE,
                        ... ) {
     if (!is.null(source.code) && file.exists(source.code))
     	try(source(source.code, local=TRUE))
@@ -42,8 +51,15 @@ SweavePDF <- function( Rnw, main=outputname,
     	outputname <- Rnw
     else
     	outputname <- SweaveAll(Rnw, make=make, ...)[1]
-    try(texi2dvi(main, pdf=TRUE, texinputs=texinputs, links=links))
-    message(patchSynctex(sub("\\.tex$", ".synctex", main, ignore.case=TRUE)))
+    consoleLog <- try(texi2dvi(main, pdf=TRUE, texinputs=texinputs, links=links))
+    if (patchLog && !inherits(consoleLog, "try-error")) {
+        tempLog <- tempfile(fileext = ".log")
+        writeLines(consoleLog, tempLog)
+        patchLog(tempLog)
+        consoleLog <- readLines(tempLog)
+    }
+    cat(consoleLog, sep = "\n")
+    message(patchSynctex(sub("\\.tex$", ".synctex", main, ignore.case=TRUE), patchLog = patchLog))
     pdf <- sub("\\.tex$", ".pdf", main, ignore.case = TRUE)
     if (!is.null(preview)) {
     	cmd <- sprintf(preview, pdf)
@@ -61,6 +77,7 @@ SweaveDVIPDFM <- function(Rnw, main=outputname,
                        source.code=NULL,
                        make=1,
                        preview = NULL,
+                       patchLog = FALSE,
                        ... ) {
     if (!is.null(source.code) && file.exists(source.code))
     	try(source(source.code, local=TRUE))
@@ -76,9 +93,17 @@ SweaveDVIPDFM <- function(Rnw, main=outputname,
     } else on.exit(Sys.setenv(TEXINPUTS = otexinputs))
     Sys.setenv(TEXINPUTS = paste(otexinputs, Rtexinputs(), "", sep = .Platform$path.sep))
     cmd <- paste(shQuote(latex), latexOpts, shQuote(main))
-    system(cmd)
+    consoleLog <- try(system(cmd, intern = TRUE))
+    if (patchLog && !inherits(consoleLog, "try-error")) {
+        tempLog <- tempfile(fileext = ".log")
+        writeLines(consoleLog, tempLog)
+        patchLog(tempLog)
+        consoleLog <- readLines(tempLog)
+    }
+    cat(consoleLog, sep = "\n")
     dvi <- sub("\\.tex$", ".dvi", main, ignore.case = TRUE)
-    message(patchSynctex(sub("\\.tex$", ".synctex", main, ignore.case=TRUE), fromDVI = dvi))
+    message(patchSynctex(sub("\\.tex$", ".synctex", main, ignore.case=TRUE), fromDVI = dvi, 
+            patchLog = patchLog))
     cmd <- paste(shQuote(dvipdfm), dvipdfmOpts, shQuote(dvi))
     system(cmd)
     if (!is.null(preview)) {
@@ -299,7 +324,8 @@ grepConcords <- function(pdfname) {
 }
     
 patchSynctex <- function(f, newname=f, uncompress="pdftk %s output %s uncompress",
-		         fromDVI = NULL) {
+		         fromDVI = NULL, patchLog = FALSE) {
+    basename <- tools::file_path_sans_ext(f)
     compressed <- FALSE
     if (!file.exists(f)) {
     	f <- paste(f, ".gz", sep="")
@@ -341,6 +367,8 @@ patchSynctex <- function(f, newname=f, uncompress="pdftk %s output %s uncompress
 	  #  setDVIspecials(fromDVI, specials)
 	}
     }
+    if (patchLog)
+    	patchLog(paste0(basename, ".log"), concords = concords)
     re <- "^([vhxkgr$[(])([[:digit:]]+),([[:digit:]]+)([^[:digit:]].*)"
     srcrefind <- grep(re, lines)
     srcrefs <- lines[srcrefind]

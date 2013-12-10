@@ -39,12 +39,8 @@ patchLog <- function(f, newname=f, concords = NULL, max_print_line = 79) {
     filestartline <- filestartline[keep]
     filestartcol <- filestartcol[keep]
     filenamelen <- filenamelen[keep]
-    filename <- normalizePath(filename[keep])
-    if (.Platform$OS.type == "windows") {
-    	upperdrive <- grepl("^[[:upper:]]:", filename)
-    	substr(filename[upperdrive], 1,1) <- tolower(substr(filename[upperdrive], 1,1))
-    }
-    
+    filename <- myNormalizePath(filename[keep])
+
     openparen <- gregexpr("(", lines, fixed = TRUE)
     closeparen <- gregexpr(")", lines, fixed = TRUE)
 
@@ -99,7 +95,7 @@ patchLog <- function(f, newname=f, concords = NULL, max_print_line = 79) {
     
     if (length(concords)) {
 	# Now start patching.
-	names(concords) <- normalizePath(names(concords), mustWork = FALSE)
+	names(concords) <- myNormalizePath(names(concords), mustWork = FALSE)
 	patchable <- fileineffect %in% names(concords)
 
 	# First, the badbox lines
@@ -152,6 +148,15 @@ patchLog <- function(f, newname=f, concords = NULL, max_print_line = 79) {
 
 `mysubstr<-` <- function(x, start, stop, value) 
     paste0(substr(x, 1, start-1), value, substr(x, stop+1, nchar(x)))
+    
+myNormalizePath <- function(f, mustWork = NA) {
+    filename <- normalizePath(f, mustWork = mustWork)
+    if (.Platform$OS.type == "windows") {
+    	upperdrive <- grepl("^[[:upper:]]:", filename)
+    	substr(filename[upperdrive], 1,1) <- tolower(substr(filename[upperdrive], 1,1))
+    }
+    filename
+}
 
 readConcords <- function(files) {
     concords <- character(length(files))
