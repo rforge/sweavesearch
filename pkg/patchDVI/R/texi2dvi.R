@@ -108,17 +108,8 @@ function(file, pdf = FALSE, clean = FALSE, quiet = FALSE,
         cmd <- paste(shQuote(texi2dvi), opt_quiet, opt_pdf, opt_links,
                      shQuote(file), extra)
         if (!quiet) message(cmd, "\n")
-        system(cmd, intern=TRUE, ignore.stderr=TRUE)
+        consoleLog <- system(cmd, intern=TRUE, ignore.stderr=TRUE)
         msg <- ""
-        ## (La)TeX errors.
-        log <- paste(tools::file_path_sans_ext(file), "log", sep = ".")
-        if(file_test("-f", log)) {
-            lines <- tools:::.get_LaTeX_errors_from_log_file(log)
-            if(length(lines))
-                msg <- paste(msg, "LaTeX errors:",
-                             paste(lines, collapse = "\n"),
-                             sep = "\n")
-        }
         ## BibTeX errors.
         ## These seem too common on some MikTeX versions, so don't treat
         ## them too seriously
@@ -126,7 +117,7 @@ function(file, pdf = FALSE, clean = FALSE, quiet = FALSE,
         if(file_test("-f", log)) {
             lines <- tools:::.get_BibTeX_errors_from_blg_file(log)
             if(length(lines))
-                message("BibTeX errors:",
+                msg <- paste(msg, "BibTeX errors:",
                              paste(lines, collapse = "\n"),
                              sep = "\n")
         }
@@ -142,7 +133,7 @@ function(file, pdf = FALSE, clean = FALSE, quiet = FALSE,
         }
         file.remove(".timestamp")
 
-        if(nzchar(msg)) stop(msg, call. = FALSE, domain = NA)
+        if(nzchar(msg)) warning(msg, call. = FALSE, domain = NA)
     } else {
         ## Do not have Synctex-compatible texi2dvi or don't want to index
         ## Needed everywhere except for MiKTeX
