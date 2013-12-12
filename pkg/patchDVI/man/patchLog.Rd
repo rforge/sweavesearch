@@ -11,7 +11,7 @@ messages and warnings refer to the \file{.Rnw} file rather than the
 \file{.tex} file.
 }
 \usage{
-patchLog(f, newname = f, concords = NULL, max_print_line = 79)
+patchLog(f, newname = f, concords = NULL, max_print_line = 79, Cstyle = NA)
 }
 \arguments{
   \item{f}{
@@ -27,6 +27,10 @@ an attempt is made to read these from the source.
   \item{max_print_line}{
 The line length at which the latex compiler will wrap error messages.
 }
+  \item{Cstyle}{
+If \code{TRUE}, only look for C-style error messages \code{"filename:num: msg".
+If \code{FALSE}, look for classic messages \code{"! msg"}.  If
+\code{NA}, look for both, pick the more popular style.
 }
 \details{
 The parsing is based on the log parser written by 

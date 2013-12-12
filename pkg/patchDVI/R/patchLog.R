@@ -8,7 +8,7 @@
 #// Version: 0.8.2
 #// Date: 2012-03-26
 
-patchLog <- function(f, newname=f, concords = NULL, max_print_line = 79) {
+patchLog <- function(f, newname=f, concords = NULL, max_print_line = 79, Cstyle = NA) {
 
     force(newname)
     lines <- readLines(f)
@@ -18,14 +18,26 @@ patchLog <- function(f, newname=f, concords = NULL, max_print_line = 79) {
     # The macro \GenericError uses \errmessage internally.
     # Macros \@latex@error and \(Class|Package)Error use \GenericError.
     
+    fileregexp <- '(?:"((?:\\./|/|\\.\\\\|[a-zA-Z]:\\\\|[a-zA-Z]:/|\\\\\\\\)(?:[^"]|$)+)"|((?:\\./|/|\\.\\\\|[a-zA-Z]:\\\\|[a-zA-Z]:/|\\\\\\\\)[^ ()$]+))'
     errormsg <- regexpr("^!\\s+", lines)
-    errorline <- regexpr("l\\.(\\d+)", lines, perl = TRUE)
-    
+    errormsgC <- regexpr(paste0("^", fileregexp, ":(\\d+):\\s"), lines, perl = TRUE)
+    if (is.na(Cstyle)) 
+    	Cstyle <- (sum(errormsgC != -1) > sum(errormsg != -1)) 
+
+    if (Cstyle) {
+    	errormsg <- errormsgC
+    	errorline <- errormsgC
+    	errormsgbegin <- regexpr(paste0("^", fileregexp, ":(\\d+):\\s.*begin.*on input line (\\d+)"), lines, perl = TRUE)
+    } else {
+        # We capture extra text in errorline and errormsgbegin so that C style and default
+        # style end up with the line number in the same location.  
+        errorline <- regexpr("()l(\\.)(\\d+)", lines, perl = TRUE)
+        errormsgbegin <- regexpr("^(!\\s).*(begin).*(on input line) (\\d+)", lines, perl = TRUE)
+    }
     badbox <- regexpr("^(?:Under|Over)full \\\\[hv]box\\s*\\([^)]+\\) in paragraph at lines (\\d+)--(\\d+)$",
                       lines, perl = TRUE)
     
-    filestart <- gregexpr('\\("((?:\\./|/|\\.\\\\|[a-zA-Z]:\\\\|[a-zA-Z]:/|\\\\\\\\)(?:[^"]|$)+)"|\\(((?:\\./|/|\\.\\\\|[a-zA-Z]:\\\\|[a-zA-Z]:/|\\\\\\\\)[^ ()$]+)',
-		       lines, perl = TRUE)
+    filestart <- gregexpr(paste0('\\(', fileregexp), lines, perl = TRUE)
     lineswithfile <- which(sapply(filestart, function(x) length(x) > 1 || x != -1))
     filestartline <- rep.int(lineswithfile, sapply(filestart[lineswithfile], length))
     filestartcol <- unlist(lapply(filestart[lineswithfile], function(x) attr(x, "capture.start")[,2]))
@@ -94,7 +106,9 @@ patchLog <- function(f, newname=f, concords = NULL, max_print_line = 79) {
     }
     
     if (length(concords)) {
-	# Now start patching.
+browser()
+	# Now start patching.  Need to patch last thing on a line first.
+	
 	names(concords) <- myNormalizePath(names(concords), mustWork = FALSE)
 	patchable <- fileineffect %in% names(concords)
 
@@ -116,17 +130,38 @@ patchLog <- function(f, newname=f, concords = NULL, max_print_line = 79) {
 	    mysubstr(lines[dofix], firststart, firststop) <- as.character(first)
 	}
 
-	# Now, the error lines
-	dofix <- which(patchable & (errorline != -1))
+	# Now, the error messages talking about missing \end
+	dofix <- which(patchable & (errormsgbegin != -1))
 	if (length(dofix)) {
-	    start <- attr(errorline, "capture.start")[dofix]
-	    stop <- start + attr(errorline, "capture.length")[dofix] - 1
+	    start <- attr(errormsgbegin, "capture.start")[dofix, 4]
+	    stop <- start + attr(errormsgbegin, "capture.length")[dofix, 4] - 1
 	    num <- as.numeric(substr(lines[dofix], start, stop))
 	    for (f in unique(fileineffect[dofix])) {
 		thisfile <- fileineffect[dofix] == f
 		num[thisfile] <- concords[[f]]$concord[num[thisfile]]
 	    }
 	    mysubstr(lines[dofix], start, stop) <- as.character(num)
+	}
+
+	# Now, the other error lines
+	dofix <- which(patchable & (errorline != -1))
+	if (length(dofix)) {
+	    start <- attr(errorline, "capture.start")[dofix, 3]
+	    stop <- start + attr(errorline, "capture.length")[dofix, 3] - 1
+	    num <- as.numeric(substr(lines[dofix], start, stop))
+	    for (f in unique(fileineffect[dofix])) {
+		thisfile <- fileineffect[dofix] == f
+		num[thisfile] <- concords[[f]]$concord[num[thisfile]]
+	    }
+	    mysubstr(lines[dofix], start, stop) <- as.character(num)
+	    if (Cstyle) {
+	        cap <- ifelse(attr(errorline, "capture.length")[dofix, 1] > 0, 1, 2)
+	    	start <- attr(errorline, "capture.start")[cbind(dofix, cap)]
+	    	stop <- start + attr(errorline, "capture.length")[cbind(dofix, cap)] - 1
+	    	f <- myNormalizePath(substr(lines[dofix], start, stop))
+	        mysubstr(lines[dofix], start, stop) <- 
+	            sapply(concords[f], function(x) x$newsrc)
+	    }
 	}
 
 	# And finally, the filenames
