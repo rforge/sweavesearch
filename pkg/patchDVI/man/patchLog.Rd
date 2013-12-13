@@ -28,9 +28,10 @@ an attempt is made to read these from the source.
 The line length at which the latex compiler will wrap error messages.
 }
   \item{Cstyle}{
-If \code{TRUE}, only look for C-style error messages \code{"filename:num: msg".
+If \code{TRUE}, only look for C-style error messages \code{"filename:num: msg"}.
 If \code{FALSE}, look for classic messages \code{"! msg"}.  If
 \code{NA}, look for both, pick the more popular style.
+}
 }
 \details{
 The parsing is based on the log parser written by 
