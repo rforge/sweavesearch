@@ -18,7 +18,7 @@ SweaveMiktex(Rnw, main = outputname,
 		  source.code = NULL, 
 		  make = 1, 
                   preview = 'yap "\%s"', 
-		  patchLog=FALSE,
+		  patchLog=TRUE,
 		  sleep = 0, ...)
 		  
 SweavePDFMiktex(Rnw, main = outputname,  
@@ -29,7 +29,7 @@ SweavePDFMiktex(Rnw, main = outputname,
 		  source.code = NULL, 
 		  make = 1, 
                   preview = NULL, 
-		  patchLog = FALSE, 
+		  patchLog = TRUE, 
 		  sleep = 0, ...)
 		  
 SweaveDVI(Rnw, main=outputname, 
@@ -38,7 +38,7 @@ SweaveDVI(Rnw, main=outputname,
           make = 1, 
           links = NULL,
           preview = NULL, 
-	  patchLog = FALSE, ...)
+	  patchLog = TRUE, ...)
 
 SweavePDF(Rnw, main=outputname, 
           texinputs = NULL, 
@@ -46,7 +46,7 @@ SweavePDF(Rnw, main=outputname,
           make = 1, 
           links = NULL,
           preview = NULL, 
-	  patchLog = FALSE, ...)
+	  patchLog = TRUE, ...)
 	  
 SweaveDVIPDFM(Rnw, main = outputname, 
 	  latex = "latex", latexOpts = "-synctex=1 -interaction=nonstopmode", 
@@ -55,7 +55,7 @@ SweaveDVIPDFM(Rnw, main = outputname,
 	  source.code = NULL, 
 	  make = 1, 
 	  preview = NULL, 
-	  patchLog = FALSE, ...)
+	  patchLog = TRUE, ...)
 
 
 }
@@ -101,8 +101,7 @@ are similar, but use a modified version of \R{}'s \code{\link[tools]{texi2dvi}}
 function to invoke Latex. \code{SweaveDVIPDFM} does the conversion to 
 \file{.pdf} in two stages.
 
-The \code{patchLog} option makes use of the new \code{\link{patchLog}} function
-and should be seen as experimental; it is certainly not foolproof.
+The \code{patchLog} option makes use of the new \code{\link{patchLog}} function.
 }
 
 \value{

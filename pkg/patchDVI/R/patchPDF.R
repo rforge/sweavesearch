@@ -6,7 +6,7 @@ SweavePDFMiktex <- function( Rnw, main=outputname,
                              source.code=NULL,
                              make=1,
                              preview=NULL,
-			     patchLog = FALSE,
+			     patchLog = TRUE,
 			     sleep = 0,
                              ...) {
     if (!is.null(source.code) && file.exists(source.code))
@@ -44,7 +44,7 @@ SweavePDF <- function( Rnw, main=outputname,
                        make=1,
                        links = NULL,
                        preview = NULL,
-                       patchLog = FALSE,
+                       patchLog = TRUE,
                        ... ) {
     if (!is.null(source.code) && file.exists(source.code))
     	try(source(source.code, local=TRUE))
@@ -78,7 +78,7 @@ SweaveDVIPDFM <- function(Rnw, main=outputname,
                        source.code=NULL,
                        make=1,
                        preview = NULL,
-                       patchLog = FALSE,
+                       patchLog = TRUE,
                        ... ) {
     if (!is.null(source.code) && file.exists(source.code))
     	try(source(source.code, local=TRUE))
@@ -325,7 +325,7 @@ grepConcords <- function(pdfname) {
 }
     
 patchSynctex <- function(f, newname=f, uncompress="pdftk %s output %s uncompress",
-		         fromDVI = NULL, patchLog = FALSE) {
+		         fromDVI = NULL, patchLog = TRUE) {
     basename <- tools::file_path_sans_ext(f)
     compressed <- FALSE
     if (!file.exists(f)) {

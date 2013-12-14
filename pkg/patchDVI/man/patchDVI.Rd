@@ -13,9 +13,9 @@ the previewer can send messages to editors to jump to the source
 corresponding to a location in the preview. 
 }
 \usage{
-patchDVI(f, newname = f, patchLog = FALSE)
+patchDVI(f, newname = f, patchLog = TRUE)
 patchSynctex(f, newname=f, uncompress="pdftk \%s output \%s uncompress",
-	     fromDVI = NULL, patchLog = FALSE)
+	     fromDVI = NULL, patchLog = TRUE)
 }
 \arguments{
   \item{f}{ A character value giving the name of the .dvi or .synctex file to patch }
@@ -47,8 +47,7 @@ all work from within one session as well).  At some distant date in the future m
 the previewers will learn how to read the concordance info, and step 4 will no longer be 
 necessary.
 
-The \code{patchLog} option makes use of the new \code{\link{patchLog}} function
-and should be seen as experimental; it is certainly not foolproof.
+The \code{patchLog} option makes use of the new \code{\link{patchLog}} function.
 }
 \note{
 

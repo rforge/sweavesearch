@@ -8,7 +8,7 @@
 #// Version: 0.8.2
 #// Date: 2012-03-26
 
-patchLog <- function(f, newname=f, concords = NULL, max_print_line = 79, Cstyle = NA) {
+patchLog <- function(f, newname=f, concords = NULL, max_print_line = 79, Cstyle = FALSE) {
 
     force(newname)
     lines <- readLines(f)
@@ -57,17 +57,19 @@ patchLog <- function(f, newname=f, concords = NULL, max_print_line = 79, Cstyle 
     closeparen <- gregexpr(")", lines, fixed = TRUE)
 
     # Need to ignore the text in badbox warnings which may contain parens
-    badboxtext <- which(badbox != -1) + 1
-    lastline <- badboxtext
+    errortext <- which(badbox != -1) + 1
+    lastline <- errortext
     repeat {
 	continued <- nchar(lines[lastline], type="bytes") >= 79	
-	lastline <- setdiff(lastline[continued] + 1, badboxtext)
+	lastline <- setdiff(lastline[continued] + 1, errortext)
 	if (!length(lastline)) break
-	badboxtext <- union(badboxtext, lastline)
+	errortext <- union(errortext, lastline)
     }
+    # similarly, text may show up in errorlines
+    errortext <- union(errortext, which(errorline != -1))
 
-    openparen[badboxtext] <- list(-1)
-    closeparen[badboxtext] <- list(-1)
+    openparen[errortext] <- list(-1)
+    closeparen[errortext] <- list(-1)
 
     lineswithopen <- which(sapply(openparen, function(x) length(x) > 1 || x != -1))
     lineswithclose <- which(sapply(closeparen, function(x) length(x) > 1 || x != -1))

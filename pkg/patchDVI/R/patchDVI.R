@@ -7,7 +7,7 @@ SweaveMiktex <- function(Rnw,
                          source.code=NULL,
                          make=1,
                          preview='yap "%s"',
-			 patchLog = FALSE,
+			 patchLog = TRUE,
 			 sleep = 0,
                          ...) {
     if (!is.null(source.code))
@@ -44,7 +44,7 @@ SweaveDVI <- function( Rnw, main=outputname,
                        make=1,
                        links=NULL,
                        preview=NULL,
-		       patchLog = FALSE,
+		       patchLog = TRUE,
                        ... ) {
     if (!is.null(source.code) && file.exists(source.code))
     	try(source(source.code, local=TRUE))
@@ -139,7 +139,7 @@ setDVIspecials <- function(f, newspecials, newname=f) {
     writeBin(bytes, con)
 }
 
-patchDVI <- function(f, newname=f, patchLog = FALSE) {
+patchDVI <- function(f, newname=f, patchLog = TRUE) {
     specials <- DVIspecials(f)
     
     concordind <- grep("^concordance:", specials)
