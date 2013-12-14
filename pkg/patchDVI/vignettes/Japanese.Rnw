@@ -2,6 +2,9 @@
 %!TEX TS-program = JSweave
 %!TEX program = JSweave
 
+% This document needs the Japanese localized version of LaTeX, uplatex,
+% as described in the text in section 1.
+
 \documentclass[12pt]{ujarticle}
 \usepackage{Sweave}
 \usepackage{natbib}
