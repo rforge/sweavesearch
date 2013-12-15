@@ -11,53 +11,51 @@ This is a simple script to run Sweave, then MikTeX, then patchDVI.
 \usage{
 
 SweaveMiktex(Rnw, main = outputname, 
-                  cmd = "texify",
-                  options = "--tex-option=--src-specials --tex-option=-interaction=nonstopmode",
-                  includedir = "--tex-option=--include-directory=",
-                  stylepath = FALSE, 
-		  source.code = NULL, 
-		  make = 1, 
-                  preview = 'yap "\%s"', 
-		  patchLog=TRUE,
-		  sleep = 0, ...)
+    cmd = "texify",
+    options = "--tex-option=-src-specials --tex-option=-interaction=nonstopmode",
+    includedir = "--tex-option=--include-directory=",
+    stylepath = FALSE, 
+    source.code = NULL, 
+    make = 1, 
+    preview = 'yap "\%s"', 
+    patchLog=TRUE,
+    sleep = 0, ...)
 		  
 SweavePDFMiktex(Rnw, main = outputname,  
-                  cmd = "texify --pdf", 
-                  options = "--tex-option=-synctex=-1 --tex-option=-interaction=nonstopmode",
-                  includedir = "--tex-option=-include-directory=",
-                  stylepath = FALSE, 
-		  source.code = NULL, 
-		  make = 1, 
-                  preview = NULL, 
-		  patchLog = TRUE, 
-		  sleep = 0, ...)
+    cmd = "texify --pdf", 
+    options = "--tex-option=-synctex=-1 --tex-option=-interaction=nonstopmode",
+    includedir = "--tex-option=-include-directory=",
+    stylepath = FALSE, 
+    source.code = NULL, 
+    make = 1, 
+    preview = NULL, 
+    patchLog = TRUE, 
+    sleep = 0, ...)
 		  
 SweaveDVI(Rnw, main=outputname, 
-          texinputs = NULL, 
-          source.code = NULL, 
-          make = 1, 
-          links = NULL,
-          preview = NULL, 
-	  patchLog = TRUE, ...)
+    texinputs = NULL, 
+    source.code = NULL, 
+    make = 1, 
+    links = NULL,
+    preview = NULL, 
+    patchLog = TRUE, ...)
 
 SweavePDF(Rnw, main=outputname, 
-          texinputs = NULL, 
-          source.code = NULL, 
-          make = 1, 
-          links = NULL,
-          preview = NULL, 
-	  patchLog = TRUE, ...)
+    texinputs = NULL, 
+    source.code = NULL, 
+    make = 1, 
+    links = NULL,
+    preview = NULL, 
+    patchLog = TRUE, ...)
 	  
 SweaveDVIPDFM(Rnw, main = outputname, 
-	  latex = "latex", latexOpts = "-synctex=1 -interaction=nonstopmode", 
-	  dvipdfm = "dvipdfm", dvipdfmOpts = "", 
-	  texinputs = NULL, 
-	  source.code = NULL, 
-	  make = 1, 
-	  preview = NULL, 
-	  patchLog = TRUE, ...)
-
-
+    latex = "latex", latexOpts = "-synctex=1 -interaction=nonstopmode", 
+    dvipdfm = "dvipdfm", dvipdfmOpts = "", 
+    texinputs = NULL, 
+    source.code = NULL, 
+    make = 1, 
+    preview = NULL, 
+    patchLog = TRUE, ...)
 }
 \arguments{
   \item{Rnw}{ The .Rnw input file }

@@ -109,22 +109,6 @@ function(file, pdf = FALSE, clean = FALSE, quiet = FALSE,
                      shQuote(file), extra)
         if (!quiet) message(cmd, "\n")
         consoleLog <- system(cmd, intern=TRUE, ignore.stderr=TRUE)
-        msg <- ""
-        ## BibTeX errors.
-        ## These seem too common on some MikTeX versions, so don't treat
-        ## them too seriously
-        log <- paste(tools::file_path_sans_ext(file), "blg", sep = ".")
-        if(file_test("-f", log)) {
-            lines <- tools:::.get_BibTeX_errors_from_blg_file(log)
-            if(length(lines))
-                msg <- paste(msg, "BibTeX errors:",
-                             paste(lines, collapse = "\n"),
-                             sep = "\n")
-        }
-
-        if(nzchar(msg))
-            msg <- paste(gettextf("running 'texi2dvi' on '%s' failed", file),
-                         msg, "", sep = "\n")
         if(clean) {
             out_file <- paste(tools::file_path_sans_ext(file), ext, sep = ".")
             files <- list.files(all.files = TRUE) %w/o% c(".", "..",
@@ -132,8 +116,6 @@ function(file, pdf = FALSE, clean = FALSE, quiet = FALSE,
             file.remove(files[file_test("-nt", files, ".timestamp")])
         }
         file.remove(".timestamp")
-
-        if(nzchar(msg)) warning(msg, call. = FALSE, domain = NA)
     } else {
         ## Do not have Synctex-compatible texi2dvi or don't want to index
         ## Needed everywhere except for MiKTeX

@@ -1,7 +1,7 @@
 SweaveMiktex <- function(Rnw, 
                          main=outputname, 
                          cmd="texify",
-                         options="--tex-option=--src-specials --tex-option=-interaction=nonstopmode",
+                         options="--tex-option=-src-specials --tex-option=-interaction=nonstopmode",
                          includedir="--tex-option=--include-directory=",
                          stylepath=FALSE,
                          source.code=NULL,
