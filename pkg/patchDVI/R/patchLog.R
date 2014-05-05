@@ -108,7 +108,6 @@ patchLog <- function(f, newname=f, concords = NULL, max_print_line = 79, Cstyle 
     }
     
     if (length(concords)) {
-browser()
 	# Now start patching.  Need to patch last thing on a line first.
 	
 	names(concords) <- myNormalizePath(names(concords), mustWork = FALSE)
