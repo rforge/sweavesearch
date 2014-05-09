@@ -481,8 +481,12 @@ to jump to your source location.
 TeXWorks is an editor for multiple platforms, 
 somewhat similar to TeXShop.  These instructions 
 have been tested in version 0.4.5, with MikTeX 2.9 on Windows,
-and MacTeX on MacOS.  Problems have been reported with
-TeXWorks 0.4.4; I do not recommend using that version.
+and MacTeX on MacOS.  
+
+NB:  Some versions of TeXWorks have a bug in setting the \texttt{HOME} directory
+of the user.  With those versions, R will not find a locally installed
+copy of \texttt{patchDVI}.  To work around the bug, set the \verb!R_USER!
+environment variable to your Windows home directory, e.g. \verb!R_USER=C:/Users/Murdoch!.
 
 TeXWorks can work with the \texttt{patchDVI}
 project management features using a script
