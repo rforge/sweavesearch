@@ -456,10 +456,14 @@ out these instructions.  I have updated them in December, 2013 for TeXShop 2.47.
 \item Create a file called \verb!Library/TeXShop/Engines/Sweave.engine! 
 containing the lines
 \begin{verbatim}
-#!/bin/tcsh
+#!/bin/bash
+export LC_ALL=<locale>
 Rscript -e "patchDVI::SweavePDF(  '$1' )"
 \end{verbatim}
-in your home directory, and give it executable permissions.  
+in your home directory, and give it executable permissions.  Replace \verb!<locale>! with
+your locale string, e.g. \verb!en_CA.UTF-8! for Canadian English using UTF-8 encoding.  The
+locale line can be omitted if you only use plain ASCII characters, but is probably necessary
+for other cases.
 \item Install the \texttt{patchDVI} package into R.
 \item When editing a \texttt{.Rnw} file in TeXShop, choose the Sweave engine from the menu.
 \item If you have multiple files in your project, your main file must be a Sweave file
