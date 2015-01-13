@@ -1,0 +1,18 @@
+\documentclass{article}
+
+%\VignetteIndexEntry{SweaveAll vignette}
+%\VignetteEngine{patchDVI::SweaveAll}
+
+\begin{document}
+\SweaveOpts{concordance=TRUE}
+
+<<>>>=
+.SweaveFiles <- "other.Rnw"
+@
+
+Test
+
+\input{other}
+
+
+\end{document}

@@ -1,0 +1,8 @@
+
+\SweaveOpts{concordance=TRUE}
+<<>>=
+.TexRoot <- "SweaveAll-knitr.tex"
+.SweaveFiles <- "SweaveAll-knitr.Rnw"
+@
+
+And here is some new stuff.
