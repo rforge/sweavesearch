@@ -4,7 +4,7 @@
 \usepackage{hyperref}
 \usepackage[utf8]{inputenc}
 
-\bibliographystyle{plain}
+\bibliographystyle{plainnat}
 
 \SweaveOpts{concordance=TRUE}
 
@@ -24,11 +24,11 @@
 \maketitle
 
 \abstract{
-The \patchDVI package works with Sweave \citep{Leisch02}  and
-document previewers to facilitate editing:  it modifies the links
+The \patchDVI package works with Sweave \citep{Leisch02}  and knitr \citep{Xie2013}
+and document previewers to facilitate editing:  it modifies the links
 that \LaTeX\ puts into the output so that they refer to the original
 source.  It also includes a few project management functions to 
-make large multi-file Sweave documents easier to handle.}
+make large multi-file documents easier to handle.}
 
 \newpage
 
@@ -71,7 +71,7 @@ done, previewers will see references to the original Sweave source
 rather than the \LaTeX\ intermediate file.
 
 Besides the technical details mentioned above, 
-this paper describes the history of \patchDVI in the next section and
+this paper describes the history of \patchDVI in Section \ref{sec:history} and
 in section \ref{sec:make} some
 project management functions.  It concludes with a short discussion.
 
@@ -176,13 +176,16 @@ Sweave input files to process (optionally only if they have changed since the
 last processing) and the main wrapper file, all within Sweave chunks
 in a single file, using the \texttt{SweaveAll} function.
 
-The \texttt{SweaveDVIPDFM} function is the most recent addition.
+The \texttt{SweaveDVIPDFM} function is a recent addition.
 For English language processing, I find \texttt{pdflatex} to be the most
 convenient processor, but it does not work well in languages like 
 Japanese.  During a visit to the Institute of Statistical Mathematics
 in Tokyo I learned of the issues, and with the help of Prof. H. Okumura
 and Junji Nakano I worked out \texttt{SweaveDVIPDFM} to handle the two
 step conversion to PDF.
+
+Finally, the latest version includes support for other non-Sweave processors,
+such as knitr.
 
 \section{Sweave Concordances}\label{sec:concordance}
 
@@ -453,17 +456,36 @@ out these instructions.  I have updated them in December, 2013 for TeXShop 2.47.
 
 \begin{enumerate}
 \item In Preferences -- Typesetting -- Sync Method, choose ``SyncTeX''.
-\item Create a file called \verb!Library/TeXShop/Engines/Sweave.engine! 
+\item 
+\begin{enumerate}
+\item To use with Sweave, create a file called \\
+\verb!Library/TeXShop/Engines/Sweave.engine!  \\
 containing the lines
 \begin{verbatim}
 #!/bin/bash
 export LC_ALL=<locale>
-Rscript -e "patchDVI::SweavePDF(  '$1' )"
+Rscript -e "patchDVI::SweavePDF('$1')"
 \end{verbatim}
 in your home directory, and give it executable permissions.  Replace \verb!<locale>! with
 your locale string, e.g. \verb!en_CA.UTF-8! for Canadian English using UTF-8 encoding.  The
 locale line can be omitted if you only use plain ASCII characters, but is probably necessary
 for other cases.
+\item To use with knitr, create a file called \\
+\verb!Library/TeXShop/Engines/knitr.engine! \\
+containing the lines
+\begin{verbatim}
+#!/bin/bash
+export LC_ALL=<locale>
+Rscript -e "knitr::opts_knit(concordance=TRUE);\
+  patchDVI::SweavePDF('$1',\ 
+  weave = knitr::knit, envir = globalenv())"
+\end{verbatim}
+in your home directory, and give it executable permissions.  Replace \verb!<locale>! with
+your locale string, e.g. \verb!en_CA.UTF-8! for Canadian English using UTF-8 encoding.  The
+locale line can be omitted if you only use plain ASCII characters, but is probably necessary
+for other cases.
+\item For other vignette engines, replace the \verb!weave! argument in the above, as appropriate.
+\end{enumerate}
 \item Install the \texttt{patchDVI} package into R.
 \item When editing a \texttt{.Rnw} file in TeXShop, choose the Sweave engine from the menu.
 \item If you have multiple files in your project, your main file must be a Sweave file
@@ -499,8 +521,10 @@ the main file.  See the instructions below for my current best attempt at such
 a script.  It can also use the TeXShop approach of specifying
 the TEX root file to be a Sweave file.
 
+The instructions are given first for Sweave, then below for knitr.
+
 \begin{enumerate}
-\item Add a new SweavePDF command:  In\\
+\item \label{theCommand} Add a new SweavePDF command:  In\\
 
 Edit | Preferences | Typesetting \\
 \\
@@ -580,6 +604,13 @@ cat(readLines(system.file("scripts/sweavePreview.js",
 \end{enumerate}
 
 
+To use TeXWorks with knitr, the instructions are very similar to those above, but with one change.
+In step \ref{theCommand}, replace the second line of the command (the \verb!SweavePDF! call) with the following much longer command, all on one line:
+\begin{verbatim}
+knitr::opts_knit(concordance=TRUE);
+patchDVI::SweavePDF('$fullname', weave = knitr::knit, 
+envir = globalenv())
+\end{verbatim}
 
 \section{Using \patchDVI with WinEdt}
 \label{sec:winedt}

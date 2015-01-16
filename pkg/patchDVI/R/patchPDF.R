@@ -345,6 +345,10 @@ patchSynctex <- function(f, newname=f, uncompress="pdftk %s output %s uncompress
 	pdfname <- file.path(files$path[1], paste(sub(".tex", "", files$name[1]), ".pdf", sep=""))
     
 	concords <- parseConcords(grepConcords(pdfname))
+	if (!length(concords))
+	   concords <- readConcords(list.files(as.character(files$path[1]),
+	   				       pattern = "-concordance.tex$"))
+	
 	if (!length(concords)) {
 	    if (pdfXrefsCompressed(pdfname)) {
 		if (missing(uncompress) && nchar(Sys.which("pdftk")) == 0) 

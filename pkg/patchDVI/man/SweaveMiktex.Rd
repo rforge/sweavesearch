@@ -76,15 +76,16 @@ SweaveDVIPDFM(Rnw, main = outputname,
       and options to put on the command line.}
   \item{dvipdfm, dvipdfmOpts}{ The function to call to convert the \file{.dvi} to \file{.pdf},
       and options to put on the command line.}
-  \item{...}{ Additional options to pass to \code{\link{Sweave}} }
+  \item{...}{ Additional options to pass to \code{\link{SweaveAll}} }
 }
 \details{
 If the \code{Rnw} argument is a filename ending in \file{.tex}, then 
-\code{Sweave} is skipped, but the \file{.dvi} file is still patched (because
+weaving is skipped, but the \file{.dvi} file is still patched (because
 one of the other files in the project might have come from Sweave).
 
 The \code{source.code} argument may be used to temporarily install code before
-running the document through \code{\link{Sweave}}.  It could install
+running the document through the weaver (e.g. \code{\link{Sweave}}).  
+It could install
 an experimental version of \code{\link{Sweave}}, or set up some variables 
 to be used by other code chunks, etc.  (Note that things are sourced locally,
 whereas \code{\link{Sweave}} runs things in the global environment, 

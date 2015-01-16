@@ -1,11 +1,11 @@
-SweaveAll <- function(SweaveFiles, make=1, PostSweaveHook=NULL, ...) {
+SweaveAll <- function(SweaveFiles, make=1, PostSweaveHook=NULL, weave=utils::Sweave, ...) {
     i <- 0
     result <- character()
     while (i < length(SweaveFiles)) {
         i <- i+1
         suppressWarnings(remove(".SweaveFiles", ".TexRoot", ".PostSweaveHook", ".SweaveMake",
                                 envir=globalenv()))
-        thisfile <- Sweave(SweaveFiles[i], ...)
+        thisfile <- weave(SweaveFiles[i], ...)
     	result <- c(result, thisfile)
     	.PostSweaveHook <- PostSweaveHook
     	if (exists(".PostSweaveHook", envir=globalenv())) 	

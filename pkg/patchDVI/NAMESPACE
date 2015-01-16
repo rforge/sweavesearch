@@ -1,5 +1,5 @@
 export(readDVI, DVIspecials, setDVIspecials, patchDVI, SweaveMiktex, 
        SweavePDFMiktex, patchSynctex, SweaveDVI, SweavePDF, SweaveDVIPDFM, 
-       SweaveAll, patchLog)
+       SweaveAll, patchLog, defSconcordance, useknitr)
        
 useDynLib(patchDVI, dviSpecials, setDviSpecials)
