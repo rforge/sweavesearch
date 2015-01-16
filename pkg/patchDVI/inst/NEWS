@@ -78,7 +78,7 @@ Quick initial releases.
       Added patchLog option to the Sweave* functions to call patchLog.
       Added "sleep" parameter to the Miktex Sweave* functions.
       
-1.9.1610:
+1.9.1611:
       Modified SweaveAll and patchSynctex to allow non-Sweave 
       vignette support (aimed at knitr).
       Added useknitr() and defSconcordance() functions for the same aim.

@@ -476,8 +476,7 @@ containing the lines
 \begin{verbatim}
 #!/bin/bash
 export LC_ALL=<locale>
-Rscript -e "knitr::opts_knit(concordance=TRUE);\
-  patchDVI::SweavePDF('$1',\ 
+Rscript -e "patchDVI::SweavePDF('$1',\ 
   weave = knitr::knit, envir = globalenv())"
 \end{verbatim}
 in your home directory, and give it executable permissions.  Replace \verb!<locale>! with
@@ -495,7 +494,14 @@ and you need to add the line
 %!TEX root = Main.Rnw
 \end{verbatim}
 to each subordinate file.
-\item Add the \verb!\SweaveOpts{concordance=TRUE}! line to your document.
+\item For Sweave, add the \verb!\SweaveOpts{concordance=TRUE}! line to your document.  For knitr, add a code chunk
+similar to this:
+\begin{verbatim}
+ <<results='asis'>>=
+ patchDVI::useknitr()
+ @
+\end{verbatim}
+somewhere near the start of your document.
 \end{enumerate}
 
 The TeXShop previewer supports SyncTeX; you right click in the preview, and choose Sync from the menu
@@ -544,7 +550,7 @@ line in my file:
 file-open-filter:	Sweave and TeX documents (*.Rnw *.tex)
 \end{verbatim}
 \item When editing a \texttt{.Rnw} file in TeXWorks, choose the SweavePDF engine from the menu.
-\item Add the \verb!\SweaveOpts{concordance=TRUE}! line to your document.
+\item \label{theConcordance} Add the \verb!\SweaveOpts{concordance=TRUE}! line to your document.
 \item If you are using the project management features of \texttt{patchDVI} and are
 editing a subordinate file, TeXWorks will not open or update the PDF preview after it processes changes.
 There are four workarounds for this.
@@ -560,56 +566,23 @@ The next simplest is the TeXShop approach:  include a line
 near the top of the file, and make sure that \texttt{Main.Rnw} refers
 to all subordinate Sweave files.
 
-You can force updates without the TEX root specification
-using the following hook script (written by Stefan L\"{o}ffler).
-\begin{verbatim}
-// TeXworksScript
-// Title: Refresh PDF
-// Description: Refreshes PDFs after typesetting finishes
-// Author: Stefan Löffler
-// Version: 0.1
-// Date: 2013-11-20
-// Script-Type: hook
-// Hook: AfterTypeset
-
-windows = TW.app.getOpenWindows()
-
-for (i = 0; i < windows.length; i++) {
-    win = windows[i]
-    if (win.objectName == "PDFDocument") {
-        win.reload()
-    }
-}
-\end{verbatim}
-Put this script in a file \texttt{refreshpdf.js} in your TeXWorks script directory (available through the menu
-using Scripts | Scripting TeXWorks | Show Scripts Folder).  After that, PDF previews will be automatically
-updated after every Typeset operation.
-
-I have written another script (included in the scripts directory of \texttt{patchDVI}
-as \texttt{sweavePreview.js});
-it attempts to determine the PDF filename from the console output, and reloads that file.
-I have tested it on my own systems but not elsewhere, so I am not sure that it will work on other
-systems.  With this script (shown below) TeXWorks should open
-the preview without using the tricks above.  The TeXWorks 
-previewer will jump back to the source if you right click and choose 
-Jump to Source.
-
-
-\begin{verbatim}
-<<results=tex, echo=FALSE>>=
-cat(readLines(system.file("scripts/sweavePreview.js", 
-                          package="patchDVI")), sep="\n")
-@
-\end{verbatim}
 \end{enumerate}
 
 
-To use TeXWorks with knitr, the instructions are very similar to those above, but with one change.
-In step \ref{theCommand}, replace the second line of the command (the \verb!SweavePDF! call) with the following much longer command, all on one line:
+To use TeXWorks with knitr, the instructions are very similar to those above, but with two changes.
+
+In step \ref{theCommand}, replace the second line of the command (the \verb!SweavePDF! call) with the following longer command, all on one line:
 \begin{verbatim}
-knitr::opts_knit(concordance=TRUE);
 patchDVI::SweavePDF('$fullname', weave = knitr::knit, 
 envir = globalenv())
+\end{verbatim}
+
+In step \ref{theConcordance}, insert the following code chunk
+into your file:
+\begin{verbatim}
+ <<results='asis'>>=
+ patchDVI::useknitr()
+ @
 \end{verbatim}
 
 \section{Using \patchDVI with WinEdt}
