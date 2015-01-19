@@ -16,8 +16,7 @@ useknitr <- function(writeMacro) {
     if (!requireNamespace("knitr"))
         stop("This function requires the knitr package.")
     knitr::opts_knit$set(concordance = TRUE)
-    # Ugly hack here:
-    infile <- environment(knitr::knit)$knit_concord$get("infile")
+    infile <- knitr::current_input()
     if (missing(writeMacro))
         writeMacro <- any(grepl(knitr::knit_patterns$get("header.begin"),
         		    readLines(infile, 100)))   
