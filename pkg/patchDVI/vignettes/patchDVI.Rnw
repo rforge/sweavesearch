@@ -111,7 +111,7 @@ instead of PDF substitute \texttt{SweaveDVI} for
 \texttt{SweavePDF}, and to use \texttt{latex} and \texttt{dvipdfm}
 to produce \file{PDF} output, use \texttt{SweaveDVIPDFM}.
 If you are using MikTeX on Windows, the
-functions are \texttt{SweavePDFMiktex} and
+functions \texttt{SweavePDFMiktex} and
 \texttt{SweaveMiktex} correspond to the first two of these respectively,
 and use a few MikTeX-specific features.
 
