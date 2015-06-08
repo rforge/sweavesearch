@@ -41,7 +41,7 @@ make large multi-file Sweave documents easier to handle.  This
 document describes Japanese language support in the
 package.}
 
-\new page
+\newpage
 
 \tableofcontents
 
@@ -149,7 +149,7 @@ to subordinate files.  This defines a macro which is never used; the purpose is
 for Sweave to see the \texttt{inputenc} line.  (You can also use this line in the main file
 if you are using a class file such as \texttt{ujarticle} which defines the encoding, 
 and don't want \texttt{inputenc} to be used.)
-\item Add the lines
+\item \label{point:eps} Add the lines
 \begin{verbatim}
  \usepackage{Sweave}
  \SweaveOpts {concordance=TRUE,eps=TRUE,pdf=FALSE}
@@ -160,7 +160,8 @@ near the start of each file.  In subordinate files, the first line should be com
  \SweaveOpts {concordance=TRUE,eps=TRUE,pdf=FALSE}
 \end{verbatim}
 The reason for this is that Sweave generates \verb!\inputgraphics! calls with no extensions on the files,
-and the \texttt{uplatex} processor will not find PDF files unless they are explicitly named. 
+and the \texttt{uplatex} processor will not find PDF files unless they are explicitly 
+named.  (Advanced users will know other ways to handle this issue.)
 
 \end{enumerate}
 
@@ -226,7 +227,7 @@ and don't want \texttt{inputenc} to be used.)
 \begin{verbatim}
  \SweaveOpts {concordance=TRUE,eps=TRUE,pdf=FALSE}
 \end{verbatim}
-because \verb!uplatex! doesn't support PDF graphics, it requires EPS graphs.
+See the note in Section \ref{sec:texshop} point \ref{point:eps} for a discussion of this.
 \end{enumerate}
 
 The TeXWorks previewer will jump back to the source if you right click and choose Jump to Source.
