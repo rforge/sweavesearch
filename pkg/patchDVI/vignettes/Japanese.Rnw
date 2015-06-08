@@ -14,12 +14,13 @@
 
 \bibliographystyle{plain}
 
-\SweaveOpts{concordance=TRUE}
+\SweaveOpts{concordance=TRUE,eps=TRUE,pdf=FALSE}
 
 \newcommand{\patchDVI}{\patchDVIn\ }
 \newcommand{\patchDVIn}{\textbf{patchDVI}}
 \newcommand{\file}[1]{\texttt{#1}}
 
+%\VignetteEngine{patchDVI::JSweave}
 %\VignetteIndexEntry{Using Sweave and patchDVI with Japanese text}
 %\VignetteKeyword{Sweave}
 %\VignetteKeyword{pdf}
@@ -40,7 +41,7 @@ make large multi-file Sweave documents easier to handle.  This
 document describes Japanese language support in the
 package.}
 
-\newpage
+\new page
 
 \tableofcontents
 
@@ -61,14 +62,48 @@ standard \texttt{pdflatex} engine does not work well with Japanese.
 In November, 2013 I visited the Institute for Statistical Mathematics
 in Tokyo, and with the help of Mr. Yasuto Nakano and Prof. Haruhiko Okumura
 I developed these instructions.  In outline:  you must use the UTF-8 encoding
-for the characters, use \texttt{uplatex} to convert to DVI file, and use
-\texttt{dvipdfmx} to convert the DVI to PDF.
+for the characters, use \texttt{uplatex}, \texttt{platex} or \texttt{xelatex} 
+to convert to a DVI file, and use
+\texttt{dvipdfmx} to convert the DVI to PDF.  These instructions
+describe the procedure using \texttt{uplatex};  I expect modifications
+for the other engines will be minor. 
+
+\section{Creating a Vignette in an R Package}
+
+To create a ``vignette'' in an R package that contains Japanese language text, follow these 
+steps.
+
+\begin{enumerate}
+\item In the \texttt{DESCRIPTION} file of the package, add the lines
+\begin{verbatim}
+Suggests:  patchDVI
+VignetteBuilder:  patchDVI
+\end{verbatim}
+
+
+\item Put the Sweave file containing the source for the vignette in the \texttt{vignettes}
+directory of the package.  
+
+\item As with all vignettes, it needs a line like 
+\begin{verbatim}
+  %\VignetteIndexEntry{Using Sweave and patchDVI with Japanese text}
+\end{verbatim}
+somewhere near the beginning, to give the text that will be shown by \verb!browseVignettes()!
+and similar R functions.
+
+\item To process it through \texttt{uplatex} and \texttt{dvipdfmx} instead of the default
+engines, add the line
+\begin{verbatim}
+  %\VignetteEngine{patchDVI::JSweave}
+\end{verbatim}
+near the beginning.
+\end{enumerate}
 
 \section{Using \patchDVI with TeXShop}
 \label{sec:texshop}
 
-These instructions have been tested with TeXShop version 2.47, but should work with other versions
-as well.
+These instructions have been tested with TeXShop version 2.47 and 3.36.1, but should work with 
+other versions as well.
 
 \begin{enumerate}
 \item In Preferences -- Typesetting -- Sync Method, choose ``SyncTeX''.
@@ -114,11 +149,18 @@ to subordinate files.  This defines a macro which is never used; the purpose is
 for Sweave to see the \texttt{inputenc} line.  (You can also use this line in the main file
 if you are using a class file such as \texttt{ujarticle} which defines the encoding, 
 and don't want \texttt{inputenc} to be used.)
-\item Add 
+\item Add the lines
 \begin{verbatim}
+ \usepackage{Sweave}
  \SweaveOpts {concordance=TRUE,eps=TRUE,pdf=FALSE}
 \end{verbatim}
-because \verb!uplatex! doesn't support PDF graphics, it requires EPS graphs.
+near the start of each file.  In subordinate files, the first line should be commented out, e.g.
+\begin{verbatim}
+ % \usepackage{Sweave}
+ \SweaveOpts {concordance=TRUE,eps=TRUE,pdf=FALSE}
+\end{verbatim}
+The reason for this is that Sweave generates \verb!\inputgraphics! calls with no extensions on the files,
+and the \texttt{uplatex} processor will not find PDF files unless they are explicitly named. 
 
 \end{enumerate}
 
@@ -131,7 +173,7 @@ to jump to your source location.
 TeXWorks is an editor for several platforms, somewhat similar to TeXShop.  These instructions 
 have been tested in TeXWorks 0.4.4 on MacOS; I have not tested them on Windows, because
 I do not have \texttt{uplatex} and \texttt{dvipdfmx} there, but they should work if those
-programs are available.
+programs are available. 
 
 \begin{enumerate}
 \item 

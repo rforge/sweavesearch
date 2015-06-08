@@ -3,3 +3,6 @@ export(readDVI, DVIspecials, setDVIspecials, patchDVI, SweaveMiktex,
        SweaveAll, patchLog, defSconcordance, useknitr)
        
 useDynLib(patchDVI, dviSpecials, setDviSpecials)
+
+importFrom(utils, Sweave, Stangle)
+importFrom(tools, vignetteEngine)
