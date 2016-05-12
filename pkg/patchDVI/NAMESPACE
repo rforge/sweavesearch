@@ -4,5 +4,5 @@ export(readDVI, DVIspecials, setDVIspecials, patchDVI, SweaveMiktex,
        
 useDynLib(patchDVI, dviSpecials, setDviSpecials)
 
-importFrom(utils, Sweave, Stangle)
+importFrom(utils, Sweave, Stangle, file_test)
 importFrom(tools, vignetteEngine)

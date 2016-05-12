@@ -85,3 +85,7 @@ Quick initial releases.
       Improved Japanese language support, and updated the 
       Japanese.Rnw vignette with the help of Prof. Haruhiko Okumura.
       
+1.9.1619:
+      Imported file_test() to avoid warning.
+      Quotes in DESCRIPTION.
+      Better error message when building Japanese vignette.
