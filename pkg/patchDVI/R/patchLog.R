@@ -34,6 +34,10 @@ patchLog <- function(f, newname=f, concords = NULL, max_print_line = 79, Cstyle 
         errorline <- regexpr("()l(\\.)(\\d+)", lines, perl = TRUE)
         errormsgbegin <- regexpr("^(!\\s).*(begin).*(on input line) (\\d+)", lines, perl = TRUE)
     }
+    # We don't actually patch Warning messages, but here's the regex from
+    # logParser.js to do so if we ever want to:
+    # warnings <- regexpr("^(?:Class|Package|LaTeX) ([^\\\\s]+) Warning: .+\\n(?:\\\\(\\\\1\\\\)\\\\s.+\\n)*(?:.*\\\\.\\n)?", 
+    #		      lines, perl = TRUE)
     badbox <- regexpr("^(?:Under|Over)full \\\\[hv]box\\s*\\([^)]+\\) in paragraph at lines (\\d+)--(\\d+)$",
                       lines, perl = TRUE)
     
