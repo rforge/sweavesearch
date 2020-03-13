@@ -89,3 +89,8 @@ Quick initial releases.
       Imported file_test() to avoid warning.
       Quotes in DESCRIPTION.
       Better error message when building Japanese vignette.
+      
+1.9.1620:
+      SweaveAll now has a "force = TRUE" argument, to 
+      allow it to do staleness checking from the beginning.
+      It also has a "verbose = FALSE" argument for debugging.
