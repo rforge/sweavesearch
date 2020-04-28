@@ -1,9 +1,9 @@
 Package: patchDVI
 Type: Package
 Title: Package to Patch '.dvi' or '.synctex' Files
-Version: 1.9.1622
+Version: 1.9.1623
 Author: Duncan Murdoch
-Maintainer: Duncan Murdoch <murdoch@stats.uwo.ca>
+Maintainer: Duncan Murdoch <murdoch.duncan@gmail.com>
 Description: Functions to patch specials in '.dvi' files,
         or entries in '.synctex' files.  Works with concordance=TRUE 
         in Sweave or knitr to link sources to previews.

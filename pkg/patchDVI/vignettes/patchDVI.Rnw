@@ -447,6 +447,27 @@ the previewer, the main \file{.dvi} filename will be substituted for
 \verb!%s!.
 
 
+\subsection{Installing or Loading Packages}
+
+In a complex project, there are often a number of different packages
+required.  When updating R, you may end up with a tedious exercise to
+make sure these are all installed and updated.
+
+The \texttt{needsPackages()} function helps with this.  It takes a
+character vector naming packages that will be used in the current 
+document.  By default, it installs any that are not already installed.
+Optionally, it can update them using \texttt{update.packages()}, 
+load them, or attach them to the search list.  For example, this
+document uses no packages other than \texttt{patchDVI} itself, 
+so it could have 
+<<>>=
+patchDVI::needsPackages("patchDVI")
+@
+\noindent
+near the start to ensure it is available, if this wasn't a
+nonsensical statement.  (Why would you be able to run it if \texttt{patchDVI} wasn't already installed?)
+
+
 \section{Conclusion}\label{sec:conclusion}
 
 As described in this paper, the \patchDVI package is a convenient way
