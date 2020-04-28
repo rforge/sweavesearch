@@ -1,0 +1,10 @@
+
+Do something with RMarkdown files.  For example:
+
+ - provide a style for an inclusion (no header), that has a "root" property
+ saying which file to process.
+ - write something like SweaveAll that processes the inclusion and then does
+ latex on the rest of the files.
+ 
+Issues:  - There is no equivalent to reverse search from PDF to markdown or R markdown source.
+ - pandoc will need fancy handling.

@@ -1,4 +1,30 @@
-SweavePDFMiktex <- function( Rnw, main=outputname,  
+knitPDFMiktex <- function( Rnw, main,  
+			   cmd="texify --pdf", 
+			   options="--tex-option=-synctex=-1 --tex-option=-interaction=nonstopmode",
+			   includedir="--tex-option=-include-directory=",
+			   stylepath=FALSE,
+			   source.code=NULL,
+			   make=1,
+			   preview=NULL,
+			   patchLog = TRUE,
+			   sleep = 0,
+			   weave = knitr::knit,
+			   ...) 
+  SweavePDFMiktex( Rnw = Rnw,
+  		   main = main,
+  		   cmd = cmd,
+  		   options = options,
+  		   includedir = includedir,
+  		   stylepath = stylepath,
+  		   source.code = source.code,
+  		   make = make,
+  		   preview = preview,
+  		   patchLog = patchLog,
+  		   sleep = sleep,
+  		   weave = weave,
+  		   ...)
+
+SweavePDFMiktex <- function( Rnw, main,  
                              cmd="texify --pdf", 
                              options="--tex-option=-synctex=-1 --tex-option=-interaction=nonstopmode",
                              includedir="--tex-option=-include-directory=",
@@ -15,7 +41,7 @@ SweavePDFMiktex <- function( Rnw, main=outputname,
     	outputname <- Rnw
     else
     	outputname <- SweaveAll(Rnw, make=make, stylepath=stylepath, ...)[1]
-    
+    if (missing(main)) main <- outputname
     cmd <- paste(cmd, " ", options, " ", includedir, Rtexinputs(),
                  " ", main, sep="")
     cat(cmd, "\n")
@@ -38,7 +64,26 @@ SweavePDFMiktex <- function( Rnw, main=outputname,
     }
 }
 
-SweavePDF <- function( Rnw, main=outputname,
+knitPDF <- function( Rnw, main,
+		     texinputs=NULL,
+		     source.code=NULL,
+		     make=1,
+		     links = NULL,
+		     preview = NULL,
+		     patchLog = TRUE,
+		     weave = knitr::knit,
+		     ...  ) 
+    SweavePDF( Rnw = Rnw, main = main,
+    	       texinputs = texinputs, 
+    	       source.code = source.code,
+    	       make = make,
+    	       links = links,
+    	       preview = preview,
+    	       patchLog = patchLog,
+    	       weave = weave,
+    	       ...)
+
+SweavePDF <- function( Rnw, main,
                        texinputs=NULL,
                        source.code=NULL,
                        make=1,
@@ -52,6 +97,7 @@ SweavePDF <- function( Rnw, main=outputname,
     	outputname <- Rnw
     else
     	outputname <- SweaveAll(Rnw, make=make, ...)[1]
+    if (missing(main)) main <- outputname
     consoleLog <- try(texi2dvi(main, pdf=TRUE, texinputs=texinputs, links=links))
     if (patchLog && !inherits(consoleLog, "try-error")) {
         tempLog <- tempfile(fileext = ".log")
@@ -69,7 +115,32 @@ SweavePDF <- function( Rnw, main=outputname,
     }   
 }
 
-SweaveDVIPDFM <- function(Rnw, main=outputname,
+knitDVIPDFM <- function(Rnw, main,
+			  latex = "latex",
+			  latexOpts = "-synctex=1 -interaction=nonstopmode",
+			  dvipdfm = "dvipdfm",
+			  dvipdfmOpts = "",
+			  texinputs=NULL,
+			  source.code=NULL,
+			  make=1,
+			  preview = NULL,
+			  patchLog = TRUE,
+			  weave = knitr::knit,
+			  ... )
+    SweaveDVIPDFM(Rnw = Rnw, main=main,
+    	       latex = latex,
+    	       latexOpts = latexOpts,
+    	       dvipdfm = dvipdfm,
+    	       dvipdfmOpts = dvipdfmOpts,
+    	       texinputs=texinputs,
+    	       source.code=source.code,
+    	       make=make,
+    	       preview = preview,
+    	       patchLog = patchLog,
+    	       weave = weave,
+    	       ... )
+
+SweaveDVIPDFM <- function(Rnw, main,
 		       latex = "latex",
 		       latexOpts = "-synctex=1 -interaction=nonstopmode",
 		       dvipdfm = "dvipdfm",
@@ -93,6 +164,7 @@ SweaveDVIPDFM <- function(Rnw, main=outputname,
 	    otexinputs <- "."
     } else on.exit(Sys.setenv(TEXINPUTS = otexinputs))
     Sys.setenv(TEXINPUTS = paste(otexinputs, Rtexinputs(), "", sep = .Platform$path.sep))
+    if (missing(main)) main <- outputname
     cmd <- paste(shQuote(latex), latexOpts, shQuote(main))
     consoleLog <- try(system(cmd, intern = TRUE))
     if (patchLog && !inherits(consoleLog, "try-error")) {

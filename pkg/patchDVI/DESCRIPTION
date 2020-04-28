@@ -1,7 +1,7 @@
 Package: patchDVI
 Type: Package
 Title: Package to Patch '.dvi' or '.synctex' Files
-Version: 1.9.1620
+Version: 1.9.1622
 Author: Duncan Murdoch
 Maintainer: Duncan Murdoch <murdoch@stats.uwo.ca>
 Description: Functions to patch specials in '.dvi' files,

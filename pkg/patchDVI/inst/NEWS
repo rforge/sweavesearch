@@ -94,3 +94,9 @@ Quick initial releases.
       SweaveAll now has a "force = TRUE" argument, to 
       allow it to do staleness checking from the beginning.
       It also has a "verbose = FALSE" argument for debugging.
+      
+1.9.1621:
+      Added more support for RStudio, including knitInRStudio().
+      
+1.9.1622:
+      Added needsPackages() function.

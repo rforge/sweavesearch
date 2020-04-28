@@ -160,3 +160,16 @@ SEXP setDviSpecials(SEXP dvi_in, SEXP specials)
     UNPROTECT(1);
     return dvi_out;
 }
+
+static const R_CallMethodDef callMethods[] = {
+    {"dviSpecials", (DL_FUNC) &dviSpecials, 1},
+    {"setDviSpecials", (DL_FUNC) &setDviSpecials, 2},
+    {NULL, NULL, 0}
+};
+
+void R_init_patchDVI(DllInfo *dll)
+{
+    R_registerRoutines(dll, NULL, callMethods, NULL, NULL);
+    R_useDynamicSymbols(dll, FALSE);
+    R_forceSymbols(dll, TRUE);
+}

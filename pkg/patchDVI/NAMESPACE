@@ -1,8 +1,13 @@
 export(readDVI, DVIspecials, setDVIspecials, patchDVI, SweaveMiktex, 
        SweavePDFMiktex, patchSynctex, SweaveDVI, SweavePDF, SweaveDVIPDFM, 
-       SweaveAll, patchLog, defSconcordance, useknitr)
+       SweaveAll, patchLog, defSconcordance, useknitr,
+       knitMiktex, 
+       knitPDFMiktex, knitDVI, knitPDF, knitDVIPDFM, 
+       knitAll, knitInRStudio,
+       needsPackages)
        
-useDynLib(patchDVI, dviSpecials, setDviSpecials)
+useDynLib(patchDVI, .registration = TRUE, .fixes = "C_")
 
-importFrom(utils, Sweave, Stangle, file_test)
+importFrom(utils, Sweave, Stangle, file_test,
+                  install.packages, update.packages)
 importFrom(tools, vignetteEngine)

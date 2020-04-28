@@ -1,5 +1,32 @@
+knitMiktex <- function(Rnw, 
+			 main, 
+			 cmd="texify",
+			 options="--tex-option=-src-specials --tex-option=-interaction=nonstopmode",
+			 includedir="--tex-option=--include-directory=",
+			 stylepath=FALSE,
+			 source.code=NULL,
+			 make=1,
+			 preview='yap "%s"',
+			 patchLog = TRUE,
+			 sleep = 0,
+			 weave = knitr::knit,
+			 ...) 
+  SweaveMiktex(Rnw = Rnw,
+  	       main = main,
+  	       cmd = cmd,
+  	       options = options,
+  	       includedir = includedir,
+  	       stylepath = stylepath,
+  	       source.code = source.code,
+  	       make = make,
+  	       preview = preview,
+  	       patchLog = patchLog,
+  	       sleep = sleep,
+  	       weave = weave,
+  	       ...)
+
 SweaveMiktex <- function(Rnw, 
-                         main=outputname, 
+                         main, 
                          cmd="texify",
                          options="--tex-option=-src-specials --tex-option=-interaction=nonstopmode",
                          includedir="--tex-option=--include-directory=",
@@ -16,6 +43,7 @@ SweaveMiktex <- function(Rnw,
     	outputname <- Rnw
     else
     	outputname <- SweaveAll(Rnw, make=make, stylepath=stylepath, ...)[1]
+    if (missing(main)) main <- outputname
     cmd <- paste(cmd, " ", options, " ", includedir, Rtexinputs(),
                  " ", main, sep="")    	
     cat(cmd, "\n")
@@ -38,7 +66,27 @@ SweaveMiktex <- function(Rnw,
     }
 }
 
-SweaveDVI <- function( Rnw, main=outputname,
+knitDVI <- function( Rnw, main,
+		     texinputs=NULL,
+		     source.code=NULL,
+		     make=1,
+		     links=NULL,
+		     preview=NULL,
+		     patchLog = TRUE,
+		     weave = knitr::knit,
+		     ... ) 
+    SweaveDVI( Rnw = Rnw,
+    	       main = main,
+    	       texinputs = texinputs,
+    	       source.code = source.code,
+    	       make = make,
+    	       links = links,
+    	       preview = preview,
+    	       patchLog = patchLog,
+    	       weave = weave,
+    	       ...)
+
+SweaveDVI <- function( Rnw, main,
                        texinputs=NULL,
                        source.code=NULL,
                        make=1,
@@ -52,7 +100,8 @@ SweaveDVI <- function( Rnw, main=outputname,
     	outputname <- Rnw
     else
     	outputname <- SweaveAll(Rnw, make=make, ...)[1]
-    consoleLog <- try(texi2dvi(main, pdf=FALSE, texinputs=texinputs, links=links))
+    if (missing(main)) main <- outputname
+    consoleLog <- try(tools::texi2dvi(main, pdf=FALSE, texinputs=texinputs, links=links))
     if (patchLog && !inherits(consoleLog, "try-error")) {
         tempLog <- tempfile(fileext = ".log")
         writeLines(consoleLog, tempLog)
@@ -125,7 +174,7 @@ DVIspecials <- function(f) {
     con <- file(f, "rb")
     bytes <- readBin(con, "raw", size)
     close(con)
-    .Call(dviSpecials, bytes)
+    .Call(C_dviSpecials, bytes)
 }
 
 setDVIspecials <- function(f, newspecials, newname=f) {
@@ -133,7 +182,7 @@ setDVIspecials <- function(f, newspecials, newname=f) {
     con <- file(f, "r+b")
     on.exit(close(con))
     bytes <- readBin(con, "raw", size)
-    bytes <- .Call(setDviSpecials, bytes, as.character(newspecials))
+    bytes <- .Call(C_setDviSpecials, bytes, as.character(newspecials))
     close(con)
     con <- file(newname, "wb")
     writeBin(bytes, con)

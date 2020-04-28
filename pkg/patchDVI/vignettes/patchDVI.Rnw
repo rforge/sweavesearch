@@ -49,17 +49,17 @@ output, first in \file{pdfsync}.  Most recently
 Synctex \citep{Laurens08} links have been
 implemented in \texttt{pdflatex} and other \LaTeX\ processors.
 
-Unfortunately for Sweave users, these links point to the \file{.tex}
+Unfortunately for knitr/Sweave users, these links point to the \file{.tex}
 source that was processed, which is not the true source code in the
-Sweave \file{.Rnw} or \file{.Snw} or other input file.  (I will
+knitr/Sweave \file{.Rnw} or \file{.Snw} or other input file.  (I will
 refer to all of these as \file{.Rnw} files.)
 Clicking on ``go to source''
 in a previewer will jump to the \file{.tex} file; changes made there
-will be lost the next time the Sweave input is processed.
+will be lost the next time the \file{.Rnw} input is processed.
 
 I wrote the \patchDVI package to address this problem.  It works as
-follows.  If the Sweave file is processed with the option
-\texttt{concordance=TRUE}, Sweave will output a record of the
+follows.  If the knitr/Sweave file is processed with the option
+\texttt{concordance=TRUE}, knitr or Sweave will output a record of the
 concordance between the lines in the input file and the output file.
 When the file is processed by \LaTeX, this information is embedded in
 the output.  (Details of the embedding are described in sections \ref{sec:concordance}
@@ -67,7 +67,7 @@ to \ref{sec:synctex} below.)  After
 producing the \file{.dvi} or \file{.pdf} file, a \patchDVI
 function is run to read the concordance information and to patch the
 source reference information produced by \LaTeX.  Once this has been
-done, previewers will see references to the original Sweave source
+done, previewers will see references to the original \file{.Rnw} source
 rather than the \LaTeX\ intermediate file.
 
 Besides the technical details mentioned above, 
@@ -91,28 +91,38 @@ install.packages("patchDVI", repos="http://R-forge.r-project.org")
 @
 
 The document also needs to have an option set to produce the ``concordances'' (links between the 
-\file{.Rnw} source and the \file{.tex} output of Sweave).  Include these lines near the start of
+\file{.Rnw} source and the \file{.tex} output of knitr/Sweave).  If you are using knitr, include these lines in a code chunk in your document: \\
+<<eval=FALSE>>=
+opts_knit$set(concordance = TRUE)
+@
+For Sweave, put these lines outside of a code chunk 
+near the start of
 your document: \\
 \verb!\usepackage{Sweave}!\\
 \verb!\SweaveOpts{concordance=TRUE}!\\
 
 The simplest way to proceed is from within R.  Assuming \file{doc.Rnw}
-is the Sweave document to process and it is in the current working directory, run
+is the knitr/Sweave document to process and it is in the current working directory, run
+<<eval=FALSE>>=
+library(patchDVI)
+knitPDF("doc.Rnw")
+@
+or
 <<eval=FALSE>>=
 library(patchDVI)
 SweavePDF("doc.Rnw")
 @
-This runs  \file{doc.Rnw} through Sweave, runs any other chapters in the
-project through Sweave, then runs the main \file{.tex} file (typically
+This runs  \file{doc.Rnw} through knitr/Sweave, runs any other chapters in the
+project through knitr/Sweave, then runs the main \file{.tex} file (typically
 \file{doc.tex}, but not necessarily; see section \ref{sec:make} below)
 through \texttt{pdflatex}, and patches the source links.  To produce DVI
 output
-instead of PDF substitute \texttt{SweaveDVI} for
-\texttt{SweavePDF}, and to use \texttt{latex} and \texttt{dvipdfm}
-to produce \file{PDF} output, use \texttt{SweaveDVIPDFM}.
+instead of PDF substitute \texttt{knitDVI} for
+\texttt{knitPDF}, and to use \texttt{latex} and \texttt{dvipdfm}
+to produce \file{PDF} output, use \texttt{knitDVIPDFM}.
 If you are using MikTeX on Windows, the
-functions \texttt{SweavePDFMiktex} and
-\texttt{SweaveMiktex} correspond to the first two of these respectively,
+functions \texttt{knitPDFMiktex} and
+\texttt{knitMiktex} correspond to the first two of these respectively,
 and use a few MikTeX-specific features.
 
 These functions all have an optional argument \texttt{preview}, which
@@ -124,7 +134,7 @@ Windows, \texttt{SumatraPDF} works, as do the built-in previewers
 in TeXShop and TeXWorks on MacOS X and other platforms.
 
 MikTeX includes the \texttt{yap}
-previewer for \file{.dvi} files; the \texttt{SweaveMiktex} command sets it
+previewer for \file{.dvi} files; the \texttt{knitMiktex} command sets it
 as the default.
 
 Another way to proceed is directly from within your text editor.  The
@@ -134,10 +144,10 @@ Appendix \ref{sec:winedt}, and TeXWorks in Appendix
 \ref{sec:texworks}. Some editors (e.g. TeXShop and TeXWorks)
 include a previewer that can handle the source links.
 
-Finally, you may want to run Sweave from the command line, outside of R.  This line (or the obvious variants
-with replacements for \texttt{SweavePDF}) should do it:
+Finally, you may want to run knitr from the command line, outside of R.  This line (or the obvious variants
+with replacements for \texttt{knitPDF}) should do it:
 \begin{verbatim}
-Rscript -e 'patchDVI::SweavePDF("doc.Rnw")'
+Rscript -e 'patchDVI::knitPDF("doc.Rnw")'
 \end{verbatim}
 
 
@@ -151,7 +161,7 @@ first appeared around the release of R version
 2.5.0. with incompatible changes in R version 2.8.0 when \file{.pdf}
 support was added to \patchDVIn.
 
-Using \patchDVI requires a pre-processing step (Sweave), \LaTeX\ 
+Using \patchDVI requires a pre-processing step (knitr/Sweave), \LaTeX\ 
 processing, and a post-processing step (patching).  This is usually
 followed by a preview of the resulting output file.  It quickly became
 apparent that it was convenient to package these steps into a
@@ -168,13 +178,13 @@ in R much more flexible, and in version 1.7 of
 The 1.7 release was motivated by an attempt to support TeXWorks \citep{Kew10}, a
 cross-platform \LaTeX\ targetted editor.  TeXWorks was still in its early
 days (I was working with version 0.2 on Windows), and it did not have
-enough flexibility to handle large Sweave projects, where for example, each
-chapter of a book requires separate Sweave processing, but \LaTeX\ processes
+enough flexibility to handle large knitr/Sweave projects, where for example, each
+chapter of a book requires separate knitr/Sweave processing, but \LaTeX\ processes
 only a main wrapper file.  This prompted me to include more \texttt{make}-style
 capabilities into \patchDVIn.  It is now possible to specify a list of
-Sweave input files to process (optionally only if they have changed since the
-last processing) and the main wrapper file, all within Sweave chunks
-in a single file, using the \texttt{SweaveAll} function.
+knitr/Sweave input files to process (optionally only if they have changed since the
+last processing) and the main wrapper file, all within code chunks
+in a single file, using the \texttt{knitAll}/\texttt{SweaveAll} functions.
 
 The \texttt{SweaveDVIPDFM} function is a recent addition.
 For English language processing, I find \texttt{pdflatex} to be the most
@@ -184,16 +194,19 @@ in Tokyo I learned of the issues, and with the help of Prof. H. Okumura
 and Junji Nakano I worked out \texttt{SweaveDVIPDFM} to handle the two
 step conversion to PDF.
 
-Finally, the latest version includes support for other non-Sweave processors,
-such as knitr.
+In 2015 I added support for other non-Sweave processors,
+such as knitr, and in 2020 improved the documentation
+for knitr users.
 
 \section{Sweave Concordances}\label{sec:concordance}
 
-Sweave processes the code chunks in the \file{.Rnw} file, replacing each
+knitr/Sweave processes the code chunks in the \file{.Rnw} file, replacing each
 with the requested output from the command.  This means that the output \file{.tex}
 file alternates between copied \LaTeX\ source and newly produced blocks of 
 output.  Each line in the \file{.tex} file can thus be mapped to 
 one or more lines of input, and that is what the concordance does.
+
+\subsection{Technical description of concordance records}
 
 The concordance records are text records in the following format.  There are
 four parts, separated by colons:
@@ -299,33 +312,38 @@ was used) or the \file{.dvi} file, and the source
 references from the Synctex file.  It rewrites only
 the Synctex file when it makes its changes.
 
-\section{Project Management Function \texttt{SweaveAll}}\label{sec:make}
+\section{Project Management Functions}\label{sec:make}
 
 As mentioned above, there are a number of steps involved in running \patchDVI
-with a complex Sweave project:
+with a complex knitr/Sweave project:
 \begin{enumerate}
-\item Run Sweave on each input file.
+\item Run knitr/Sweave on each input file.
 \item Run \LaTeX\ on the main wrapper file.
 \item Run the appropriate \patchDVI function on the output file.
 \item Preview or print the result.
 \end{enumerate}
-Moreover, step 1 needs to be repeated once for each Sweave file, but only
+Moreover, step 1 needs to be repeated once for each \file{.Rnw} file, but only
 if the content has changed since the last run, while the other steps need only
 be done once.
 
-To manage this complication, the \patchDVI package includes a simple
-project management function, \texttt{SweaveAll}.  This function runs Sweave
+To manage this complication, the \patchDVI package includes two simple
+project management functions, \texttt{knitAll} and \texttt{SweaveAll}.  These are really the same function with different
+defaults, and will be described in terms of \texttt{SweaveAll}.  
+This function runs Sweave
 on multiple files and determines the name of the main wrapper file.  It is 
 used internally by the functions described in Section \ref{sec:complete}
 below, but can also be called directly by the user.
 
 Here is how it works.  \texttt{SweaveAll} takes a vector
 of filenames as input, and runs Sweave on each.  After each run, it examines the
-global environment for four variables:  \texttt{.PostSweaveHook},
-\texttt{.SweaveFiles}, \texttt{.SweaveMake} and \texttt{.TexRoot}.
+global environment for the four variables \verb!.PostSweaveHook!,
+\verb!.SweaveFiles!, \verb!.SweaveMake! and \texttt{.TexRoot}.
+(The first three variables can instead be named  \texttt{.PostKnitHook},
+\texttt{.knitFiles}, \texttt{.knitMake}.  If both versions are
+present, the choice is undefined, so don't do that.)
 
 A code chunk in a \file{.Rnw} file may produce a function (or the name of
-a function; \texttt{match.fun} is used to look it up) named \texttt{.PostSweaveHook}.
+a function; \texttt{match.fun} is used to look it up) named \verb!.PostSweaveHook!.
 If present, this should be a function taking a single argument.  
 Immediately after running \texttt{Sweave}, 
 \texttt{SweaveAll} will call this function, passing the name of the 
@@ -334,22 +352,22 @@ required postprocessing, for example, it could remove local
 pathnames from output strings.
 
 The optional parameter \texttt{PostSweaveHook} to the \texttt{SweaveAll} function
-can provide a default hook function.  Hooks specified via \texttt{.PostSweaveHook}
+can provide a default hook function.  Hooks specified using the \verb!.PostSweaveHook! variable
 take precedence in any given input file.
 
-\texttt{SweaveAll} will also check for a character vector
-named \texttt{.SweaveFiles}.  It should contain the names of  \file{.Rnw} 
+\texttt{SweaveAll} will also use the character variable
+named \verb!.SweaveFiles!.  It should contain the names of  \file{.Rnw} 
 files in the project.  If no corresponding \file{.tex} file exists, or the
 \file{.Rnw} file is newer, they will be run through Sweave.  They may in
 turn name additional \file{.Rnw} files to process; each file is processed
 only once, even if it is named several times.
 
 There is an optional parameter named \texttt{make} to the \texttt{SweaveAll} function.
-If \texttt{make=1} (the default), things proceed as described above.  If \texttt{make=0},
-the \texttt{.SweaveFiles} variable is ignored, and only the explicitly named
-files in the call to \texttt{SweaveAll} are processed.  If \texttt{make=2}, then
+If \texttt{make = 1} (the default), things proceed as described above.  If \texttt{make = 0},
+the \verb!.SweaveFiles! variable is ignored, and only the explicitly named
+files in the call to \texttt{SweaveAll} are processed.  If \texttt{make = 2}, then
 all files are processed, whether they are newer than their \file{.tex} 
-file or not.  The \texttt{.SweaveMake} variable will override the value
+file or not.  The \verb!.SweaveMake! variable will override the value
 of \texttt{make}.  
 
 An \file{.Rnw} file may also set the value of \texttt{.TexRoot} to the name of
@@ -375,15 +393,15 @@ code chunk
 \end{verbatim}
 Similarly, the wrapper file (named for example
 ``wrapper.Rnw'') should be a \file{.Rnw} file that sets
-\texttt{.SweaveFiles} to the complete list of files in the project.
+\verb!.SweaveFiles! to the complete list of files in the project.
 Then one can build an initial copy of the entire document by calling
-\texttt{SweavePDF} or \texttt{SweaveDVI} 
-(or the MikTeX versions) with argument \texttt{"wrapper.Rnw"}.
-Later, while one is working on ``chapter.Rnw'', one can call
+any of \Sexpr{paste0("\\\\texttt{", outer(c("knit", "Sweave"), c("PDF", "Miktex", "DVI", "DVIPDFM"), paste0), "\175", collapse=", ")} 
+with argument \texttt{"wrapper.Rnw"}.
+Later, while one is working on \texttt{"chapter.Rnw"}, one can call
 one of those functions
 with argument \texttt{"chapter.Rnw"} 
 and the chapter will be processed through
-the full sequence, without running Sweave on the other chapters.
+the full sequence, without running knitr/Sweave on the other chapters.
 
 More complicated schemes are possible.  For example:
 \begin{itemize}
@@ -392,34 +410,35 @@ files; then the chapter would name the subsections, but the main wrapper would o
 need to name the chapters if you can assume that only the chapter
 being edited was changed.
 \item If one wants to ``make'' the full project every time,
-then include \texttt{"wrapper.Rnw"} in \texttt{.SweaveFiles} in each chapter.
+then include \texttt{"wrapper.Rnw"} in \verb!.SweaveFiles! in each chapter.
 \end{itemize}
 
 \subsection{The Complete Process}\label{sec:complete}
 
-The \patchDVI package contains five functions designed to run all
+The \patchDVI package contains five functions for each
+of knitr and Sweave designed to run all
 four of the steps listed at the start of this section.  The functions
-\texttt{SweaveDVI} and \texttt{SweaveMiktex} produce \file{.dvi} output
-in the general case and for MikTeX respectively; \texttt{SweavePDF} and
-\texttt{SweavePDFMiktex} do the same for direct \file{.pdf} output
-from \texttt{pdflatex}.  Finally, \texttt{SweaveDVIPDFM} runs
+\texttt{knitDVI}/\texttt{SweaveDVI} and \texttt{knitMiktex}/\texttt{SweaveMiktex} produce \file{.dvi} output
+in the general case and for MikTeX respectively; \texttt{knitPDF}/\texttt{SweavePDF} and
+\texttt{knitPDFMiktex}/\texttt{SweavePDFMiktex} do the same for direct \file{.pdf} output
+from \texttt{pdflatex}.  Finally, \texttt{knitDVIPDFM}/\texttt{SweaveDVIPDFM} run
 the two-step conversion using first \texttt{latex} and then \texttt{dvipdfm}.
 
-In each case, the \TeX processing functions are customizable.  
+In each case, the \TeX\ processing functions are customizable.  
 
-For example, the text editor that I use allows me to call external
+For example, a few years ago I had a text editor that allowed me to call external
 functions with arguments depending on the name of the current file and
-the line number within it.  I have it call a Windows batch file 
+the line number within it.  I had it call a Windows batch file 
 with the line set as argument \verb!%1! and the filename
 set as argument \verb!%2!; the batch
-file invokes R using the command line
+file invoked R using the command line
 \begin{verbatim}
 echo patchDVI::SweaveMiktex('%2', 
     preview='yap -1 -s"%1%2" "\x25s"') 
     | Rterm --slave
 \end{verbatim}
-(all on one long line).  This passes the current file to \texttt{SweaveMiktex},
-and sets the preview command to use the \texttt{yap} options \texttt{-1} to 
+(all on one long line).  This passed the current file to \texttt{SweaveMiktex},
+and set the preview command to use the \texttt{yap} options \texttt{-1} to 
 update the current view (rather than opening a new window), and to jump to the
 line corresponding to the editor line.  The code \verb!"\x25s"! is simply
 \verb!"%s"! encoded without an explicit percent sign, which would be 
@@ -431,7 +450,7 @@ the previewer, the main \file{.dvi} filename will be substituted for
 \section{Conclusion}\label{sec:conclusion}
 
 As described in this paper, the \patchDVI package is a convenient way
-to work with Sweave in a modern setting, allowing fast switching from
+to work with knitr/Sweave in a modern setting, allowing fast switching from
 source input to preview.  It also offers some features to make the
 management of larger projects easier.  
 
@@ -476,19 +495,19 @@ containing the lines
 \begin{verbatim}
 #!/bin/bash
 export LC_ALL=<locale>
-Rscript -e "patchDVI::SweavePDF('$1',\ 
-  weave = knitr::knit, envir = globalenv())"
+Rscript -e "patchDVI::knitPDF('$1',\ 
+  envir = globalenv())"
 \end{verbatim}
 in your home directory, and give it executable permissions.  Replace \verb!<locale>! with
 your locale string, e.g. \verb!en_CA.UTF-8! for Canadian English using UTF-8 encoding.  The
 locale line can be omitted if you only use plain ASCII characters, but is probably necessary
 for other cases.
-\item For other vignette engines, replace the \verb!weave! argument in the above, as appropriate.
+\item For other vignette engines, use a \verb!weave! argument in the above, as appropriate.
 \end{enumerate}
 \item Install the \texttt{patchDVI} package into R.
-\item When editing a \texttt{.Rnw} file in TeXShop, choose the Sweave engine from the menu.
-\item If you have multiple files in your project, your main file must be a Sweave file
-(e.g. \texttt{Main.Rnw}) which lists all Sweave files in a \texttt{.SweaveFiles} variable, 
+\item When editing a \texttt{.Rnw} file in TeXShop, choose the knitr or Sweave engine from the menu.
+\item If you have multiple files in your project, your main file must be a \file{.Rnw} file
+(e.g. \texttt{Main.Rnw}) which lists all \file{.Rnw} files in a \verb!.SweaveFiles! variable, 
 and you need to add the line
 \begin{verbatim}
 %!TEX root = Main.Rnw
@@ -513,19 +532,19 @@ to jump to your source location.
 TeXWorks is an editor for multiple platforms, 
 somewhat similar to TeXShop.  These instructions 
 have been tested in version 0.4.5, with MikTeX 2.9 on Windows,
-and MacTeX on MacOS.  
+and version 0.6.2 from MacTeX on MacOS.  
 
-NB:  Some versions of TeXWorks have a bug in setting the \texttt{HOME} directory
+NB:  Some versions of TeXWorks had a bug in setting the \texttt{HOME} directory
 of the user.  With those versions, R will not find a locally installed
 copy of \texttt{patchDVI}.  To work around the bug, set the \verb!R_USER!
 environment variable to your Windows home directory, e.g. \verb!R_USER=C:/Users/Murdoch!.
 
 TeXWorks can work with the \texttt{patchDVI}
 project management features using a script
-to tell it to process the current file through Sweave, but preview
+to tell it to process the current file through knitr/Sweave, but preview
 the main file.  See the instructions below for my current best attempt at such
 a script.  It can also use the TeXShop approach of specifying
-the TEX root file to be a Sweave file.
+the TEX root file to be a \file{.Rnw} file.
 
 The instructions are given first for Sweave, then below for knitr.
 
@@ -616,7 +635,51 @@ You should see ``WinEdt (auto-detected)" as an option; if so, select it.  If not
 \end{verbatim}
 after editing the path as necessary.
 
+\section{Using \patchDVI with RStudio}
+\label{sec:rstudio}
 
+RStudio is a very nice front end for working in R and with 
+individual \file{.Rnw} or Markdown files.  If you are using
+it, I'm going to assume you're using knitr as well, and
+these instructions have been worked out for that combination.
+
+RStudio is less flexible than the other editors for specifying
+customized processing of a file, so these instructions were 
+worked out assuming that you already have it configured for 
+knitr.  It is probably possible to do something similar for Sweave;
+I just haven't tried.
+
+You need to set up your individual chapter files as for
+TeXShop/TeXWorks, i.e. with a 
+\begin{verbatim}
+%!TEX root = Main.Rnw
+\end{verbatim}
+comment at the top of each.  This tells RStudio to run knitr
+on the main file when you click Compile PDF.  (It will also 
+work if you use the knitr style
+\begin{verbatim}
+%!RNW root = Main.Rnw
+\end{verbatim}
+but then your files won't work in TeXShop/TeXWorks.)
+
+In the main file, you need a code chunk containing
+a line to set the \verb!.SweaveFiles! variable naming
+all chapter files (but not the main file), and then running \texttt{knitInRStudio}:
+<<eval = FALSE>>=
+.SweaveFiles <- c("a.Rnw", "b.Rnw")
+patchDVI::knitInRStudio()
+@
+It is safe to put these lines in your file even if you
+sometimes process it in a different way:  if you are
+not in RStudio, \texttt{knitInRStudio} does nothing.
+
+One remaining issue with this approach is that you won't see 
+the knitr progress messages from knitting the chapter files.
+If you want to see those messages, add the chunk option
+\texttt{childOutput = TRUE} to the code chunk holding this
+code.
+
+ 
 
 \end{document}
 

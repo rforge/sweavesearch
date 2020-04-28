@@ -1,3 +1,15 @@
+knitAll <- function(RnwFiles = NULL, make=1, PostKnitHook=NULL, 
+                      force = TRUE, verbose = FALSE, 
+                      weave=knitr::knit,
+                                 ...) 
+    SweaveAll(SweaveFiles = RnwFiles,
+              make = make,
+              PostSweaveHook = PostKnitHook,
+              force = force,
+              verbose = verbose,
+              weave = weave,
+              ...)
+
 SweaveAll <- function(SweaveFiles = NULL, make=1, PostSweaveHook=NULL, 
                       force = TRUE, verbose = FALSE, 
                       weave=utils::Sweave, ...) {
@@ -15,6 +27,12 @@ SweaveAll <- function(SweaveFiles = NULL, make=1, PostSweaveHook=NULL,
             }
         }        
     }
+    getVar <- function(names, default) {
+        for (n in names)
+            if (exists(n, envir=globalenv(), inherits = FALSE)) 	
+                return(get(n, envir=globalenv(), inherits = FALSE))
+        default
+    }
     i <- 0
     result <- character()
     if (!force) {
@@ -26,21 +44,18 @@ SweaveAll <- function(SweaveFiles = NULL, make=1, PostSweaveHook=NULL,
                                 envir=globalenv()))
         thisfile <- weave(SweaveFiles[i], ...)
     	result <- c(result, thisfile)
-    	.PostSweaveHook <- PostSweaveHook
-    	if (exists(".PostSweaveHook", envir=globalenv(), inherits = FALSE)) 	
-    	    .PostSweaveHook <- get(".PostSweaveHook", envir=globalenv(), inherits = FALSE)
-    	if (exists(".SweaveMake", envir=globalenv(), inherits = FALSE))
-    	    make <- get(".SweaveMake", envir=globalenv(), inherits = FALSE)
+    	.PostSweaveHook <- getVar(c(".PostSweaveHook", ".PostKnitHook"), PostSweaveHook)
+        make <- getVar(c(".SweaveMake", ".knitMake"), make)
     	if (!is.null(.PostSweaveHook)) {
     	    .PostSweaveHook <- match.fun(.PostSweaveHook)
     	    .PostSweaveHook(thisfile)
     	}
-    	if (exists(".SweaveFiles", envir = globalenv(), inherits = FALSE))
-    	  updateSweaveFiles(get(".SweaveFiles", globalenv(), inherits = FALSE), SweaveFiles)
-        if (exists(".TexRoot", envir=globalenv(), inherits = FALSE)) {
-            TexRoot <- get(".TexRoot", globalenv(), inherits = FALSE)
+        updates <- getVar(c(".SweaveFiles", ".knitFiles"), NULL)
+    	if (!is.null(updates))
+    	  updateSweaveFiles(updates, SweaveFiles)
+        TexRoot <- getVar(".TexRoot", NULL)
+        if (!is.null(TexRoot)) 
             result <- c(TexRoot, result[result != TexRoot])
-        }
     }
     result
 }
