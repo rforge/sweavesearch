@@ -98,5 +98,5 @@ Quick initial releases.
 1.9.1621:
       Added more support for RStudio, including knitInRStudio().
       
-1.9.1622:
+1.10.1:
       Added needsPackages() function.
